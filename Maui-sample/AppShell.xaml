@@ -4,45 +4,13 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Maui_sample"
-    xmlns:pages="clr-namespace:Maui_sample.Pages"
-	  Shell.FlyoutBehavior="Flyout"
-	  FlyoutVerticalScrollMode="Enabled"
-	  Shell.FlyoutHeaderBehavior="Scroll"
+	  Shell.FlyoutBehavior="Disabled"
 	  Title="Maui_Sample">
 
-    <ShellContent
+  <ShellContent
 			  Title="Home"
 			  ContentTemplate="{DataTemplate local:MainPage}"
 			  Route="MainPage" />
 
-
-    <FlyoutItem FlyoutDisplayOptions="AsMultipleItems" FlyoutItemIsVisible="True">
-    <ShellContent
-		  x:Name="registerPage"
-		  Title="App Register"
-		  ContentTemplate="{DataTemplate pages:RegistrationPage}"
-      />
-
-    <ShellContent
-	    x:Name="settingsPage"
-	    Title="Settings"
-	    ContentTemplate="{DataTemplate pages:SettingsPage}"
-	    Route="SettingsPage"
-      />
-
-      <ShellContent
-      x:Name="helpPage"
-      Title="Help"
-      ContentTemplate="{DataTemplate pages:HelpPage}"
-      Route="helpPage"
-      />
-        
-      <ShellContent
-      x:Name="legalPage"
-      Title="Legal"
-      ContentTemplate="{DataTemplate pages:LegalPage}"
-      Route="LegalPage"
-      />
-    </FlyoutItem>
-
+  
 </Shell>

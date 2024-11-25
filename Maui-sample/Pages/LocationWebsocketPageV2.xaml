@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Maui_sample.LocationWebsocketPageV2"
+             Title="Location Websocket V2">
+  <VerticalStackLayout>
+    <Grid RowDefinitions="Auto,*">
+      <Label
+    Grid.Row="0"
+    Padding="8"
+    BackgroundColor="OrangeRed"
+    FontSize="Medium"
+    HorizontalOptions="FillAndExpand"
+    HorizontalTextAlignment="Center"
+    Text="Check that TMM is connected to a receiver"
+    TextColor="White" />
+    </Grid>
+    <Label Text="Latitude: 0"/>
+    <Label Text="Longitude: 0"/>
+    <Label Text="Altitude: 0"/>
+    <Label Text="Speed: 0"/>
+    <Label Text="Bearing: 0"/>
+    <Label Text="GeoId Model: string"/>
+    <Label Text="hrms: 0"/>
+    <Label Text="vrms: 0"/>
+    <Label Text="Satellites: 0"/>
+    <Label Text="Total Sat in use: 0"/>
+    <Label Text="Total Sat in view: 0"/>
+    <Label Text="pdop: 0"/>
+    <Label Text="hdop: 0"/>
+    <Label Text="vdop: 0"/>
+    <Label Text="diffAge: 0"/>
+    <Label Text="diffStatus: 0"/>
+    <Label Text="diffID: string"/>
+    <Label Text="Reciever Model: 0"/>
+    <Label Text="Mock Provider: Trimble Mobile Manager"/>
+    <Label Text="App Version: 0.0.0"/>
+    <Label Text="Battery level: 0"/>
+    <Label Text="MSL height: 0"/>
+    <Label Text="Undulation: 0"/>
+    <Label Text="UTC Time stamp: 3:40am"/>
+    <Label Text="GPS Time stamp: 3:40am"/>
+    <Label Text="Satellites Visible: 0"/>
+    <Label Text="Subscription Type: 0"/>
+    <Label Text="Source Reference Frame Name: string"/>
+    <Label Text="Source Reference Frame Epoch: 0"/>
+    <Label Text="Target Reference Frame Epoch: 0"/>
+    <Label Text="Target Reference Frame Name: string"/>
+    <Label Text="IMU Alignment Status: 0"/>
+    <Label Text="Is TIP: true"/>
+    <Label Text="Pitch: 0"/>
+    <Label Text="Roll: 0"/>
+    <Label Text="Yaw: 0"/>
+    <Label Text="Pitch Precision: 0"/>
+    <Label Text="Roll Precision: 0"/>
+    <Label Text="Yaw Precision: 0"/>
+    <Label Text="igsAntenna: string"/>
+    <Label Text="Antenna height: 0"/>
+  </VerticalStackLayout>
+</ContentPage>

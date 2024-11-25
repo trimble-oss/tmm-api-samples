@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Maui_sample.WinRequestSchemePage"
+             Title="WinRequestSchemePage">
+    <VerticalStackLayout>
+    <Label
+            Text="TMM request schemas can be invoked with:"
+            FontAttributes="Bold"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center"/>
+    <Label Padding="10"
+            Text="trimblemobilemanager://request/urlschemaname"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center" />
+    <Label
+            Text="tmmRegister"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center"/>
+
+    <Label
+            Text="Output:"
+            FontAttributes="Bold"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center"/>
+    <Label
+            Text="{}{callback}?id=tmmRegister&amp;status={status}&amp;message={message}&amp;registrationResult={registrationResult}&amp;apiPort={apiPort}
+      &amp;locationV2Port={locationV2Port}"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center"/>
+  </VerticalStackLayout>
+</ContentPage>
