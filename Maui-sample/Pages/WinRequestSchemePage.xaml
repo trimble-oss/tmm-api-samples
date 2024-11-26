@@ -3,30 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Maui_sample.WinRequestSchemePage"
              Title="WinRequestSchemePage">
-    <VerticalStackLayout>
-    <Label
-            Text="TMM request schemas can be invoked with:"
-            FontAttributes="Bold"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center"/>
-    <Label Padding="10"
-            Text="trimblemobilemanager://request/urlschemaname"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    <Label
-            Text="tmmRegister"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center"/>
-
-    <Label
-            Text="Output:"
-            FontAttributes="Bold"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center"/>
-    <Label
-            Text="{}{callback}?id=tmmRegister&amp;status={status}&amp;message={message}&amp;registrationResult={registrationResult}&amp;apiPort={apiPort}
-      &amp;locationV2Port={locationV2Port}"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center"/>
+  <VerticalStackLayout>
+    <Button
+      Text="Register"
+      HorizontalOptions="Center"
+      VerticalOptions="Center"
+      Clicked="Click_Register_Button"/>
   </VerticalStackLayout>
 </ContentPage>

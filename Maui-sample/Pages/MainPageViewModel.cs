@@ -50,7 +50,7 @@ namespace Maui_sample
     }
     private void UpdateAppID()
     {
-      Values.AppID = _appID ? _applicationID.Trim() : Constants.SampleAppID;
+      Values.AppID = _appID ? _applicationID.Trim() : Environment.GetEnvironmentVariable("SampleAppID");
     }
   }
 }

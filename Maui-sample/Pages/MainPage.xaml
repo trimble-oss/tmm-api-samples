@@ -26,6 +26,13 @@
         IsVisible="{Binding AppID}"/>
 
         <Button
+        x:Name="LocationButton"
+        Clicked="OnLocationButtonClicked"
+        HorizontalOptions="FillAndExpand"
+        SemanticProperties.Hint="Location"
+        Text="Location" />
+
+        <Button
         x:Name="WebSocketLocationButtonV2"
         Clicked="OnWebSocketLocationButtonClickedV2"
         HorizontalOptions="FillAndExpand"

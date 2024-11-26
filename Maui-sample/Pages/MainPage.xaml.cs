@@ -7,6 +7,18 @@ public partial class MainPage : ContentPage
 		InitializeComponent();
 	}
 
+  private async void OnLocationButtonClicked(object sending, EventArgs e)
+  {
+    try
+    {
+      await Navigation.PushAsync(new LocationPage());
+      SemanticScreenReader.Announce(LocationButton.Text);
+    }
+    catch
+    {
+    }
+  }
+
   private async void OnWebSocketLocationButtonClickedV2(object sender, EventArgs e)
   {
     try

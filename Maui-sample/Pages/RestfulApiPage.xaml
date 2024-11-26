@@ -4,9 +4,58 @@
              x:Class="Maui_sample.RestfulApiPage"
              Title="RestfulApiPage">
     <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
+    <Button 
+            Text="Get Antenna info"
             VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+            HorizontalOptions="Center"
+            Clicked="Get_AntennaInfo_Button"/>
+
+    <Button
+          Text="Set Antenna Info"
+          VerticalOptions="Center" 
+          HorizontalOptions="Center"
+          Clicked="Set_AntennaInfo_Button"/>
+      
+    <Button 
+        Text="Get Correction Source Info"
+        VerticalOptions="Center" 
+        HorizontalOptions="Center"
+        Clicked="Get_Correction_Source_Info"/>
+
+    <Button
+        Text="Set Correction Source Info"
+        VerticalOptions="Center" 
+        HorizontalOptions="Center"
+        Clicked="Set_Correction_Source_Info"/>
+
+    <Button
+        Text="Get Position Stream Info"
+        VerticalOptions="Center" 
+        HorizontalOptions="Center"
+        Clicked="Get_Position_Stream_Info"/>
+
+    <Button
+        Text="Get Receiver Info"
+        VerticalOptions="Center" 
+        HorizontalOptions="Center"
+        Clicked="Get_Reciever_Info"/>
+
+    <Button
+        Text="Set Receiver Connection"
+        VerticalOptions="Center" 
+        HorizontalOptions="Center"
+        Clicked="Set_Receiver_Connection"/>
+
+    <Button
+        Text="Get TMM Info"
+        VerticalOptions="Center" 
+        HorizontalOptions="Center"
+        Clicked="Get_TMM_Info"/>
+
+    <Button
+        Text="Send Ping"
+        VerticalOptions="Center" 
+        HorizontalOptions="Center"
+        Clicked="Send_Ping"/>
+  </VerticalStackLayout>
 </ContentPage>
