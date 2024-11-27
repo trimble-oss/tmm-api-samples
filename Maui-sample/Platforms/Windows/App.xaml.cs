@@ -1,4 +1,9 @@
-﻿using Microsoft.UI.Xaml;
+﻿using System.Collections.Specialized;
+using System.Diagnostics;
+using System.Web;
+using Microsoft.UI.Xaml;
+using Microsoft.Windows.AppLifecycle;
+using Windows.ApplicationModel.Activation;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -16,7 +21,49 @@ namespace Maui_sample.WinUI
     /// </summary>
     public App()
     {
-      this.InitializeComponent();
+      InitializeComponent();
+
+      // Windows will launch a new instance of TMM with every URI activation. We only want the
+      // 'main' instance to handle the URI activation.
+      var mainInstance = AppInstance.FindOrRegisterForKey("a unique identifier for my app");
+      if (mainInstance.IsCurrent)
+      {
+        // This is the 'main' instance handle the URI
+        AppInstance.GetCurrent().Activated += OnActivated;
+
+        var args = AppInstance.GetCurrent().GetActivatedEventArgs();
+        HandleProtocolActivation(args);
+      }
+      else
+      {
+        // This is not the 'main' instance. Redirect the URI to the 'main'
+        // instance, end kill this instance.
+        mainInstance.RedirectActivationToAsync(AppInstance.GetCurrent().GetActivatedEventArgs());
+        Process.GetCurrentProcess().Kill();
+      }
+    }
+
+    private void OnActivated(object sender, AppActivationArguments args)
+    {
+      HandleProtocolActivation(args);
+    }
+
+    private void HandleProtocolActivation(AppActivationArguments args)
+    {
+      if (args.Kind == ExtendedActivationKind.Protocol && args.Data is ProtocolActivatedEventArgs protocolArgs)
+      {
+        Uri uri = protocolArgs.Uri;
+        if (uri.AbsolutePath.StartsWith("myapp://response/tmmRegister"))
+        {
+          // this is the callbackUri you sent to TMM earlier
+          NameValueCollection queryDictionary = HttpUtility.ParseQueryString(uri.Query);
+          string id = queryDictionary["id"]; // "tmmRegister"
+          string status = queryDictionary["status"]; // “success” or “error”
+          string message = queryDictionary["message "]; // Additional information
+          string registrationResult = queryDictionary["registrationResult"]; // “OK”, “NoNetwork”, or “Unauthorized”
+          int.TryParse(queryDictionary["apiPort"], out var apiPort); // The REST API is at $"WS://localhost:{apiPort}"
+        }
+      }
     }
 
     protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
