@@ -3,10 +3,26 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Maui_sample.LocationPage"
              Title="LocationPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
+  <HorizontalStackLayout Padding="8" Spacing="8">
+    <VerticalStackLayout Spacing="4">
+      <Label Text="Mock Provider:" />
+      <Label Text="Latitude:" />
+      <Label Text="Longitude:" />
+      <Label Text="Altitude:" />
+      <Label Text="Altitude Reference:" />
+      <Label Text="Accuracy:" />
+      <Label Text="Bearing:" />
+      <Label Text="Speed:" />
     </VerticalStackLayout>
+    <VerticalStackLayout Spacing="4">
+      <Label x:Name="mockProviderValue" Text="--" />
+      <Label x:Name="latitudeValue" Text="--" />
+      <Label x:Name="longitudeValue" Text="--" />
+      <Label x:Name="altitudeValue" Text="--" />
+      <Label x:Name="altitudeReferenceValue" Text="--" />
+      <Label x:Name="accuracyValue" Text="--" />
+      <Label x:Name="bearingValue" Text="--" />
+      <Label x:Name="speedValue" Text="--" />
+    </VerticalStackLayout>
+  </HorizontalStackLayout>
 </ContentPage>
