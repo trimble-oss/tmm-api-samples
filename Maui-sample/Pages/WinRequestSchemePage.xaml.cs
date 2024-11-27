@@ -10,22 +10,20 @@ public partial class WinRequestSchemePage : ContentPage
 	{
 		InitializeComponent();
 	}
-  private async Task SetSampleAppID()
+  private async Task<string> SampleAppID()
   {
     string appID = await SecureStorage.Default.GetAsync("sampleAppID");
-
     if (appID == null)
     {
       await SecureStorage.Default.SetAsync("sampleAppID", Environment.GetEnvironmentVariable("SampleAppID"));
     }
-    // appID is correct value
+    return appID;
   }
 
   public async void Click_Register_Button(object sender, EventArgs e)
   {
-    string sampleAppID = SetSampleAppID().ToString();
-    Debug.WriteLine(sampleAppID);
-    string callbackUri = "\"sampleapp://response/?result=OK";
+    string sampleAppID = await SampleAppID();
+    string callbackUri = "sampleapp://response/tmmRegister";
     Uri.EscapeDataString(callbackUri);
     string requestString = $"trimbleMobileManager://request/tmmRegister?applicationId={sampleAppID}&callback={callbackUri}";
     Uri requestUri = new Uri(requestString);
