@@ -1,4 +1,6 @@
+using System;
 using System.Diagnostics;
+//using Windows.System;
 
 namespace Maui_sample;
 
@@ -16,30 +18,22 @@ public partial class WinRequestSchemePage : ContentPage
     {
       await SecureStorage.Default.SetAsync("sampleAppID", Environment.GetEnvironmentVariable("SampleAppID"));
     }
+    // appID is correct value
   }
 
-  private void Click_Register_Button(object sender, EventArgs e)
+  public async void Click_Register_Button(object sender, EventArgs e)
   {
-    
-    HttpClient client = new();
     string sampleAppID = SetSampleAppID().ToString();
     Debug.WriteLine(sampleAppID);
-    string callbackUri = "\"myapp://response/?result=OK";
+    string callbackUri = "\"sampleapp://response/?result=OK";
     Uri.EscapeDataString(callbackUri);
-    Uri uri = new($"trimblemobilemanager://request/tmmRegister?applicationId={sampleAppID}&callback={callbackUri}");
-    // trimblemobilemanager scheme is not supported
-    client.BaseAddress = uri;
-    try
+    string requestString = $"trimbleMobileManager://request/tmmRegister?applicationId={sampleAppID}&callback={callbackUri}";
+    Uri requestUri = new Uri(requestString);
+    Debug.WriteLine(requestUri);
+
+    if (await Launcher.CanOpenAsync(requestUri))
     {
-      HttpResponseMessage response = client.GetAsync(uri).Result;
-      if (response.IsSuccessStatusCode)
-      {
-        Debug.WriteLine("StatusCode");
-      }
-    }
-    catch (Exception ex)
-    {
-      Debug.WriteLine(ex.Message);
+      bool result = await Launcher.OpenAsync(requestUri);
     }
   }
 }

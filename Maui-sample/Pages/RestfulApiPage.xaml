@@ -1,61 +1,75 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:Maui_sample"
              x:Class="Maui_sample.RestfulApiPage"
              Title="RestfulApiPage">
-    <VerticalStackLayout>
+
+  <ContentPage.BindingContext>
+    <local:RestfulApiViewModel/>
+  </ContentPage.BindingContext>
+  <VerticalStackLayout>
     <Button 
             Text="Get Antenna info"
             VerticalOptions="Center" 
             HorizontalOptions="Center"
-            Clicked="Get_AntennaInfo_Button"/>
+            Clicked="Get_AntennaInfo_Button"
+            IsEnabled="{Binding AreButtonsEnabled}"/>
 
     <Button
           Text="Set Antenna Info"
           VerticalOptions="Center" 
           HorizontalOptions="Center"
-          Clicked="Set_AntennaInfo_Button"/>
-      
+          Clicked="Set_AntennaInfo_Button"
+          IsEnabled="{Binding AreButtonsEnabled}"/>
+
     <Button 
         Text="Get Correction Source Info"
         VerticalOptions="Center" 
         HorizontalOptions="Center"
-        Clicked="Get_Correction_Source_Info"/>
+        Clicked="Get_Correction_Source_Info"
+        IsEnabled="{Binding AreButtonsEnabled}"/>
 
     <Button
         Text="Set Correction Source Info"
         VerticalOptions="Center" 
         HorizontalOptions="Center"
-        Clicked="Set_Correction_Source_Info"/>
+        Clicked="Set_Correction_Source_Info"
+        IsEnabled="{Binding AreButtonsEnabled}"/>
 
     <Button
         Text="Get Position Stream Info"
         VerticalOptions="Center" 
         HorizontalOptions="Center"
-        Clicked="Get_Position_Stream_Info"/>
+        Clicked="Get_Position_Stream_Info"
+        IsEnabled="{Binding AreButtonsEnabled}"/>
 
     <Button
         Text="Get Receiver Info"
         VerticalOptions="Center" 
         HorizontalOptions="Center"
-        Clicked="Get_Reciever_Info"/>
+        Clicked="Get_Reciever_Info"
+        IsEnabled="{Binding AreButtonsEnabled}"/>
 
     <Button
         Text="Set Receiver Connection"
         VerticalOptions="Center" 
         HorizontalOptions="Center"
-        Clicked="Set_Receiver_Connection"/>
+        Clicked="Set_Receiver_Connection"
+        IsEnabled="{Binding AreButtonsEnabled}"/>
 
     <Button
         Text="Get TMM Info"
         VerticalOptions="Center" 
         HorizontalOptions="Center"
-        Clicked="Get_TMM_Info"/>
+        Clicked="Get_TMM_Info"
+        IsEnabled="{Binding AreButtonsEnabled}"/>
 
     <Button
         Text="Send Ping"
         VerticalOptions="Center" 
         HorizontalOptions="Center"
-        Clicked="Send_Ping"/>
+        Clicked="Send_Ping"
+        IsEnabled="{Binding AreButtonsEnabled}"/>
   </VerticalStackLayout>
 </ContentPage>

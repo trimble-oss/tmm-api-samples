@@ -8,7 +8,6 @@ namespace Maui_sample
 {
     public static class Constants
     {
-    public const string SampleAppID = "";
     public const string ApiPortKey = "apiPort";
     public const string LocationV2PortKey = "locationV2Port";
     public const string RegistrationResultKey = "registrationResult";

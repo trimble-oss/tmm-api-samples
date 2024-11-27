@@ -9,6 +9,6 @@ namespace Maui_sample
 {
     public static class Values
     {
-    public static string AppID { get; set; } = Constants.SampleAppID;
+    public static string AppID { get; set; } = Environment.GetEnvironmentVariable("SampleAppID");
   }
 }
