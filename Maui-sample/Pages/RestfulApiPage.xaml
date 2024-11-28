@@ -8,8 +8,13 @@
   <ContentPage.BindingContext>
     <local:RestfulApiViewModel/>
   </ContentPage.BindingContext>
-  <VerticalStackLayout>
-    <Button 
+  <ScrollView>
+    <Grid
+    ColumnDefinitions="0.15*, 0.7*, 0.15*"
+    VerticalOptions="Center"
+    Padding="0,10">
+      <VerticalStackLayout Grid.Column="1" Spacing="10">
+        <Button 
             Text="Get Antenna info"
             VerticalOptions="Center" 
             HorizontalOptions="Center"
@@ -72,4 +77,6 @@
         Clicked="Send_Ping"
         IsEnabled="{Binding AreButtonsEnabled}"/>
   </VerticalStackLayout>
+  </Grid>
+  </ScrollView>
 </ContentPage>
