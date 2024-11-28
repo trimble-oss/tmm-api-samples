@@ -20,7 +20,7 @@ public partial class WinRequestSchemePage : ContentPage
     string appID = await SecureStorage.Default.GetAsync("sampleAppID");
     if (appID == null)
     {
-      await SecureStorage.Default.SetAsync("sampleAppID", Environment.GetEnvironmentVariable("SampleAppID"));
+      await SecureStorage.Default.SetAsync("sampleAppID", Values.AppID);
       // The ID should not be commited to source control
     }
     return appID;
