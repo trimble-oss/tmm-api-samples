@@ -33,6 +33,13 @@
         Text="Location" />
 
         <Button
+        x:Name="WebSocketLocationButton"
+        Clicked="OnWebSocketLocationButtonClickedV2"
+        HorizontalOptions="FillAndExpand"
+        SemanticProperties.Hint="Websocket Location"
+        Text="Websocket Location" />
+
+        <Button
         x:Name="WebSocketLocationButtonV2"
         Clicked="OnWebSocketLocationButtonClickedV2"
         HorizontalOptions="FillAndExpand"
