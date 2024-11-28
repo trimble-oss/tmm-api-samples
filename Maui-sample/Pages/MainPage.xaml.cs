@@ -27,7 +27,7 @@ public partial class MainPage : ContentPage
       return status;
     }
 
-    if (status == PermissionStatus.Denied && DeviceInfo.Platform == DevicePlatform.iOS)
+    if (status == PermissionStatus.Denied && DeviceInfo.Platform == DevicePlatform.WinUI)
     {
       await DisplayAlert("Location", "Please enable location permission in settings", "OK");
       return status;
@@ -46,7 +46,7 @@ public partial class MainPage : ContentPage
   // The rest are just button functions that opens their respective interfaces
   private async void OnLocationButtonClicked(object sending, EventArgs e)
   {
-    // Checks if location permission is on before opening the page.
+    // Checks if location permission is on before opening the page. Pops an alert if it does.
     try
     {
       PermissionStatus status = await CheckAndRequestLocationPermission();
