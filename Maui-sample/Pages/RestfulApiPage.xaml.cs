@@ -68,6 +68,8 @@ public partial class RestfulApiPage : ContentPage
     }
   }
 
+  // All get requests use the api/v1/nameofRequest URI
+  // Currently returns exception that target machine refuses the request
   private async void Get_AntennaInfo_Button(object sender, EventArgs e)
   {
     try
@@ -99,6 +101,7 @@ public partial class RestfulApiPage : ContentPage
     }
   }
 
+  // All set requests also use the same URI format
   private async void Set_AntennaInfo_Button(object sender, EventArgs e)
   {
     try

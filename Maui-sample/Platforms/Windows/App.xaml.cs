@@ -55,7 +55,7 @@ namespace Maui_sample.WinUI
         Uri uri = protocolArgs.Uri;
         if (uri.AbsolutePath.StartsWith("myapp://response/tmmRegister"))
         {
-          // this is the callbackUri you sent to TMM earlier
+          // this is the callbackUri sent to TMM earlier
           NameValueCollection queryDictionary = HttpUtility.ParseQueryString(uri.Query);
           string id = queryDictionary["id"]; // "tmmRegister"
           string status = queryDictionary["status"]; // “success” or “error”

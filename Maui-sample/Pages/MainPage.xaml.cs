@@ -6,6 +6,7 @@ public partial class MainPage : ContentPage
 	{
 		InitializeComponent();
     Title = $"TMM Test App (v{GetAppVersionString()})";
+    // Retrieves the version number and displays as the title
   }
 
   private string GetAppVersionString()
@@ -13,28 +14,39 @@ public partial class MainPage : ContentPage
 #if WINDOWS
     var version = Windows.ApplicationModel.Package.Current.Id.Version;
     return $"{version.Major}.{version.Minor}.{version.Build}.{version.Revision}";
-
-#elif ANDROID
-    var context = Android.App.Application.Context;
-    var packageInfo = OperatingSystem.IsAndroidVersionAtLeast(33)
-      ? context.PackageManager?.GetPackageInfo(context.PackageName, Android.Content.PM.PackageManager.PackageInfoFlags.Of(0L))
-#pragma warning disable CS0618
-      : context.PackageManager?.GetPackageInfo(context.PackageName, 0);
-#pragma warning restore CS0618
-
-    return packageInfo == null ? "not available" : packageInfo.VersionName;
-
-    //#elif IOS
-    //    return NSBundle.MainBundle.InfoDictionary["CFBundleVersion"].ToString();
-
 #else
     return "";
-
 #endif
   }
+  public async Task<PermissionStatus> CheckAndRequestLocationPermission()
+  {
+    PermissionStatus status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
 
+    if (status == PermissionStatus.Granted)
+    {
+      return status;
+    }
+
+    if (status == PermissionStatus.Denied && DeviceInfo.Platform == DevicePlatform.iOS)
+    {
+      await DisplayAlert("Location", "Please enable location permission in settings", "OK");
+      return status;
+    }
+
+    if (Permissions.ShouldShowRationale<Permissions.LocationWhenInUse>())
+    {
+      await DisplayAlert("Location", "Location permission is required to request locations", "OK");
+    }
+
+    status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+
+    return status;
+  }
+
+  // The rest are just button functions that opens their respective interfaces
   private async void OnLocationButtonClicked(object sending, EventArgs e)
   {
+    // Checks if location permission is on before opening the page.
     try
     {
       PermissionStatus status = await CheckAndRequestLocationPermission();
@@ -110,30 +122,5 @@ public partial class MainPage : ContentPage
     catch
     {
     }
-  }
-
-  public async Task<PermissionStatus> CheckAndRequestLocationPermission()
-  {
-    PermissionStatus status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
-
-    if (status == PermissionStatus.Granted)
-    {
-      return status;
-    }
-
-    if (status == PermissionStatus.Denied && DeviceInfo.Platform == DevicePlatform.iOS)
-    {
-      await DisplayAlert("Location", "Please enable location permission in settings", "OK");
-      return status;
-    }
-
-    if (Permissions.ShouldShowRationale<Permissions.LocationWhenInUse>())
-    {
-      await DisplayAlert("Location", "Location permission is required to request locations", "OK");
-    }
-
-    status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-
-    return status;
   }
 }

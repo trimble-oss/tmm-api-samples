@@ -1,5 +1,9 @@
-using System;
+using System.Text;
 using System.Diagnostics;
+using Newtonsoft.Json.Linq;
+#if WINDOWS
+using Maui_sample.Platforms.Windows;
+// Conditional compilation otherwise there is error with detecting the Platforms namespace
 
 namespace Maui_sample;
 
@@ -9,16 +13,20 @@ public partial class WinRequestSchemePage : ContentPage
   {
     InitializeComponent();
   }
+
+  // Retrieves the registered AppID (obtained from Trimble) from the platform's respective secure storage and if it isn't saved then it will create it.
   private async Task<string> SampleAppID()
   {
     string appID = await SecureStorage.Default.GetAsync("sampleAppID");
     if (appID == null)
     {
       await SecureStorage.Default.SetAsync("sampleAppID", Environment.GetEnvironmentVariable("SampleAppID"));
+      // The ID should not be commited to source control
     }
     return appID;
   }
 
+  // All Windows requests will have similar format: trimbleMobileManager://request/nameofRequest?applicationId=yourAppID&callback=callbackURI
   public async void Click_Register_Button(object sender, EventArgs e)
   {
     try
@@ -28,16 +36,89 @@ public partial class WinRequestSchemePage : ContentPage
       Uri.EscapeDataString(callbackUri);
       string requestString = $"trimbleMobileManager://request/tmmRegister?applicationId={sampleAppID}&callback={callbackUri}";
       Uri requestUri = new Uri(requestString);
-      Debug.WriteLine(requestUri);
 
-      if (await Launcher.CanOpenAsync(requestUri))
+      await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
       {
-        bool result = await Launcher.OpenAsync(requestUri);
-      }
+        // At the moment should only display the result of the response
+        await DisplayRegisterResultAsync(responseJson);
+      });
     }
     catch (Exception ex)
     {
       Debug.WriteLine(ex.Message);
     }
   }
+
+  // Default response if the response to the request is null or empty or an issue with parsing
+  public async Task DefaultResponseDisplayAsync(string responseJson)
+  {
+      if (string.IsNullOrEmpty(responseJson))
+      {
+        await MainThread.InvokeOnMainThreadAsync(async () =>
+        {
+          await DisplayAlert("Error", "Response JSON is null or empty", "Ok");
+        });
+        return;
+      }
+
+      JObject jsonObject;
+      try
+      {
+        jsonObject = JObject.Parse(responseJson);
+      }
+      catch (Exception ex)
+      {
+        await MainThread.InvokeOnMainThreadAsync(async () =>
+        {
+          await DisplayAlert("Error", "Failed to parse response JSON: " + ex.Message, "Ok");
+        });
+        return;
+      }
+
+      StringBuilder stringBuilder = new StringBuilder();
+      var keys = new Dictionary<string, string>
+    {
+        { "id", "ID" },
+        { "status", "Status" },
+        { "message", "Message" }
+    };
+
+      foreach (var key in keys)
+      {
+        var value = jsonObject[key.Key]?.ToString();
+        stringBuilder.AppendFormat("{0}: {1}\n", key.Value, value ?? "null");
+      }
+
+      await MainThread.InvokeOnMainThreadAsync(async () =>
+      {
+        await DisplayAlert("Response", stringBuilder.ToString(), "OK");
+      });
+    }
+
+  // Displays Register Result. Handle the response here as desired.
+  public async Task DisplayRegisterResultAsync(string response)
+  {
+    try
+    {
+      var jsonObject = JObject.Parse(response);
+
+      StringBuilder stringBuilder = new StringBuilder();
+      stringBuilder.AppendFormat("ID: {0}\n", jsonObject.GetValue("id").ToObject<string>())
+                   .AppendFormat("Status: {0}\n", jsonObject.GetValue("status").ToObject<string>())
+                   .AppendFormat("Message: {0}\n", jsonObject.GetValue("message").ToObject<string>())
+                   .AppendFormat("Registration Result: {0}\n", jsonObject.GetValue("registrationResult").ToObject<string>())
+                   .AppendFormat("API Port: {0}\n", jsonObject.GetValue("apiPort").ToObject<string>())
+                   .AppendFormat("Location V2 Port: {0}\n", jsonObject.GetValue("locationV2Port").ToObject<string>());
+
+      await MainThread.InvokeOnMainThreadAsync(async () =>
+      {
+        await DisplayAlert("Register Result", stringBuilder.ToString(), "Ok");
+      });
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"Error parsing JSON response: {ex.Message}");
+    }
+  }
 }
+#endif
