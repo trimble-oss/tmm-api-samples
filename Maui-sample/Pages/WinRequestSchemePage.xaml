@@ -3,11 +3,86 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Maui_sample.WinRequestSchemePage"
              Title="WinRequestSchemePage">
-  <VerticalStackLayout>
-    <Button
-      Text="Register"
-      HorizontalOptions="Center"
-      VerticalOptions="Center"
-      Clicked="Click_Register_Button"/>
-  </VerticalStackLayout>
+  <ScrollView>
+    <Grid
+    ColumnDefinitions="0.15*, 0.7*, 0.15*"
+    VerticalOptions="Center"
+    Padding="0,10">
+      <VerticalStackLayout Grid.Column="1" Spacing="10">
+        <Button
+          x:Name="tmmOpenAntennaHeight"
+          Clicked="TmmOpenToAntennaHeightClicked"
+          HorizontalOptions="FillAndExpand"
+          SemanticProperties.Hint="TMM Open To Antenna Height"
+          Text="Antenna Settings" />
+        <Button
+          x:Name="tmmOpenToConfiguration"
+          Clicked="TmmOpenToConfigurationClicked"
+          HorizontalOptions="FillAndExpand"
+          SemanticProperties.Hint="TMM Open To Configuration"
+          Text="Configuration Page" />
+        <Button
+          x:Name="tmmCorrectionSettings"
+          Clicked="TmmCorrectionSettingsClicked"
+          HorizontalOptions="FillAndExpand"
+          SemanticProperties.Hint="TMM Correction Settings"
+          Text="Correction Page" />
+        <Button
+          x:Name="TmmOpenToLoginPage"
+          Clicked="TmmOpenToLoginPageClicked"
+          HorizontalOptions="FillAndExpand"
+          SemanticProperties.Hint="TMM Open To Login Page"
+          Text="Login Page" />
+        <Button
+          x:Name="tmmLogin"
+          Clicked="TmmLoginClicked"
+          HorizontalOptions="FillAndExpand"
+          SemanticProperties.Hint="TMM Login"
+          Text="Login User In" />
+        <Button
+          x:Name="tmmOnDemand"
+          Clicked="TmmOnDemandClicked"
+          HorizontalOptions="FillAndExpand"
+          SemanticProperties.Hint="TMM On Demand"
+          Text="On Demand" />
+        <Button
+          x:Name="OpenToReceiverSelection"
+          Clicked="TmmOpenToReceiverSelectionClicked"
+          HorizontalOptions="FillAndExpand"
+          SemanticProperties.Hint="Open To Receiver Selection"
+          Text="Receiver Selection" />
+        <Button
+          x:Name="tmmFiles"
+          Clicked="TmmFileClicked"
+          HorizontalOptions="FillAndExpand"
+          SemanticProperties.Hint="TMM Get Files"
+          Text="Get Files" />
+        <Button
+          x:Name="tmmRefreshUserToken"
+          Clicked="TmmRefreshUserTokenClicked"
+          HorizontalOptions="FillAndExpand"
+          SemanticProperties.Hint="Refresh User Token"
+          Text="Refresh User Token" />
+        <Button
+          x:Name="tmmRegister"
+          Clicked="TmmRegisterClicked"
+          HorizontalOptions="FillAndExpand"
+          SemanticProperties.Hint="Register"
+          Text="Register" />
+        <Button
+          x:Name="tmmOpentoSkyplot"
+          Clicked="TmmOpenToSkyplotClicked"
+          HorizontalOptions="FillAndExpand"
+          SemanticProperties.Hint="Open To Skyplot"
+          Text="Skyplot" />
+        <Button
+          x:Name="tmmSocketServerPort"
+          Clicked="TmmSocketServerPortClicked"
+          HorizontalOptions="FillAndExpand"
+          SemanticProperties.Hint="Socket Server Port"
+          Text="Socket Ports" />
+      </VerticalStackLayout>
+
+    </Grid>
+  </ScrollView>
 </ContentPage>

@@ -12,6 +12,9 @@ public partial class WinRequestSchemePage : ContentPage
   public WinRequestSchemePage()
   {
     InitializeComponent();
+    //# if WINDOWS
+    //    WinRequestSchemePage.Initialize(this);
+    //#endif
   }
 
   // Retrieves the registered AppID (obtained from Trimble) from the platform's respective secure storage and if it isn't saved then it will create it.
@@ -27,14 +30,257 @@ public partial class WinRequestSchemePage : ContentPage
   }
 
   // All Windows requests will have similar format: trimbleMobileManager://request/nameofRequest?applicationId=yourAppID&callback=callbackURI
-  public async void Click_Register_Button(object sender, EventArgs e)
+  public async void TmmRegisterClicked(object sender, EventArgs e)
   {
     try
     {
       string sampleAppID = await SampleAppID();
+      string requestID = "tmmRegister";
       string callbackUri = "sampleapp://response";
       Uri.EscapeDataString(callbackUri);
-      string requestString = $"trimbleMobileManager://request/tmmRegister?applicationId={sampleAppID}&callback={callbackUri}";
+      string requestString = $"trimbleMobileManager://request/{requestID}?applicationId={sampleAppID}&callback={callbackUri}";
+      Uri requestUri = new Uri(requestString);
+
+      await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
+      {
+        // At the moment should only display the result of the response
+        await DisplayRegisterResultAsync(responseJson);
+      });
+    }
+    catch (Exception ex)
+    {
+      Debug.WriteLine(ex.Message);
+    }
+  }
+
+  public async void TmmLoginClicked(object sender, EventArgs e)
+  {
+    try
+    {
+      string sampleAppID = await SampleAppID();
+      string requestID = "tmmLogin";
+      string callbackUri = "sampleapp://response";
+      Uri.EscapeDataString(callbackUri);
+      string requestString = $"trimbleMobileManager://request/{requestID}?applicationId={sampleAppID}&callback={callbackUri}";
+      Uri requestUri = new Uri(requestString);
+
+      await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
+      {
+        // At the moment should only display the result of the response
+        await DisplayRegisterResultAsync(responseJson);
+      });
+    }
+    catch (Exception ex)
+    {
+      Debug.WriteLine(ex.Message);
+    }
+  }
+
+  public async void TmmOpenToLoginPageClicked(object sender, EventArgs e)
+  {
+    try
+    {
+      string sampleAppID = await SampleAppID();
+      string requestID = "tmmOpenToLoginPage";
+      string callbackUri = "sampleapp://response";
+      Uri.EscapeDataString(callbackUri);
+      string requestString = $"trimbleMobileManager://request/{requestID}?callback={callbackUri}";
+      Uri requestUri = new Uri(requestString);
+
+      await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
+      {
+        // At the moment should only display the result of the response
+        await DisplayRegisterResultAsync(responseJson);
+      });
+    }
+    catch (Exception ex)
+    {
+      Debug.WriteLine(ex.Message);
+    }
+  }
+
+  public async void TmmOpenToAntennaHeightClicked(object sender, EventArgs e)
+  {
+    try
+    {
+      string requestID = "tmmOpenToAntennaHeight";
+      string callbackUri = "sampleapp://response";
+      Uri.EscapeDataString(callbackUri);
+      string requestString = $"trimbleMobileManager://request/{requestID}?callback={callbackUri}";
+      Uri requestUri = new Uri(requestString);
+
+      await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
+      {
+        // At the moment should only display the result of the response
+        await DisplayRegisterResultAsync(responseJson);
+      });
+    }
+    catch (Exception ex)
+    {
+      Debug.WriteLine(ex.Message);
+    }
+  }
+
+  public async void TmmOpenToConfigurationClicked(object sender, EventArgs e)
+  {
+    try
+    {
+      string requestID = "tmmOpenToConfiguration";
+      string callbackUri = "sampleapp://response";
+      Uri.EscapeDataString(callbackUri);
+      string requestString = $"trimbleMobileManager://request/{requestID}?callback={callbackUri}";
+      Uri requestUri = new Uri(requestString);
+
+      await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
+      {
+        // At the moment should only display the result of the response
+        await DisplayRegisterResultAsync(responseJson);
+      });
+    }
+    catch (Exception ex)
+    {
+      Debug.WriteLine(ex.Message);
+    }
+  }
+
+  public async void TmmOpenToReceiverSelectionClicked(object sender, EventArgs e)
+  {
+    try
+    {
+      string requestID = "tmmOpenToReceiverSelection";
+      string callbackUri = "sampleapp://response";
+      Uri.EscapeDataString(callbackUri);
+      string requestString = $"trimbleMobileManager://request/{requestID}?callback={callbackUri}";
+      Uri requestUri = new Uri(requestString);
+
+      await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
+      {
+        // At the moment should only display the result of the response
+        await DisplayRegisterResultAsync(responseJson);
+      });
+    }
+    catch (Exception ex)
+    {
+      Debug.WriteLine(ex.Message);
+    }
+  }
+
+  public async void TmmCorrectionSettingsClicked(object sender, EventArgs e)
+  {
+    try
+    {
+      string requestID = "tmmCorrectionSettings";
+      string callbackUri = "sampleapp://response";
+      Uri.EscapeDataString(callbackUri);
+      string requestString = $"trimbleMobileManager://request/{requestID}?callback={callbackUri}";
+      Uri requestUri = new Uri(requestString);
+
+      await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
+      {
+        // At the moment should only display the result of the response
+        await DisplayRegisterResultAsync(responseJson);
+      });
+    }
+    catch (Exception ex)
+    {
+      Debug.WriteLine(ex.Message);
+    }
+  }
+
+  public async void TmmOpenToSkyplotClicked(object sender, EventArgs e)
+  {
+    try
+    {
+      string requestID = "tmmOpenToSkyplot";
+      string callbackUri = "sampleapp://response";
+      Uri.EscapeDataString(callbackUri);
+      string requestString = $"trimbleMobileManager://request/{requestID}?callback={callbackUri}";
+      Uri requestUri = new Uri(requestString);
+
+      await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
+      {
+        // At the moment should only display the result of the response
+        await DisplayRegisterResultAsync(responseJson);
+      });
+    }
+    catch (Exception ex)
+    {
+      Debug.WriteLine(ex.Message);
+    }
+  }
+
+  public async void TmmOnDemandClicked(object sender, EventArgs e)
+  {
+    try
+    {
+      string requestID = "tmmOnDemand";
+      string callbackUri = "sampleapp://response";
+      Uri.EscapeDataString(callbackUri);
+      string requestString = $"trimbleMobileManager://request/{requestID}?callback={callbackUri}";
+      Uri requestUri = new Uri(requestString);
+
+      await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
+      {
+        // At the moment should only display the result of the response
+        await DisplayRegisterResultAsync(responseJson);
+      });
+    }
+    catch (Exception ex)
+    {
+      Debug.WriteLine(ex.Message);
+    }
+  }
+  public async void TmmFileClicked(object sender, EventArgs e)
+  {
+    try
+    {
+      string requestID = "tmmFileLocations";
+      string callbackUri = "sampleapp://response";
+      Uri.EscapeDataString(callbackUri);
+      string requestString = $"trimbleMobileManager://request/{requestID}?callback={callbackUri}";
+      Uri requestUri = new Uri(requestString);
+
+      await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
+      {
+        // At the moment should only display the result of the response
+        await DisplayRegisterResultAsync(responseJson);
+      });
+    }
+    catch (Exception ex)
+    {
+      Debug.WriteLine(ex.Message);
+    }
+  }
+
+  public async void TmmRefreshUserTokenClicked(object sender, EventArgs e)
+  {
+    try
+    {
+      string requestID = "tmmRefreshUserToken";
+      string callbackUri = "sampleapp://response";
+      Uri.EscapeDataString(callbackUri);
+      string requestString = $"trimbleMobileManager://request/{requestID}?callback={callbackUri}";
+      Uri requestUri = new Uri(requestString);
+
+      await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
+      {
+        // At the moment should only display the result of the response
+        await DisplayRegisterResultAsync(responseJson);
+      });
+    }
+    catch (Exception ex)
+    {
+      Debug.WriteLine(ex.Message);
+    }
+  }
+  public async void TmmSocketServerPortClicked(object sender, EventArgs e)
+  {
+    try
+    {
+      string requestID = "tmmSocketServerPort";
+      string callbackUri = "sampleapp://response";
+      Uri.EscapeDataString(callbackUri);
+      string requestString = $"trimbleMobileManager://request/{requestID}?callback={callbackUri}";
       Uri requestUri = new Uri(requestString);
 
       await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
@@ -52,48 +298,48 @@ public partial class WinRequestSchemePage : ContentPage
   // Default response if the response to the request is null or empty or an issue with parsing
   public async Task DefaultResponseDisplayAsync(string responseJson)
   {
-      if (string.IsNullOrEmpty(responseJson))
+    if (string.IsNullOrEmpty(responseJson))
+    {
+      await MainThread.InvokeOnMainThreadAsync(async () =>
       {
-        await MainThread.InvokeOnMainThreadAsync(async () =>
-        {
-          await DisplayAlert("Error", "Response JSON is null or empty", "Ok");
-        });
-        return;
-      }
+        await DisplayAlert("Error", "Response JSON is null or empty", "Ok");
+      });
+      return;
+    }
 
-      JObject jsonObject;
-      try
+    JObject jsonObject;
+    try
+    {
+      jsonObject = JObject.Parse(responseJson);
+    }
+    catch (Exception ex)
+    {
+      await MainThread.InvokeOnMainThreadAsync(async () =>
       {
-        jsonObject = JObject.Parse(responseJson);
-      }
-      catch (Exception ex)
-      {
-        await MainThread.InvokeOnMainThreadAsync(async () =>
-        {
-          await DisplayAlert("Error", "Failed to parse response JSON: " + ex.Message, "Ok");
-        });
-        return;
-      }
+        await DisplayAlert("Error", "Failed to parse response JSON: " + ex.Message, "Ok");
+      });
+      return;
+    }
 
-      StringBuilder stringBuilder = new StringBuilder();
-      var keys = new Dictionary<string, string>
+    StringBuilder stringBuilder = new StringBuilder();
+    var keys = new Dictionary<string, string>
     {
         { "id", "ID" },
         { "status", "Status" },
         { "message", "Message" }
     };
 
-      foreach (var key in keys)
-      {
-        var value = jsonObject[key.Key]?.ToString();
-        stringBuilder.AppendFormat("{0}: {1}\n", key.Value, value ?? "null");
-      }
-
-      await MainThread.InvokeOnMainThreadAsync(async () =>
-      {
-        await DisplayAlert("Response", stringBuilder.ToString(), "OK");
-      });
+    foreach (var key in keys)
+    {
+      var value = jsonObject[key.Key]?.ToString();
+      stringBuilder.AppendFormat("{0}: {1}\n", key.Value, value ?? "null");
     }
+
+    await MainThread.InvokeOnMainThreadAsync(async () =>
+    {
+      await DisplayAlert("Response", stringBuilder.ToString(), "OK");
+    });
+  }
 
   // Displays Register Result. Handle the response here as desired.
   public async Task DisplayRegisterResultAsync(string response)

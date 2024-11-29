@@ -7,10 +7,11 @@ using Windows.System;
 using Launcher = Windows.System.Launcher;
 // Ambiguity of the Launcher class requires the namespace to be specified
 using Newtonsoft.Json.Linq;
+using Maui_sample;
 
 namespace Maui_sample.Platforms.Windows
 {
-  public class WinRequestSchemeService
+  public static class WinRequestSchemeService
   {
     private static Func<string, Task> _returnCallback;
     private static WinRequestSchemePage _winRequestSchemePage;
