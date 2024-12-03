@@ -17,7 +17,7 @@
     android:layout_marginBottom="32dp"
     android:text="@string/app_name"
     android:textSize="24sp"
-    app:layout_constraintBottom_toTopOf="@+id/customIDTextBox"
+    app:layout_constraintBottom_toTopOf="@+id/customIDTextCheckBox"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent" />
@@ -26,18 +26,15 @@
     android:id="@+id/versionText"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginStart="23dp"
-    android:layout_marginTop="8dp"
-    android:layout_marginEnd="92dp"
+    android:layout_marginTop="2dp"
+    android:layout_marginEnd="84dp"
     android:text="TextView"
     android:textSize="24dp"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toEndOf="@+id/titleText"
     app:layout_constraintTop_toTopOf="parent" />
 
   <CheckBox
-    android:id="@+id/customIDTextBox"
-    android:visibility="gone"
+    android:id="@+id/customIDTextCheckBox"
     android:layout_width="169dp"
     android:layout_height="50dp"
     android:layout_marginStart="146dp"
@@ -50,7 +47,7 @@
     app:layout_constraintTop_toBottomOf="@+id/titleText" />
 
   <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayout2"
+        android:id="@+id/appIDTextTitle"
         android:layout_width="261dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="1dp"
@@ -58,7 +55,7 @@
         android:layout_marginEnd="1dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/customIDTextBox">
+        app:layout_constraintTop_toBottomOf="@+id/customIDTextCheckBox">
 
     <com.google.android.material.textfield.TextInputEditText
       android:visibility="gone"
@@ -81,7 +78,7 @@
         app:layout_constraintBottom_toTopOf="@+id/locationButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayout2" />
+        app:layout_constraintTop_toBottomOf="@+id/appIDTextTitle" />
 
     <Button
         android:id="@+id/locationButton"
