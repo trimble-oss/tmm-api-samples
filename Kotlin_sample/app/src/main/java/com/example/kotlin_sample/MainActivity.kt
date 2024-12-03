@@ -1,6 +1,7 @@
 package com.example.kotlin_sample
 
 import android.os.Bundle
+import android.view.View
 import android.widget.CheckBox
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -28,9 +29,17 @@ class MainActivity : AppCompatActivity() {
       val checkB: CheckBox = findViewById(R.id.customIDTextCheckBox)
       val tileText: TextInputLayout = findViewById(R.id.appIDTextTitle)
       val appIDInput: TextInputEditText = findViewById(R.id.appIDEditText)
-//      checkB.setOnClickListener{
-//        if (checkB.isChecked)
-//          tileText.visibility
-//      }
+      checkB.setOnClickListener {
+        if (checkB.isChecked) {
+//          Set visibility property. To get visibility status remove the equality
+          tileText.visibility = View.VISIBLE
+          appIDInput.visibility = View.VISIBLE
+        }
+        else
+        {
+          tileText.visibility = View.GONE
+          appIDInput.visibility = View.GONE
+        }
+      }
     }
 }

@@ -29,7 +29,7 @@
     android:layout_marginTop="2dp"
     android:layout_marginEnd="84dp"
     android:text="TextView"
-    android:textSize="24dp"
+    android:textSize="24sp"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintTop_toTopOf="parent" />
 
@@ -40,7 +40,7 @@
     android:layout_marginStart="146dp"
     android:layout_marginTop="4dp"
     android:layout_marginEnd="169dp"
-    android:text="Use custom App ID"
+    android:text="@string/use_custom_app_id"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintHorizontal_bias="0.328"
     app:layout_constraintStart_toStartOf="parent"
@@ -63,7 +63,7 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:gravity="center"
-      android:hint="Enter App ID" />
+      android:hint="@string/enter_app_id" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
@@ -74,7 +74,7 @@
         android:layout_marginTop="19dp"
         android:layout_marginEnd="165dp"
         android:layout_marginBottom="25dp"
-        android:text="Intents"
+        android:text="@string/intents"
         app:layout_constraintBottom_toTopOf="@+id/locationButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -87,7 +87,7 @@
         android:layout_marginStart="152dp"
         android:layout_marginTop="25dp"
         android:layout_marginEnd="168dp"
-        android:text="Location"
+        android:text="@string/location"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/intentsButton" />
@@ -99,7 +99,7 @@
         android:layout_marginStart="152dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="168dp"
-        android:text="Web socket location"
+        android:text="@string/web_socket_location"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/locationButton" />
@@ -111,7 +111,7 @@
         android:layout_marginStart="153dp"
         android:layout_marginTop="22dp"
         android:layout_marginEnd="167dp"
-        android:text="Web socket location V2"
+        android:text="@string/web_socket_location_v2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/webSocketLocationButton" />
@@ -123,7 +123,7 @@
         android:layout_marginStart="151dp"
         android:layout_marginTop="27dp"
         android:layout_marginEnd="169dp"
-        android:text="Android scheme page"
+        android:text="@string/android_scheme_page"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/webSocketLocationV2Button" />
@@ -136,7 +136,7 @@
     android:layout_marginTop="32dp"
     android:layout_marginEnd="167dp"
     android:layout_marginBottom="35dp"
-    android:text="Restful API"
+    android:text="@string/restful_api"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintHorizontal_bias="0.275"

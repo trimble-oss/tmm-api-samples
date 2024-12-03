@@ -13,6 +13,9 @@
         android:theme="@style/Theme.Kotlin_sample"
         tools:targetApi="31">
         <activity
+            android:name=".IntentsActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".IntentsActivity">
+
+  <Button
+    android:id="@+id/antennaButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/antenna_settings"
+    tools:layout_editor_absoluteX="126dp"
+    tools:layout_editor_absoluteY="1dp" />
+
+  <Button
+    android:id="@+id/configurationButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/configuration"
+    tools:layout_editor_absoluteX="138dp"
+    tools:layout_editor_absoluteY="57dp" />
+
+  <Button
+    android:id="@+id/ebubbleCalibrationButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/ebubble_calibration"
+    tools:layout_editor_absoluteX="119dp"
+    tools:layout_editor_absoluteY="114dp" />
+
+  <Button
+    android:id="@+id/gnssStatButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/gnss_status"
+    tools:layout_editor_absoluteX="143dp"
+    tools:layout_editor_absoluteY="171dp" />
+
+  <Button
+    android:id="@+id/hereButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/here_intent"
+    tools:layout_editor_absoluteX="146dp"
+    tools:layout_editor_absoluteY="228dp" />
+
+  <Button
+    android:id="@+id/imuCalibrationButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/imu_calibration"
+    tools:layout_editor_absoluteX="133dp"
+    tools:layout_editor_absoluteY="287dp" />
+
+  <Button
+    android:id="@+id/loginButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/login_page"
+    tools:layout_editor_absoluteX="148dp"
+    tools:layout_editor_absoluteY="341dp" />
+
+  <Button
+    android:id="@+id/loginUserButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/login_user"
+    tools:layout_editor_absoluteX="148dp"
+    tools:layout_editor_absoluteY="397dp" />
+
+  <Button
+    android:id="@+id/onDemandButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/on_demand"
+    tools:layout_editor_absoluteX="143dp"
+    tools:layout_editor_absoluteY="455dp" />
+
+  <Button
+    android:id="@+id/poleBiasAdjustmentButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/pole_bias_adjustment"
+    tools:layout_editor_absoluteX="119dp"
+    tools:layout_editor_absoluteY="503dp" />
+
+  <Button
+    android:id="@+id/refreshUserTokenButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/refresh_user_token"
+    tools:layout_editor_absoluteX="126dp"
+    tools:layout_editor_absoluteY="551dp" />
+
+  <Button
+    android:id="@+id/registerButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/register"
+    tools:layout_editor_absoluteX="166dp"
+    tools:layout_editor_absoluteY="596dp" />
+
+  <Button
+    android:id="@+id/skyplotButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/skyplot"
+    tools:layout_editor_absoluteX="172dp"
+    tools:layout_editor_absoluteY="644dp" />
+</androidx.constraintlayout.widget.ConstraintLayout>

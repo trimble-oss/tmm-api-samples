@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="antenna_settings">Antenna Settings</string>
+  <string name="configuration">Configuration</string>
+  <string name="ebubble_calibration">EBubble Calibration</string>
+  <string name="gnss_status">Gnss Status</string>
+  <string name="here_intent">Here intent</string>
+  <string name="imu_calibration">Imu Calibration</string>
+  <string name="login_page">Login Page</string>
+  <string name="login_user">Login User</string>
+  <string name="on_demand">On Demand</string>
+  <string name="pole_bias_adjustment">Pole Bias Adjustment</string>
+  <string name="refresh_user_token">Refresh User Token</string>
+  <string name="register">Register</string>
+  <string name="skyplot">Skyplot</string>
+</resources>
