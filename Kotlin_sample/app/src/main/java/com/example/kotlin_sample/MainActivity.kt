@@ -1,7 +1,9 @@
 package com.example.kotlin_sample
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -39,6 +41,26 @@ class MainActivity : AppCompatActivity() {
         {
           tileText.visibility = View.GONE
           appIDInput.visibility = View.GONE
+        }
+
+//        Navigation Pages
+//        Intents
+        val intentButton: Button = findViewById(R.id.intentsButton)
+        intentButton.setOnClickListener {
+          val intent = Intent(this@MainActivity, IntentsActivity::class.java)
+          startActivity(intent)
+        }
+//        Android Scheme
+        val schemeButton: Button = findViewById(R.id.androidSchemeButton)
+        schemeButton.setOnClickListener {
+          val intent = Intent(this@MainActivity, AndroidSchemeActivity::class.java)
+          startActivity(intent)
+        }
+//        Restful API
+        val restfulApiButton: Button = findViewById(R.id.restfulApiButton)
+        restfulApiButton.setOnClickListener {
+          val intent = Intent(this@MainActivity, RestfulApiActivity::class.java)
+          startActivity(intent)
         }
       }
     }
