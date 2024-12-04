@@ -11,103 +11,151 @@
     android:id="@+id/antennaButton"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_marginStart="126dp"
+    android:layout_marginTop="1dp"
+    android:layout_marginEnd="127dp"
     android:text="@string/antenna_settings"
-    tools:layout_editor_absoluteX="126dp"
-    tools:layout_editor_absoluteY="1dp" />
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
 
   <Button
     android:id="@+id/configurationButton"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_marginStart="138dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="138dp"
     android:text="@string/configuration"
-    tools:layout_editor_absoluteX="138dp"
-    tools:layout_editor_absoluteY="57dp" />
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/antennaButton" />
 
   <Button
     android:id="@+id/ebubbleCalibrationButton"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_marginStart="119dp"
+    android:layout_marginTop="9dp"
+    android:layout_marginEnd="119dp"
     android:text="@string/ebubble_calibration"
-    tools:layout_editor_absoluteX="119dp"
-    tools:layout_editor_absoluteY="114dp" />
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/configurationButton" />
 
   <Button
     android:id="@+id/gnssStatButton"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_marginStart="144dp"
+    android:layout_marginTop="9dp"
+    android:layout_marginEnd="143dp"
     android:text="@string/gnss_status"
-    tools:layout_editor_absoluteX="143dp"
-    tools:layout_editor_absoluteY="171dp" />
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/ebubbleCalibrationButton" />
 
   <Button
     android:id="@+id/hereButton"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_marginStart="146dp"
+    android:layout_marginTop="9dp"
+    android:layout_marginEnd="146dp"
     android:text="@string/here_intent"
-    tools:layout_editor_absoluteX="146dp"
-    tools:layout_editor_absoluteY="228dp" />
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/gnssStatButton" />
 
   <Button
     android:id="@+id/imuCalibrationButton"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_marginStart="133dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginEnd="133dp"
     android:text="@string/imu_calibration"
-    tools:layout_editor_absoluteX="133dp"
-    tools:layout_editor_absoluteY="287dp" />
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/hereButton" />
 
   <Button
     android:id="@+id/loginButton"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_marginStart="148dp"
+    android:layout_marginTop="7dp"
+    android:layout_marginEnd="143dp"
     android:text="@string/login_page"
-    tools:layout_editor_absoluteX="148dp"
-    tools:layout_editor_absoluteY="341dp" />
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/imuCalibrationButton" />
 
   <Button
     android:id="@+id/loginUserButton"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_marginStart="148dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="146dp"
     android:text="@string/login_user"
-    tools:layout_editor_absoluteX="148dp"
-    tools:layout_editor_absoluteY="397dp" />
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/loginButton" />
 
   <Button
     android:id="@+id/onDemandButton"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_marginStart="143dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginEnd="145dp"
     android:text="@string/on_demand"
-    tools:layout_editor_absoluteX="143dp"
-    tools:layout_editor_absoluteY="455dp" />
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/loginUserButton" />
 
   <Button
     android:id="@+id/poleBiasAdjustmentButton"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_marginStart="119dp"
+    android:layout_marginEnd="106dp"
     android:text="@string/pole_bias_adjustment"
-    tools:layout_editor_absoluteX="119dp"
-    tools:layout_editor_absoluteY="503dp" />
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/onDemandButton" />
 
   <Button
     android:id="@+id/refreshUserTokenButton"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_marginStart="126dp"
+    android:layout_marginEnd="112dp"
     android:text="@string/refresh_user_token"
-    tools:layout_editor_absoluteX="126dp"
-    tools:layout_editor_absoluteY="551dp" />
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/poleBiasAdjustmentButton" />
 
   <Button
     android:id="@+id/registerButton"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_marginStart="166dp"
+    android:layout_marginEnd="144dp"
     android:text="@string/register"
-    tools:layout_editor_absoluteX="166dp"
-    tools:layout_editor_absoluteY="596dp" />
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/refreshUserTokenButton" />
 
   <Button
     android:id="@+id/skyplotButton"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_marginStart="171dp"
+    android:layout_marginEnd="145dp"
     android:text="@string/skyplot"
-    tools:layout_editor_absoluteX="172dp"
-    tools:layout_editor_absoluteY="644dp" />
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/registerButton" />
 </androidx.constraintlayout.widget.ConstraintLayout>
