@@ -15,6 +15,7 @@ public partial class RestfulApiPage : ContentPage
 
   private HttpClient _client;
   private HttpClient Client => _client ??= new HttpClient { BaseAddress = new Uri("http://localhost:9637/"), Timeout = DefaultTimeout };
+  // This is the address that the requests will be sent to (the TMM app), with a timeout of 30 seconds for the requests.
   public RestfulApiPage()
 	{
 		InitializeComponent();
@@ -42,6 +43,7 @@ public partial class RestfulApiPage : ContentPage
   {
     string accessCode = AccessCodeManager.Instance.GetNextAccessCode();
     Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", accessCode);
+    // Sets the authorization header with a generated access code.
   }
 
   private async Task<IDictionary<string, string>> PromptAsync(string title, string buttonText, IList<(string name, string initialValue, string placeholder)> parameters)
@@ -69,7 +71,6 @@ public partial class RestfulApiPage : ContentPage
   }
 
   // All get requests use the api/v1/nameofRequest URI
-  // Currently returns exception that target machine refuses the request
   private async void Get_AntennaInfo_Button(object sender, EventArgs e)
   {
     try
@@ -119,6 +120,7 @@ public partial class RestfulApiPage : ContentPage
         return;
 
       if (!double.TryParse(values["Antenna Height"], out double newAntennaHeight))
+        // Checks if the input fields are filled
       {
         await DisplayAlertOnMainThreadAsync("Antenna Height", "Invalid height", "OK");
         return;
@@ -143,6 +145,7 @@ public partial class RestfulApiPage : ContentPage
       var jsonPayloadString = JsonConvert.SerializeObject(jsonPayload);
 
       var content = new StringContent(jsonPayloadString, Encoding.UTF8, "application/json");
+      // sets content-type for header
 
       SetAuthorizationHeader();
 
@@ -150,6 +153,7 @@ public partial class RestfulApiPage : ContentPage
 
       if (response.IsSuccessStatusCode)
       {
+        // if successful, show results as a json
         var payload = await response.Content.ReadAsStringAsync();
         payload = JToken.Parse(payload).ToString(Newtonsoft.Json.Formatting.Indented);
         await DisplayAlertOnMainThreadAsync("Put api/v1/antenna", payload, "OK");
@@ -159,6 +163,7 @@ public partial class RestfulApiPage : ContentPage
       {
         await DisplayAlertOnMainThreadAsync("Put api/v1/antenna", $"Error: {response.StatusCode}", "NOPE");
         Debug.WriteLine("Put api/v1/antenna -- NOPE");
+        // Shows the error as a popup
       }
     }
     catch (Exception ex)
@@ -383,6 +388,7 @@ public partial class RestfulApiPage : ContentPage
     var paramName = $"{prefix}{name}";
     paramName = paramName.Replace(" ", "_");
     return paramName;
+    // Replaces spaces with underscores to prevent problems when using values stored in preferences
   }
   private List<(string name, string initialValue, string placeholder)> LoadPromptParameters(string prefix, IList<(string name, string initialValue, string placeholder)> parameters)
   {
@@ -393,12 +399,14 @@ public partial class RestfulApiPage : ContentPage
       newParameters.Add((param.name, savedValue, param.placeholder));
     }
     return newParameters;
+    // Returns values from the OS's preferences
   }
   private void SavePromptParameters(string prefix, IDictionary<string, string> parameters)
   {
     foreach (var key in parameters.Keys)
     {
       Preferences.Default.Set(GetParamName(prefix, key), parameters[key]);
+      // Stores value in the OS's preferences, in this case Windows
     }
   }
 
@@ -439,7 +447,7 @@ public partial class RestfulApiPage : ContentPage
     {
       VM.AreButtonsEnabled = false;
 
-      // Create a new HttpClient with a longer timeout
+      // Create a new HttpClient with a longer timeout for connecting to receiver
       using (var longTimeoutClient = new HttpClient { BaseAddress = new Uri("http://localhost:9637/"), Timeout = TimeSpan.FromSeconds(120) })
       {
         List<(string, string, string)> parameters = new()
@@ -491,7 +499,8 @@ public partial class RestfulApiPage : ContentPage
             await DisplayAlertOnMainThreadAsync("Put api/v1/receiver", $"Error: {response.StatusCode}", "OK");
           }
         }
-        else // Success response
+        else
+        // Success response
         {
           var responseBody = await response.Content.ReadAsStringAsync();
           var responseObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseBody);
@@ -530,6 +539,7 @@ public partial class RestfulApiPage : ContentPage
 
   private async void Get_TMM_Info(object sender, EventArgs e)
   {
+    // Retrieves information about TMM
     try
     {
       VM.AreButtonsEnabled = false;
@@ -561,6 +571,7 @@ public partial class RestfulApiPage : ContentPage
 
   private async void Send_Ping(object sender, EventArgs e)
   {
+    // Returns pong on success
     try
     {
       VM.AreButtonsEnabled = false;

@@ -7,7 +7,6 @@ using Windows.System;
 using Launcher = Windows.System.Launcher;
 // Ambiguity of the Launcher class requires the namespace to be specified
 using Newtonsoft.Json.Linq;
-using Maui_sample;
 using System.Diagnostics;
 
 namespace Maui_sample.Platforms.Windows
@@ -29,6 +28,7 @@ namespace Maui_sample.Platforms.Windows
         var requestToLaunch = new Uri(request);
         bool supportsRequest = await Launcher.QueryUriSupportAsync(requestToLaunch, LaunchQuerySupportType.Uri) == LaunchQuerySupportStatus.Available;
 
+        // Checks if the URI is valid
         if (supportsRequest)
         {
           bool result = await Launcher.LaunchUriAsync(requestToLaunch);

@@ -12,9 +12,6 @@ public partial class WinRequestSchemePage : ContentPage
   public WinRequestSchemePage()
   {
     InitializeComponent();
-    //# if WINDOWS
-    //    WinRequestSchemePage.Initialize(this);
-    //#endif
   }
 
   // Retrieves the registered AppID (obtained from Trimble) from the platform's respective secure storage and if it isn't saved then it will create it.
@@ -32,6 +29,7 @@ public partial class WinRequestSchemePage : ContentPage
   // All Windows requests will have similar format: trimbleMobileManager://request/nameofRequest?applicationId=yourAppID&callback=callbackURI
   public async void TmmRegisterClicked(object sender, EventArgs e)
   {
+    // Responsible for registration
     try
     {
       string sampleAppID = await SampleAppID();
@@ -43,7 +41,7 @@ public partial class WinRequestSchemePage : ContentPage
 
       await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
       {
-        // At the moment should only display the result of the response
+        // At the moment it will only display the result of the response
         await DisplayRegisterResultAsync(responseJson);
       });
     }
@@ -55,6 +53,7 @@ public partial class WinRequestSchemePage : ContentPage
 
   public async void TmmLoginClicked(object sender, EventArgs e)
   {
+    //
     try
     {
       string sampleAppID = await SampleAppID();
@@ -66,7 +65,6 @@ public partial class WinRequestSchemePage : ContentPage
 
       await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
       {
-        // At the moment should only display the result of the response
         await DisplayRegisterResultAsync(responseJson);
       });
     }
@@ -89,7 +87,6 @@ public partial class WinRequestSchemePage : ContentPage
 
       await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
       {
-        // At the moment should only display the result of the response
         await DisplayRegisterResultAsync(responseJson);
       });
     }
@@ -101,6 +98,7 @@ public partial class WinRequestSchemePage : ContentPage
 
   public async void TmmOpenToAntennaHeightClicked(object sender, EventArgs e)
   {
+    // Gets antenna info
     try
     {
       string requestID = "tmmOpenToAntennaHeight";
@@ -111,7 +109,6 @@ public partial class WinRequestSchemePage : ContentPage
 
       await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
       {
-        // At the moment should only display the result of the response
         await DisplayRegisterResultAsync(responseJson);
       });
     }
@@ -123,6 +120,7 @@ public partial class WinRequestSchemePage : ContentPage
 
   public async void TmmOpenToConfigurationClicked(object sender, EventArgs e)
   {
+    // Opens configuration page
     try
     {
       string requestID = "tmmOpenToConfiguration";
@@ -133,7 +131,6 @@ public partial class WinRequestSchemePage : ContentPage
 
       await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
       {
-        // At the moment should only display the result of the response
         await DisplayRegisterResultAsync(responseJson);
       });
     }
@@ -145,6 +142,7 @@ public partial class WinRequestSchemePage : ContentPage
 
   public async void TmmOpenToReceiverSelectionClicked(object sender, EventArgs e)
   {
+    // Gets reciever info
     try
     {
       string requestID = "tmmOpenToReceiverSelection";
@@ -155,7 +153,6 @@ public partial class WinRequestSchemePage : ContentPage
 
       await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
       {
-        // At the moment should only display the result of the response
         await DisplayRegisterResultAsync(responseJson);
       });
     }
@@ -167,6 +164,7 @@ public partial class WinRequestSchemePage : ContentPage
 
   public async void TmmCorrectionSettingsClicked(object sender, EventArgs e)
   {
+    // Opens correction settings
     try
     {
       string requestID = "tmmCorrectionSettings";
@@ -177,7 +175,6 @@ public partial class WinRequestSchemePage : ContentPage
 
       await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
       {
-        // At the moment should only display the result of the response
         await DisplayRegisterResultAsync(responseJson);
       });
     }
@@ -189,6 +186,7 @@ public partial class WinRequestSchemePage : ContentPage
 
   public async void TmmOpenToSkyplotClicked(object sender, EventArgs e)
   {
+    // Opens skyplot page
     try
     {
       string requestID = "tmmOpenToSkyplot";
@@ -199,7 +197,6 @@ public partial class WinRequestSchemePage : ContentPage
 
       await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
       {
-        // At the moment should only display the result of the response
         await DisplayRegisterResultAsync(responseJson);
       });
     }
@@ -221,7 +218,6 @@ public partial class WinRequestSchemePage : ContentPage
 
       await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
       {
-        // At the moment should only display the result of the response
         await DisplayRegisterResultAsync(responseJson);
       });
     }
@@ -242,7 +238,6 @@ public partial class WinRequestSchemePage : ContentPage
 
       await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
       {
-        // At the moment should only display the result of the response
         await DisplayRegisterResultAsync(responseJson);
       });
     }
@@ -254,6 +249,7 @@ public partial class WinRequestSchemePage : ContentPage
 
   public async void TmmRefreshUserTokenClicked(object sender, EventArgs e)
   {
+    // Refresh tokens
     try
     {
       string requestID = "tmmRefreshUserToken";
@@ -264,7 +260,6 @@ public partial class WinRequestSchemePage : ContentPage
 
       await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
       {
-        // At the moment should only display the result of the response
         await DisplayRegisterResultAsync(responseJson);
       });
     }
@@ -285,7 +280,6 @@ public partial class WinRequestSchemePage : ContentPage
 
       await WinRequestSchemeService.CallAsync(requestString, callbackUri, async (responseJson) =>
       {
-        // At the moment should only display the result of the response
         await DisplayRegisterResultAsync(responseJson);
       });
     }
