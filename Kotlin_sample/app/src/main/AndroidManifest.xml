@@ -12,17 +12,10 @@
     android:supportsRtl="true"
     android:theme="@style/Theme.Kotlin_sample"
     tools:targetApi="31">
-    <activity
-      android:name=".AndroidSchemeActivity"
-      android:exported="false" />
+
+    <!-- The name is the class name in the associated activity -->
     <activity
       android:name=".RestfulApiActivity"
-      android:exported="false" />
-    <activity
-      android:name=".antennaSettingsActivity"
-      android:exported="false" />
-    <activity
-      android:name=".androidSchemeActivity"
       android:exported="false" />
     <activity
       android:name=".IntentsActivity"
