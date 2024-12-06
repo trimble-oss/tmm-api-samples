@@ -14,54 +14,58 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
 class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-//      Version
-      val versionText: TextView = findViewById(R.id.versionText)
-      var versionNumber = applicationContext.packageManager.getPackageInfo(applicationContext.packageName, 0).versionName
-      versionText.text = getString(R.string.version, versionNumber)
-//        CheckBox
-      val checkB: CheckBox = findViewById(R.id.customIDTextCheckBox)
-      val tileText: TextInputLayout = findViewById(R.id.appIDTextTitle)
-      val appIDInput: TextInputEditText = findViewById(R.id.appIDEditText)
-      checkB.setOnClickListener {
-        if (checkB.isChecked) {
-//          Set visibility property. To get visibility status remove the equality
-          tileText.visibility = View.VISIBLE
-          appIDInput.visibility = View.VISIBLE
-        }
-        else
-        {
-          tileText.visibility = View.GONE
-          appIDInput.visibility = View.GONE
-        }
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    enableEdgeToEdge()
+    setContentView(R.layout.activity_main)
+    ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+      val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+      v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+      insets
+    }
+//      Version - Shows the version as text
+    val versionText: TextView = findViewById(R.id.versionText)
+    var versionNumber = applicationContext.packageManager.getPackageInfo(
+      applicationContext.packageName,
+      0
+    ).versionName
+    versionText.text = getString(R.string.version, versionNumber)
 
-//        Navigation Pages
-//        Intents
-        val intentButton: Button = findViewById(R.id.intentsButton)
-        intentButton.setOnClickListener {
-          val intent = Intent(this@MainActivity, IntentsActivity::class.java)
-          startActivity(intent)
-        }
-//        Android Scheme
-        val schemeButton: Button = findViewById(R.id.androidSchemeButton)
-        schemeButton.setOnClickListener {
-          val intent = Intent(this@MainActivity, AndroidSchemeActivity::class.java)
-          startActivity(intent)
-        }
-//        Restful API
-        val restfulApiButton: Button = findViewById(R.id.restfulApiButton)
-        restfulApiButton.setOnClickListener {
-          val intent = Intent(this@MainActivity, RestfulApiActivity::class.java)
-          startActivity(intent)
-        }
+//        CheckBox - Makes the checkbox hide/show the input field
+    val checkB: CheckBox = findViewById(R.id.customIDTextCheckBox)
+    val tileText: TextInputLayout = findViewById(R.id.appIDTextTitle)
+    val appIDInput: TextInputEditText = findViewById(R.id.appIDEditText)
+    checkB.setOnClickListener {
+      if (checkB.isChecked) {
+//          Set visibility property. To get visibility status remove the equality
+        tileText.visibility = View.VISIBLE
+        appIDInput.visibility = View.VISIBLE
+      } else {
+        tileText.visibility = View.GONE
+        appIDInput.visibility = View.GONE
       }
     }
+
+//        Navigation Pages - Each button corresponds to the page they go to
+//        within the app
+
+//        Intents
+    val intentButton: Button = findViewById(R.id.intentsButton)
+    intentButton.setOnClickListener {
+      val i = Intent(this@MainActivity, IntentsActivity::class.java)
+      startActivity(i)
+    }
+
+//        Restful API
+    val restfulApiButton: Button = findViewById(R.id.restfulApiButton)
+    restfulApiButton.setOnClickListener {
+      Intent(applicationContext, RestfulApiActivity::class.java).also { startActivity(it) }
+//      Navigation can be done both ways. This way uses the entire application's context
+//      While the intents button uses the package context (it will only look in com.example.kotlin_sample)
+    }
+  }
+
+//      Location
+//      Web socket
+//      Web socket V2
 }
