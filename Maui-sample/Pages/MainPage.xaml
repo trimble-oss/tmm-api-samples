@@ -24,40 +24,6 @@
         AutoSize="TextChanges"
         BackgroundColor="WhiteSmoke"
         IsVisible="{Binding AppID}"/>
-
-        <Button
-        x:Name="LocationButton"
-        Clicked="OnLocationButtonClicked"
-        HorizontalOptions="FillAndExpand"
-        SemanticProperties.Hint="Location"
-        Text="Location" />
-
-        <Button
-        x:Name="WebSocketLocationButton"
-        Clicked="OnWebSocketLocationButtonClickedV2"
-        HorizontalOptions="FillAndExpand"
-        SemanticProperties.Hint="Websocket Location"
-        Text="Websocket Location" />
-
-        <Button
-        x:Name="WebSocketLocationButtonV2"
-        Clicked="OnWebSocketLocationButtonClickedV2"
-        HorizontalOptions="FillAndExpand"
-        SemanticProperties.Hint="Websocket Location V2"
-        Text="Websocket Location V2" />
-        <Button
-        x:Name="WinRequestSchemeButton"
-        Clicked="OnWinRequestSchemeButtonClicked"
-        HorizontalOptions="FillAndExpand"
-        IsVisible="{OnPlatform WinUI=True,
-                                Default=False}"
-        SemanticProperties.Hint="Request Schemes"
-        Text="Window Schemes" />
-        <Button
-        x:Name="RestfulApiButton"
-        Text="RESTful API"
-        Clicked="OnRestfulApiButtonClicked"
-        HorizontalOptions="FillAndExpand"/>
       </VerticalStackLayout>
     </Grid>
   </ScrollView>
