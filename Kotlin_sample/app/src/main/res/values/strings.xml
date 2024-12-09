@@ -3,10 +3,6 @@
   <string name="version">Version %1$s</string>
   <string name="use_custom_app_id">Use custom App ID</string>
   <string name="enter_app_id">Enter App ID</string>
-  <string name="intents">Intents</string>
-  <string name="location">Location</string>
-  <string name="web_socket_location">Web socket location</string>
-  <string name="web_socket_location_v2">Web socket location V2</string>
-  <string name="android_scheme_page">Android scheme page</string>
-  <string name="restful_api">Restful API</string>
+  <string name="start">Start</string>
+  <string name="stop">Stop</string>
 </resources>

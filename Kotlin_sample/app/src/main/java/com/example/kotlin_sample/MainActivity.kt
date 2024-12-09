@@ -45,27 +45,5 @@ class MainActivity : AppCompatActivity() {
         appIDInput.visibility = View.GONE
       }
     }
-
-//        Navigation Pages - Each button corresponds to the page they go to
-//        within the app
-
-//        Intents
-    val intentButton: Button = findViewById(R.id.intentsButton)
-    intentButton.setOnClickListener {
-      val i = Intent(this@MainActivity, IntentsActivity::class.java)
-      startActivity(i)
-    }
-
-//        Restful API
-    val restfulApiButton: Button = findViewById(R.id.restfulApiButton)
-    restfulApiButton.setOnClickListener {
-      Intent(applicationContext, RestfulApiActivity::class.java).also { startActivity(it) }
-//      Navigation can be done both ways. This way uses the entire application's context
-//      While the intents button uses the package context (it will only look in com.example.kotlin_sample)
-    }
   }
-
-//      Location
-//      Web socket
-//      Web socket V2
 }

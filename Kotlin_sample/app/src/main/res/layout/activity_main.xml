@@ -78,66 +78,15 @@ Constraint is the simplest to organize using the built in previewer -->
     </com.google.android.material.textfield.TextInputLayout>
 
   <Button
-    android:id="@+id/intentsButton"
+    android:id="@+id/startButton"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginStart="154dp"
-    android:layout_marginTop="16dp"
-    android:layout_marginEnd="165dp"
-    android:text="@string/intents"
+    android:layout_marginStart="160dp"
+    android:layout_marginTop="54dp"
+    android:layout_marginEnd="160dp"
+    android:text="@string/start"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.0"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/restfulApiButton" />
-
-  <Button
-    android:id="@+id/locationButton"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="152dp"
-    android:layout_marginTop="69dp"
-    android:layout_marginEnd="168dp"
-    android:text="@string/location"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.0"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/appIDTextTitle" />
-
-  <Button
-    android:id="@+id/webSocketLocationButton"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="152dp"
-    android:layout_marginEnd="168dp"
-    android:text="@string/web_socket_location"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.441"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/locationButton" />
-
-  <Button
-    android:id="@+id/webSocketLocationV2Button"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="153dp"
-    android:layout_marginEnd="167dp"
-    android:text="@string/web_socket_location_v2"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.439"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/webSocketLocationButton" />
-
-  <Button
-    android:id="@+id/restfulApiButton"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="153dp"
-    android:layout_marginTop="8dp"
-    android:layout_marginEnd="167dp"
-    android:text="@string/restful_api"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.275"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/webSocketLocationV2Button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

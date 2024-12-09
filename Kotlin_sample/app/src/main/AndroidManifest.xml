@@ -15,12 +15,6 @@
 
     <!-- The name is the class name in the associated activity -->
     <activity
-      android:name=".RestfulApiActivity"
-      android:exported="false" />
-    <activity
-      android:name=".IntentsActivity"
-      android:exported="false" />
-    <activity
       android:name=".MainActivity"
       android:exported="true">
       <intent-filter>
