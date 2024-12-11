@@ -24,6 +24,11 @@
         AutoSize="TextChanges"
         BackgroundColor="WhiteSmoke"
         IsVisible="{Binding AppID}"/>
+
+        <Button
+          x:Name="StartStopButton"
+          Text="Start"
+          Clicked="StartStopButton_Clicked"/>
       </VerticalStackLayout>
     </Grid>
   </ScrollView>

@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace Maui_sample.Models
 {
-    class PortInfo
-    {
-    public int APIPort {  get; set; }
-    public int LocationV2Port { get; set; }
-    }
+  internal class PortInfo
+  {
+    public static int APIPort { get; set; }
+  }
 }
