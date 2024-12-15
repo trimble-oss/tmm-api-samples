@@ -26,6 +26,7 @@ namespace Maui_sample.Platforms.Windows
           if (returnCallback != null)
           {
             s_returnCallback = returnCallback;
+            return;
           }
         }
         else

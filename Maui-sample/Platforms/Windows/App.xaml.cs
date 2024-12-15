@@ -26,7 +26,7 @@ namespace Maui_sample.WinUI
 
       // Windows will launch a new instance of TMM with every URI activation. We only want the
       // 'main' instance to handle the URI activation.
-      var mainInstance = AppInstance.FindOrRegisterForKey("sampleapp");
+      var mainInstance = AppInstance.FindOrRegisterForKey("com.trimble.tmmapisample");
       if (mainInstance.IsCurrent)
       {
         // This is the 'main' instance handle the URI
@@ -54,7 +54,7 @@ namespace Maui_sample.WinUI
       if (args.Kind == ExtendedActivationKind.Protocol && args.Data is ProtocolActivatedEventArgs protocolArgs)
       {
         Uri uri = protocolArgs.Uri;
-        if (uri.AbsolutePath.StartsWith("sampleapp://response/tmmRegister"))
+        if (uri.AbsolutePath.StartsWith("tmmapisample://response/tmmRegister"))
         {
           // this is the callbackUri sent to TMM earlier
           NameValueCollection queryDictionary = HttpUtility.ParseQueryString(uri.Query);

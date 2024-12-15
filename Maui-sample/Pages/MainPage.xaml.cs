@@ -1,7 +1,9 @@
 using System.Diagnostics;
 using System.Text;
-using System.Text.Json;
 using Maui_sample.Models;
+#if WINDOWS
+using Maui_sample.Platforms.Windows;
+#endif
 using Newtonsoft.Json.Linq;
 
 namespace Maui_sample;
@@ -21,7 +23,7 @@ public partial class MainPage : ContentPage
     // ID should not be commited to source control
   }
 
-  private void StartStopButton_Clicked(object sender, EventArgs e)
+  private async void StartStopButton_Clicked(object sender, EventArgs e)
   {
     _startStop = !_startStop;
     StartStopButton.Text = _startStop ? "Stop" : "Start";
@@ -30,9 +32,9 @@ public partial class MainPage : ContentPage
     // Run register URI. Check to see if the application ID is the same as the one stored in environment variables.
     if (appID != null && appID != "")
     {
-      string responseUri = startOperations(appID);
-      setAppID(appID);
-      UseResponseUri(responseUri);
+      startOperations(appID);
+      //setAppID(appID);
+      //UseResponseUri(responseUri);
     }
     else
     {
@@ -40,28 +42,40 @@ public partial class MainPage : ContentPage
     }
   }
 
-  private string startOperations(string AppID)
+  private async void startOperations(string AppID)
   {
 #if WINDOWS
     try
     {
       // This should use the values gained from successful registration to do operations like location and web socket v2
       string requestId = "tmmRegister";
-      string callback = Uri.EscapeDataString("sampleapp://response/tmmRegister");
+      string callback = Uri.EscapeDataString("tmmapisample://response/tmmRegister");
       string applicationId = AppID;
       string requestUri = $"trimbleMobileManager://request/{requestId}?applicationId={applicationId}&callback={callback}";
 
       Debug.WriteLine("Starting registration");
-      return requestUri;
+      if (await checkRequest(requestUri))
+      {
+        Debug.WriteLine($"Allow");
+      }
       
     }
     catch (Exception ex)
     {
       Debug.WriteLine(ex.Message);
-      return string.Empty;
     }
 #endif
-    return string.Empty;
+  }
+
+  private async Task<bool> checkRequest(string requestUri)
+  {
+    if (await Launcher.Default.CanOpenAsync(requestUri))
+    {
+      bool resullt = await Launcher.Default.OpenAsync(requestUri);
+      Debug.WriteLine($"Result: {resullt}");
+      return resullt;
+    }
+    return false;
   }
 
   private void UseResponseUri(string responseUri)
