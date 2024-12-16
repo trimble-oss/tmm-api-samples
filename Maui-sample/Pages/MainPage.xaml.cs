@@ -87,7 +87,7 @@ public partial class MainPage : ContentPage
 
   private async Task<int> GetPositionStreamPortAsync()
   {
-    string appID = _viewModel?.ApplicationID;
+    string? appID = _viewModel?.ApplicationID;
     int apiPort = 9637;
 
     // set up the HTTP client
@@ -109,7 +109,11 @@ public partial class MainPage : ContentPage
 
     // parse the response
     string jsonString = await response.Content.ReadAsStringAsync();
-    JsonNode jnode = JsonNode.Parse(jsonString);
+    JsonNode? jnode = JsonNode.Parse(jsonString);
+    if(jnode is null)
+    {
+      throw new Exception("Failed to parse position stream port");
+    }
     int port = jnode["port"]?.GetValue<int>() ?? 0;
     return port;
   }
@@ -138,11 +142,15 @@ public partial class MainPage : ContentPage
       if (result.Count > 0 && result.MessageType == WebSocketMessageType.Text)
       {
         // parse the position data
-        string jsonString = Encoding.UTF8.GetString(data.ToArray());
-        JsonNode jnode = JsonNode.Parse(jsonString);
-        double? latitude = jnode["latitude"]?.GetValue<double>();
-        double? longitude = jnode["longitude"]?.GetValue<double>();
-        double? altitude = jnode["altitude"]?.GetValue<double>();
+        string jsonString = Encoding.UTF8.GetString(data.ToArray(), 0, result.Count);
+        JsonNode? jnode = JsonNode.Parse(jsonString);
+        if (jnode is not null)
+        {
+          double? latitude = jnode["latitude"]?.GetValue<double>();
+          double? longitude = jnode["longitude"]?.GetValue<double>();
+          double? altitude = jnode["altitude"]?.GetValue<double>();
+          System.Diagnostics.Debug.WriteLine($"Position: {latitude}, {longitude}, {altitude}");
+        }
       }
     }
   }
