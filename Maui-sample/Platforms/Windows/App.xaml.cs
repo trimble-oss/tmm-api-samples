@@ -5,6 +5,7 @@ using Maui_sample.Models;
 using Microsoft.UI.Xaml;
 using Microsoft.Windows.AppLifecycle;
 using Windows.ApplicationModel.Activation;
+using CommunityToolkit.Mvvm.Messaging;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -16,6 +17,7 @@ namespace Maui_sample.WinUI
   /// </summary>
   public partial class App : MauiWinUIApplication
   {
+    public int APIport { get; private set; }
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
     /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -54,7 +56,9 @@ namespace Maui_sample.WinUI
       if (args.Kind == ExtendedActivationKind.Protocol && args.Data is ProtocolActivatedEventArgs protocolArgs)
       {
         Uri uri = protocolArgs.Uri;
-        if (uri.AbsolutePath.StartsWith("tmmapisample://response/tmmRegister"))
+        Debug.WriteLine($"Received URI: {uri}");
+        if (uri.AbsolutePath.StartsWith("/tmmRegister"))
+        // the AbsolutePath value seems to be /tmmRegister at this point
         {
           // this is the callbackUri sent to TMM earlier
           NameValueCollection queryDictionary = HttpUtility.ParseQueryString(uri.Query);
@@ -64,7 +68,9 @@ namespace Maui_sample.WinUI
           string registrationResult = queryDictionary["registrationResult"]; // “OK”, “NoNetwork”, or “Unauthorized”
           int.TryParse(queryDictionary["apiPort"], out var apiPort); // The REST API is at $"WS://localhost:{apiPort}"
 
-          PortInfo.APIPort = apiPort;
+          // Pass to MainPage
+          var mainPage = new MainPage();
+          mainPage.useUri(uri);
         }
       }
     }

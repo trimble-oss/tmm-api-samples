@@ -29,6 +29,15 @@
           x:Name="StartStopButton"
           Text="Start"
           Clicked="StartStopButton_Clicked"/>
+
+        <Label Text="Latitude:" />
+        <Label Text="{Binding Latitude}" />
+
+        <Label Text="Longitude:" />
+        <Label Text="{Binding Longitude}" />
+
+        <Label Text="Altitude:" />
+        <Label Text="{Binding Altitude}" />
       </VerticalStackLayout>
     </Grid>
   </ScrollView>

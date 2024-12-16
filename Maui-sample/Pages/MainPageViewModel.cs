@@ -4,6 +4,26 @@ namespace Maui_sample
 {
     class MainPageViewModel : ReactiveObject
     {
+    private double? _latitude;
+    public double? Latitude
+    {
+      get => _latitude;
+      set => this.RaiseAndSetIfChanged(ref _latitude, value);
+    }
+
+    private double? _longitude;
+    public double? Longitude
+    {
+      get => _longitude;
+      set => this.RaiseAndSetIfChanged(ref _longitude, value);
+    }
+
+    private double? _altitude;
+    public double? Altitude
+    {
+      get => _altitude;
+      set => this.RaiseAndSetIfChanged(ref _altitude, value);
+    }
     private bool _appID = false;
 
     public bool AppID
