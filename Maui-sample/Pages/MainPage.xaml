@@ -12,32 +12,35 @@
     <Grid ColumnDefinitions="0.15*, 0.7*, 0.15*" VerticalOptions="Center">
       <VerticalStackLayout Spacing="10">
         <HorizontalStackLayout Spacing="10">
-          <CheckBox IsChecked="{Binding AppID}"></CheckBox>
-          <Label
-            Text="Enter Application ID"
-            HorizontalOptions="Start"
-            VerticalOptions="Center"/>
         </HorizontalStackLayout>
         <Editor
         x:Name="AppIDEntry"
         Text="{Binding ApplicationID}"
         AutoSize="TextChanges"
-        BackgroundColor="WhiteSmoke"
-        IsVisible="{Binding AppID}"/>
+        BackgroundColor="WhiteSmoke"/>
 
         <Button
           x:Name="StartStopButton"
           Text="Start"
           Clicked="StartStopButton_Clicked"/>
 
-        <Label Text="Latitude:" />
-        <Label Text="{Binding Latitude}" />
+        <Label Text="{Binding Messages}"
+               IsVisible="{Binding AreLabelsVisible}"/>
 
-        <Label Text="Longitude:" />
-        <Label Text="{Binding Longitude}" />
+        <Label Text="Latitude:"
+               IsVisible="{Binding AreLabelsVisible}"/>
+        <Label Text="{Binding Latitude}"
+               IsVisible="{Binding AreLabelsVisible}"/>
 
-        <Label Text="Altitude:" />
-        <Label Text="{Binding Altitude}" />
+        <Label Text="Longitude:"
+               IsVisible="{Binding AreLabelsVisible}"/>
+        <Label Text="{Binding Longitude}"
+               IsVisible="{Binding AreLabelsVisible}"/>
+
+        <Label Text="Altitude:"
+               IsVisible="{Binding AreLabelsVisible}"/>
+        <Label Text="{Binding Altitude}"
+               IsVisible="{Binding AreLabelsVisible}"/>
       </VerticalStackLayout>
     </Grid>
   </ScrollView>

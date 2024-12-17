@@ -70,7 +70,7 @@ namespace Maui_sample.WinUI
 
           // Pass to MainPage
           var mainPage = new MainPage();
-          mainPage.useUri(uri);
+          mainPage.UseUri(uri);
         }
       }
     }

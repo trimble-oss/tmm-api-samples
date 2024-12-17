@@ -1,9 +1,25 @@
-﻿using ReactiveUI;
+﻿using System.Reactive;
+using ReactiveUI;
 
 namespace Maui_sample
 {
     class MainPageViewModel : ReactiveObject
     {
+
+    private bool _areLabelsVisible;
+    public bool AreLabelsVisible
+    {
+      get => _areLabelsVisible;
+      set => this.RaiseAndSetIfChanged(ref _areLabelsVisible, value);
+    }
+
+    private string _messages;
+    public string Messages
+    {
+      get => _messages;
+      set => this.RaiseAndSetIfChanged(ref _messages, value);
+    }
+
     private double? _latitude;
     public double? Latitude
     {
@@ -26,20 +42,6 @@ namespace Maui_sample
     }
     private bool _appID = false;
 
-    public bool AppID
-    {
-      get => _appID;
-      set
-      {
-        if (_appID != value)
-        {
-          _appID = value;
-          Preferences.Default.Set("UseAppID", _appID);
-          UpdateAppID();
-          this.RaisePropertyChanged();
-        }
-      }
-    }
     private string _applicationID = string.Empty;
 
     public string ApplicationID
@@ -61,6 +63,7 @@ namespace Maui_sample
     {
       _applicationID = Preferences.Default.Get("ApplicationID", string.Empty);
       _appID = Preferences.Default.Get("UseAppID", false);
+
     }
     private void UpdateAppID()
     {
