@@ -127,7 +127,7 @@ public partial class MainPage : ContentPage
     using ClientWebSocket client = new ClientWebSocket();
     await client.ConnectAsync(new Uri($"ws://localhost:{port}"), cancel);
 
-    if (!GetReceiverInfo().Result)
+    if (!CheckReceiverConnection().Result)
     {
       _viewModel.Messages = "Please connect receiver.";
       // Open the TMM select device window
@@ -147,7 +147,7 @@ public partial class MainPage : ContentPage
       }
     }
 
-    while (!cancel.IsCancellationRequested && GetReceiverInfo().Result)
+    while (!cancel.IsCancellationRequested && CheckReceiverConnection().Result)
     {
       _viewModel.Messages = "";
       // read the next position
@@ -183,7 +183,7 @@ public partial class MainPage : ContentPage
     }
   }
 
-  private async Task<bool> GetReceiverInfo()
+  private async Task<bool> CheckReceiverConnection()
   {
     bool receiverConnected = false;
     int apiPort = 9637;
