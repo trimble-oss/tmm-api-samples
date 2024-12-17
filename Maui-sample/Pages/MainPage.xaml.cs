@@ -18,12 +18,6 @@ public partial class MainPage : ContentPage
     InitializeComponent();
   }
 
-  private async void setAppID(string AppID)
-  {
-    await SecureStorage.Default.SetAsync("sampleAppID", AppID);
-    // ID should not be commited to source control
-  }
-
   private async void StartStopButton_Clicked(object sender, EventArgs e)
   {
     _startStop = !_startStop;
@@ -39,6 +33,7 @@ public partial class MainPage : ContentPage
       string callback = Uri.EscapeDataString("tmmapisample://response/tmmRegister");
       string applicationId = appID;
       string requestUri = $"trimbleMobileManager://request/{requestId}?applicationId={applicationId}&callback={callback}";
+      Debug.WriteLine("");
       await checkRequest(requestUri);
 
       if (appID != null && appID != "")
@@ -228,7 +223,7 @@ public partial class MainPage : ContentPage
     }
 
     var responseJson = jsonObject.ToString();
-    //Debug.WriteLine(responseJson);
+    Debug.WriteLine(responseJson);
     var parsedJson = JObject.Parse(responseJson);
 
     var apiPort = parsedJson["apiPort"]?.ToString();

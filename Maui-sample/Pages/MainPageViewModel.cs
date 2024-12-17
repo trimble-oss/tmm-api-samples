@@ -40,7 +40,6 @@ namespace Maui_sample
       get => _altitude;
       set => this.RaiseAndSetIfChanged(ref _altitude, value);
     }
-    private bool _appID = false;
 
     private string _applicationID = string.Empty;
 
@@ -53,7 +52,6 @@ namespace Maui_sample
         {
           _applicationID = value;
           Preferences.Default.Set("ApplicationID", value);
-          UpdateAppID();
           this.RaisePropertyChanged();
         }
       }
@@ -61,13 +59,9 @@ namespace Maui_sample
 
     public MainPageViewModel()
     {
+      _messages = string.Empty;
       _applicationID = Preferences.Default.Get("ApplicationID", string.Empty);
-      _appID = Preferences.Default.Get("UseAppID", false);
 
-    }
-    private void UpdateAppID()
-    {
-      Values.AppID = _appID ? _applicationID.Trim() : Environment.GetEnvironmentVariable("SampleAppID");
     }
   }
 }
