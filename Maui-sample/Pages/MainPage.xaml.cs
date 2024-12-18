@@ -21,7 +21,7 @@ public partial class MainPage : ContentPage
   private async void StartStopButton_Clicked(object sender, EventArgs e)
   {
     _startStop = !_startStop;
-    StartStopButton.Text = _startStop ? "Stop" : "Start";
+    RegisterButton.Text = _startStop ? "Stop" : "Start";
 
     if (_startStop)
     {

@@ -9,38 +9,76 @@
     <local:MainPageViewModel></local:MainPageViewModel>
   </ContentPage.BindingContext>
   <ScrollView>
-    <Grid ColumnDefinitions="0.15*, 0.7*, 0.15*" VerticalOptions="Center">
-      <VerticalStackLayout Spacing="10">
-        <HorizontalStackLayout Spacing="10">
+    <Grid HorizontalOptions="Center">
+      <VerticalStackLayout>
+        
+        <HorizontalStackLayout>
+          <VerticalStackLayout>
+          <Label Text="Enter App ID"
+                 Margin="0,0,0,10"/>
+          <Editor
+            x:Name="AppIDEntry"
+            Text="{Binding ApplicationID}"
+            AutoSize="TextChanges"
+            BackgroundColor="White"
+            Margin="0,0,20,0"
+            WidthRequest="200"/>
+          </VerticalStackLayout>
+
+          <Button
+            x:Name="RegisterButton"
+            Text="Register"
+            Clicked="StartStopButton_Clicked"
+            VerticalOptions="End"
+            WidthRequest="100"/>
         </HorizontalStackLayout>
-        <Editor
-        x:Name="AppIDEntry"
-        Text="{Binding ApplicationID}"
-        AutoSize="TextChanges"
-        BackgroundColor="WhiteSmoke"/>
 
-        <Button
-          x:Name="StartStopButton"
-          Text="Start"
-          Clicked="StartStopButton_Clicked"/>
+        <HorizontalStackLayout Margin="0,20,0,0">
+          
+          <VerticalStackLayout>
+          <Label Text="Receiver name"
+                 Margin="0,10,0,10"/>
 
+            <Editor
+              x:Name="ReceiverDisplayName"
+              Text="Use Binding Text here"
+              IsReadOnly="True"
+              AutoSize="TextChanges"
+              BackgroundColor="WhiteSmoke"
+              Margin="0,0,20,0"
+              WidthRequest="200"/>
+          </VerticalStackLayout>
+          
+          <Button
+            x:Name="GetReceiverButton"
+            Text="Get receiver"
+            VerticalOptions="End"
+            WidthRequest="120"/>
+          
+        </HorizontalStackLayout>
+
+        <VerticalStackLayout Margin="0,20,0,0">
         <Label Text="{Binding Messages}"
                IsVisible="{Binding AreLabelsVisible}"/>
 
-        <Label Text="Latitude:"
-               IsVisible="{Binding AreLabelsVisible}"/>
-        <Label Text="{Binding Latitude}"
-               IsVisible="{Binding AreLabelsVisible}"/>
+        <Label Text="Latitude"/>
+        <Editor Text="{Binding Latitude}"
+                IsReadOnly="True"
+                AutoSize="TextChanges"
+                BackgroundColor="WhiteSmoke"/>
 
-        <Label Text="Longitude:"
-               IsVisible="{Binding AreLabelsVisible}"/>
-        <Label Text="{Binding Longitude}"
-               IsVisible="{Binding AreLabelsVisible}"/>
+        <Label Text="Longitude"/>
+          <Editor Text="{Binding Longitude}"
+                  IsReadOnly="True"
+                  AutoSize="TextChanges"
+                  BackgroundColor="WhiteSmoke"/>
 
-        <Label Text="Altitude:"
-               IsVisible="{Binding AreLabelsVisible}"/>
-        <Label Text="{Binding Altitude}"
-               IsVisible="{Binding AreLabelsVisible}"/>
+        <Label Text="Altitude"/>
+          <Editor Text="{Binding Altitude}"
+                  IsReadOnly="True"
+                  AutoSize="TextChanges"
+                  BackgroundColor="WhiteSmoke"/>
+        </VerticalStackLayout>
       </VerticalStackLayout>
     </Grid>
   </ScrollView>
