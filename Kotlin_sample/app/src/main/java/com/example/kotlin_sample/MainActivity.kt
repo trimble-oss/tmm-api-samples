@@ -2,9 +2,7 @@ package com.example.kotlin_sample
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
-import android.widget.CheckBox
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -31,19 +29,31 @@ class MainActivity : AppCompatActivity() {
     ).versionName
     versionText.text = getString(R.string.version, versionNumber)
 
-//        CheckBox - Makes the checkbox hide/show the input field
-    val checkB: CheckBox = findViewById(R.id.customIDTextCheckBox)
+//        Input field for App ID
     val tileText: TextInputLayout = findViewById(R.id.appIDTextTitle)
     val appIDInput: TextInputEditText = findViewById(R.id.appIDEditText)
-    checkB.setOnClickListener {
-      if (checkB.isChecked) {
-//          Set visibility property. To get visibility status remove the equality
-        tileText.visibility = View.VISIBLE
-        appIDInput.visibility = View.VISIBLE
-      } else {
-        tileText.visibility = View.GONE
-        appIDInput.visibility = View.GONE
+
+    // Start/Stop button
+    val startStopBut: Button = findViewById(R.id.startStopButton)
+
+    startStopBut.setOnClickListener {
+      if (startStopBut.text == "Start")
+      {
+        startStopBut.text = "Stop"
+        androidRegistration()
+      }
+      else
+      {
+        startStopBut.text = "Start"
       }
     }
+  }
+
+  private fun androidRegistration() {
+    val appID = BuildConfig.appID
+    println(appID)
+    val registrationIntent = Intent("com.trimble.tmm.REGISTER")
+    registrationIntent.putExtra("applicationID", appID)
+//    startActivityForResult(intent, registerRequestCode)
   }
 }

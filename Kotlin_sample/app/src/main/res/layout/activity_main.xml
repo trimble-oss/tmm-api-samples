@@ -17,10 +17,8 @@ Constraint is the simplest to organize using the built in previewer -->
     android:layout_marginStart="36dp"
     android:layout_marginTop="2dp"
     android:layout_marginEnd="212dp"
-    android:layout_marginBottom="32dp"
     android:text="@string/app_name"
     android:textSize="24sp"
-    app:layout_constraintBottom_toTopOf="@+id/customIDTextCheckBox"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent" />
@@ -42,43 +40,30 @@ Constraint is the simplest to organize using the built in previewer -->
 <!-- It is preferred to reference text through a separate xml file.
   I am using hard-coded text above because version text is never seen and makes previewer easier to use -->
 
-  <CheckBox
-    android:id="@+id/customIDTextCheckBox"
-    android:layout_width="169dp"
-    android:layout_height="50dp"
-    android:layout_marginStart="146dp"
-    android:layout_marginTop="4dp"
-    android:layout_marginEnd="169dp"
-    android:text="@string/use_custom_app_id"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.328"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/titleText" />
-
-<!-- The referenced text is stored in the "values" directory, where the format is @xmlFileName/resourceName -->
+  <!-- The referenced text is stored in the "values" directory, where the format is @xmlFileName/resourceName -->
 
   <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/appIDTextTitle"
-        android:layout_width="261dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="1dp"
-        android:layout_marginTop="11dp"
-        android:layout_marginEnd="1dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/customIDTextCheckBox">
+    android:id="@+id/appIDTextTitle"
+    android:layout_width="261dp"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="1dp"
+    android:layout_marginTop="65dp"
+    android:layout_marginEnd="1dp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/titleText">
 
     <com.google.android.material.textfield.TextInputEditText
-      android:visibility="gone"
       android:id="@+id/appIDEditText"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:gravity="center"
-      android:hint="@string/enter_app_id" />
-    </com.google.android.material.textfield.TextInputLayout>
+      android:hint="@string/enter_app_id"
+      android:visibility="visible" />
+  </com.google.android.material.textfield.TextInputLayout>
 
   <Button
-    android:id="@+id/startButton"
+    android:id="@+id/startStopButton"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginStart="160dp"

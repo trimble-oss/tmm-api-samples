@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -33,6 +35,19 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+  buildTypes {
+    debug {
+      val sensitiveDataFile = rootProject.file("sensitiveData.properties")
+      val sensitiveData = Properties().apply {
+        load(sensitiveDataFile.inputStream())
+      }
+      val appID: String = sensitiveData["appID"].toString()
+      buildConfigField("String", "appID", appID)
+    }
+  }
+  buildFeatures {
+    buildConfig = true
+  }
 }
 
 dependencies {
