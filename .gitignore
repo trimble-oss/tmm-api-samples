@@ -204,3 +204,5 @@ Scripts/Jira/.venv/
 *.externalNativeBuild
 *.cxx
 *local.properties
+# Custom file to use as storage for AppID
+*sensitiveData.properties
