@@ -15,7 +15,8 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
 class MainActivity : AppCompatActivity() {
-  private lateinit var CustomActivityResultContract: ActivityResultLauncher<Uri>
+
+  private lateinit var startForResult: ActivityResultLauncher<Intent>
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -26,6 +27,26 @@ class MainActivity : AppCompatActivity() {
       v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
       insets
     }
+
+    startForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+      if (result.resultCode == RESULT_OK) {
+        val data: Intent? = result.data
+
+        if (data != null) {
+          val registrationResult = data.getStringExtra("registrationResult")
+          val apiPort = data.getIntExtra("apiPort", -1)
+          val positionsPort = data.getIntExtra("locationPort", -1)
+          val positionsV2Port = data.getIntExtra("locationV2Port", -1)
+
+          // Handle the retrieved data here
+          println("Registration Result: $registrationResult")
+          println("API Port: $apiPort")
+          println("Positions Port: $positionsPort")
+          println("Positions V2 Port: $positionsV2Port")
+        }
+      }
+    }
+
 //      Version - Shows the version as text
     val versionText: TextView = findViewById(R.id.versionText)
     var versionNumber = applicationContext.packageManager.getPackageInfo(
@@ -38,19 +59,17 @@ class MainActivity : AppCompatActivity() {
     val appIDInput: TextInputEditText = findViewById(R.id.appIDEditText)
     val buttonRegister: Button = findViewById(R.id.registerButton)
     buttonRegister.setOnClickListener {
-      val appIDInput = appIDInput.text.toString()
-      if (androidRegistration(appIDInput))
-      {
-        println("Same")
-        CustomActivityResultContract = registerForActivityResult(CustomActivityResultContract()) { uri? -> uri.let {
-          handleCallbackUri(it)
-        }
-         }
-      }
-      else
-      {
-        println("Not same")
-      }
+//      Checks whether the input is the same as the ID stored in the property file
+//      val appIDInput = appIDInput.text.toString()
+//      if (androidRegistration(appIDInput))
+//      {
+//        println("Same")
+        println(sendCustomIntent("com.trimble.tmm.REGISTER"))
+//      }
+//      else
+//      {
+//        println("Not same")
+//      }
     }
 
 
@@ -69,16 +88,18 @@ class MainActivity : AppCompatActivity() {
     }
   }
 
-  private fun androidRegistration(input: String): Boolean {
-    val appID = BuildConfig.appID
-    return appID == input
-  }
+//  Method checks whether the value is the same as the stored value
+//  private fun androidRegistration(input: String): Boolean {
+//    val appID = BuildConfig.appID
+//    return appID == input
+//  }
 
-  private fun handleCallbackUri (uri: Uri) {
-    val callbackParams = uri.queryParameterNames
-    for (param in callbackParams) {
-      val value = uri.getQueryParameter(param)
-      println("Callback param: $param, value: $value")
-    }
+  private fun sendCustomIntent(action: String) {
+//    Gets the app ID from the property file. Just one of few ways to not use hard-coded value
+//    This was the simplest way, not necessarily the best
+    val appID = BuildConfig.appID
+    val intent = Intent(action)
+    intent.putExtra("applicationID", appID)
+    startForResult.launch(intent)
   }
 }
