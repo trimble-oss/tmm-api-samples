@@ -20,6 +20,13 @@ namespace Maui_sample
       set => this.RaiseAndSetIfChanged(ref _messages, value);
     }
 
+    private string _receiverName;
+    public string ReceiverName
+    {
+      get => _receiverName;
+      set => this.RaiseAndSetIfChanged(ref _receiverName, value);
+    }
+
     private double? _latitude;
     public double? Latitude
     {
@@ -56,6 +63,14 @@ namespace Maui_sample
         }
       }
     }
+
+    private string _registrationStatus;
+    public string RegistrationStatus
+    {
+      get => _registrationStatus;
+      set => this.RaiseAndSetIfChanged(ref _registrationStatus, value);
+    }
+
 
     public MainPageViewModel()
     {

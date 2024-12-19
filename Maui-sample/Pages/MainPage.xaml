@@ -28,7 +28,7 @@
           <Button
             x:Name="RegisterButton"
             Text="Register"
-            Clicked="StartStopButton_Clicked"
+            Clicked="RegisterButton_Clicked"
             VerticalOptions="End"
             WidthRequest="100"/>
         </HorizontalStackLayout>
@@ -41,7 +41,7 @@
 
             <Editor
               x:Name="ReceiverDisplayName"
-              Text="Use Binding Text here"
+              Text="{Binding ReceiverName}"
               IsReadOnly="True"
               AutoSize="TextChanges"
               BackgroundColor="WhiteSmoke"
@@ -52,6 +52,7 @@
           <Button
             x:Name="GetReceiverButton"
             Text="Get receiver"
+            Clicked="GetReceiverButton_Clicked"
             VerticalOptions="End"
             WidthRequest="120"/>
           
@@ -61,23 +62,32 @@
         <Label Text="{Binding Messages}"
                IsVisible="{Binding AreLabelsVisible}"/>
 
-        <Label Text="Latitude"/>
+        <Label Text="Latitude"
+               Margin="0,20,0,0"/>
         <Editor Text="{Binding Latitude}"
                 IsReadOnly="True"
                 AutoSize="TextChanges"
                 BackgroundColor="WhiteSmoke"/>
 
-        <Label Text="Longitude"/>
+        <Label Text="Longitude"
+               Margin="0,20,0,0"/>
           <Editor Text="{Binding Longitude}"
                   IsReadOnly="True"
                   AutoSize="TextChanges"
                   BackgroundColor="WhiteSmoke"/>
 
-        <Label Text="Altitude"/>
+        <Label Text="Altitude"
+               Margin="0,20,0,0"/>
           <Editor Text="{Binding Altitude}"
                   IsReadOnly="True"
                   AutoSize="TextChanges"
-                  BackgroundColor="WhiteSmoke"/>
+                  BackgroundColor="WhiteSmoke"
+                  Margin="0,0,0,10"/>
+
+          <Button
+            x:Name="StartPositionStreamButton"
+            Text="Start position stream"
+            Clicked="StartPositionStreamButton_Clicked"/>
         </VerticalStackLayout>
       </VerticalStackLayout>
     </Grid>

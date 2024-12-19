@@ -17,7 +17,6 @@ namespace Maui_sample.WinUI
   /// </summary>
   public partial class App : MauiWinUIApplication
   {
-    public int APIport { get; private set; }
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
     /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -68,9 +67,7 @@ namespace Maui_sample.WinUI
           string registrationResult = queryDictionary["registrationResult"]; // “OK”, “NoNetwork”, or “Unauthorized”
           int.TryParse(queryDictionary["apiPort"], out var apiPort); // The REST API is at $"WS://localhost:{apiPort}"
 
-          // Pass to MainPage
-          var mainPage = new MainPage();
-          mainPage.UseUri(uri);
+          WeakReferenceMessenger.Default.Send(new UriMessage(uri));
         }
       }
     }
