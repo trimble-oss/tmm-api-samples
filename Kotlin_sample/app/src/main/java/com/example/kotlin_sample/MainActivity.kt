@@ -17,6 +17,10 @@ import com.google.android.material.textfield.TextInputLayout
 class MainActivity : AppCompatActivity() {
 
   private lateinit var startForResult: ActivityResultLauncher<Intent>
+//   Assign variable called startForResult (with property lateinit https://kotlinlang.org/docs/properties.html#late-initialized-properties-and-variables)
+//   While creating an instance of ActivityResultLauncher
+
+  private var registrationResult: String? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -29,11 +33,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     startForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+      // Result from the StartActivityForResult(). The data can be extracted with a lambda.
       if (result.resultCode == RESULT_OK) {
         val data: Intent? = result.data
 
         if (data != null) {
-          val registrationResult = data.getStringExtra("registrationResult")
+          registrationResult = data.getStringExtra("registrationResult")
           val apiPort = data.getIntExtra("apiPort", -1)
           val positionsPort = data.getIntExtra("locationPort", -1)
           val positionsV2Port = data.getIntExtra("locationV2Port", -1)
@@ -76,14 +81,17 @@ class MainActivity : AppCompatActivity() {
     // Start/Stop button
     val startStopBut: Button = findViewById(R.id.startStopButton)
 
+    val startText = getString(R.string.start)
+    val stopText = getString(R.string.stop)
+//    This is the preferred way to use hard-coded values
     startStopBut.setOnClickListener {
-      if (startStopBut.text == "Start position stream")
+      if (startStopBut.text == startText)
       {
-        startStopBut.text = "Stop position stream"
+        startStopBut.text = stopText
       }
       else
       {
-        startStopBut.text = "Start position stream"
+        startStopBut.text = startText
       }
     }
   }
@@ -98,6 +106,8 @@ class MainActivity : AppCompatActivity() {
 //    Gets the app ID from the property file. Just one of few ways to not use hard-coded value
 //    This was the simplest way, not necessarily the best
     val appID = BuildConfig.appID
+
+    // Launching the intent and passing the AppID to the intent
     val intent = Intent(action)
     intent.putExtra("applicationID", appID)
     startForResult.launch(intent)

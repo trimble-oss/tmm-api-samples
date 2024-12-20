@@ -16,5 +16,6 @@
   <string name="longitude">Longitude</string>
   <string name="altitude">Altitude</string>
   <string name="start">Start position stream</string>
+  <string name="stop">Stop position stream</string>
 
 </resources>
