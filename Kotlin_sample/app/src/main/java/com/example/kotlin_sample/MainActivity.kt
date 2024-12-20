@@ -13,6 +13,13 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.util.Date
 
 class MainActivity : AppCompatActivity() {
 
@@ -69,16 +76,58 @@ class MainActivity : AppCompatActivity() {
 //      if (androidRegistration(appIDInput))
 //      {
 //        println("Same")
-        println(sendCustomIntent("com.trimble.tmm.REGISTER"))
+
 //      }
 //      else
 //      {
 //        println("Not same")
 //      }
+        println(sendCustomIntent("com.trimble.tmm.REGISTER"))
+        if (registrationResult == "OK")
+        {
+          println("Registration success")
+        }
+        else
+        {
+          println("Please register your app.")
+        }
+    }
+
+//    Get receiver button
+    val appID = BuildConfig.appID
+    val utcTime = Date()
+    val accessCode = AccessCodeGenerator.generateAccessCode(appID, utcTime)
+    val authorizationHeader = "Basic, $accessCode"
+
+    val retrofit = Retrofit.Builder()
+      .baseUrl("http://localhost:9637")
+      .client(OkHttpClient.Builder().build())
+      .addConverterFactory(GsonConverterFactory.create())
+      .build()
+
+    val apiService = retrofit.create(ApiService::class.java)
+
+    CoroutineScope(Dispatchers.IO).launch {
+      try {
+        val response = apiService.getReceiverData(authorizationHeader)
+        withContext(Dispatchers.Main) {
+          // Handle the response data
+          Toast.makeText(this@MainActivity, "Data: ${response.data}", Toast.LENGTH_SHORT).show()
+        }
+      } catch (e: Exception) {
+        withContext(Dispatchers.Main) {
+          // Handle the failure
+          Toast.makeText(this@MainActivity, "Failure: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+      }
+    }
+
+    val getReceiverBut: Button = findViewById(R.id.getReceiverButton)
+    getReceiverBut.setOnClickListener {
     }
 
 
-    // Start/Stop button
+    // Start/Stop position stream button button
     val startStopBut: Button = findViewById(R.id.startStopButton)
 
     val startText = getString(R.string.start)
