@@ -7,9 +7,9 @@ plugins {
 
 android {
     namespace = "com.example.kotlin_sample"
-    compileSdk = 35
+  compileSdk = 26
 
-    defaultConfig {
+  defaultConfig {
         applicationId = "com.example.kotlin_sample"
       minSdk = 26
       targetSdk = 35
@@ -29,7 +29,7 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
@@ -48,6 +48,7 @@ android {
   buildFeatures {
     buildConfig = true
   }
+  buildToolsVersion = "35.0.0"
 }
 
 dependencies {
@@ -60,7 +61,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation(libs.retrofit)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
     implementation (libs.converter.gson)
     implementation (libs.okhttp)
 }

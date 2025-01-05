@@ -1,10 +1,10 @@
 package com.example.kotlin_sample
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -12,13 +12,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import io.ktor.client.*
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpStatusCode
+import org.json.JSONObject
 import java.util.Date
 
 class MainActivity : AppCompatActivity() {
@@ -28,6 +33,9 @@ class MainActivity : AppCompatActivity() {
 //   While creating an instance of ActivityResultLauncher
 
   private var registrationResult: String? = null
+    private var apiPort: Int = -1
+    private var positionsPort: Int = -1
+    private var positionsV2Port: Int = -1
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -46,9 +54,9 @@ class MainActivity : AppCompatActivity() {
 
         if (data != null) {
           registrationResult = data.getStringExtra("registrationResult")
-          val apiPort = data.getIntExtra("apiPort", -1)
-          val positionsPort = data.getIntExtra("locationPort", -1)
-          val positionsV2Port = data.getIntExtra("locationV2Port", -1)
+          apiPort = data.getIntExtra("apiPort", -1)
+          positionsPort = data.getIntExtra("locationPort", -1)
+          positionsV2Port = data.getIntExtra("locationV2Port", -1)
 
           // Handle the retrieved data here
           println("Registration Result: $registrationResult")
@@ -94,36 +102,43 @@ class MainActivity : AppCompatActivity() {
     }
 
 //    Get receiver button
-    val appID = BuildConfig.appID
-    val utcTime = Date()
-    val accessCode = AccessCodeGenerator.generateAccessCode(appID, utcTime)
-    val authorizationHeader = "Basic, $accessCode"
 
-    val retrofit = Retrofit.Builder()
-      .baseUrl("http://localhost:9637")
-      .client(OkHttpClient.Builder().build())
-      .addConverterFactory(GsonConverterFactory.create())
-      .build()
-
-    val apiService = retrofit.create(ApiService::class.java)
-
-    CoroutineScope(Dispatchers.IO).launch {
-      try {
-        val response = apiService.getReceiverData(authorizationHeader)
-        withContext(Dispatchers.Main) {
-          // Handle the response data
-          Toast.makeText(this@MainActivity, "Data: ${response.data}", Toast.LENGTH_SHORT).show()
-        }
-      } catch (e: Exception) {
-        withContext(Dispatchers.Main) {
-          // Handle the failure
-          Toast.makeText(this@MainActivity, "Failure: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-      }
-    }
 
     val getReceiverBut: Button = findViewById(R.id.getReceiverButton)
     getReceiverBut.setOnClickListener {
+      val appID = BuildConfig.appID
+      val utcTime = Date()
+      val accessCode = AccessCodeGenerator.generateAccessCode(appID, utcTime)
+      val authorizationHeader = "Basic, $accessCode"
+
+
+      //HTTP client
+      val client = HttpClient()
+
+      CoroutineScope(Dispatchers.IO).launch {
+        try {
+          val response: HttpResponse = client.get("http://localhost:9637/api/v1/receiver") {
+            header("Authorization", authorizationHeader)
+          }
+          if (response.status == HttpStatusCode.OK) {
+            var payload = response.bodyAsText()
+            payload = JSONObject(payload).toString(4)
+            withContext(Dispatchers.Main) {
+              Toast.makeText(this@MainActivity, payload, Toast.LENGTH_LONG).show()
+            }
+          } else {
+            withContext(Dispatchers.Main) {
+              Toast.makeText(this@MainActivity, "Error: ${response.status.value}", Toast.LENGTH_SHORT).show()
+            }
+          }
+        } catch (e:Exception) {
+          withContext(Dispatchers.Main) {
+            Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+          }
+        } finally {
+          client.close()
+        }
+      }
     }
 
 
