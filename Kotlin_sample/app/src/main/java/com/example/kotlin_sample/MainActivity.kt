@@ -33,9 +33,9 @@ class MainActivity : AppCompatActivity() {
 //   While creating an instance of ActivityResultLauncher
 
   private var registrationResult: String? = null
-    private var apiPort: Int = -1
-    private var positionsPort: Int = -1
-    private var positionsV2Port: Int = -1
+  private var apiPort: Int = -1
+  private var positionsPort: Int = -1
+  private var positionsV2Port: Int = -1
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -64,6 +64,14 @@ class MainActivity : AppCompatActivity() {
           println("Positions Port: $positionsPort")
           println("Positions V2 Port: $positionsV2Port")
         }
+        if (registrationResult == "OK")
+        {
+          println("Registration success")
+        }
+        else
+        {
+          println("Please register your app.")
+        }
       }
     }
 
@@ -76,7 +84,6 @@ class MainActivity : AppCompatActivity() {
     versionText.text = getString(R.string.version, versionNumber)
 
 //        Input field for App ID
-    val appIDInput: TextInputEditText = findViewById(R.id.appIDEditText)
     val buttonRegister: Button = findViewById(R.id.registerButton)
     buttonRegister.setOnClickListener {
 //      Checks whether the input is the same as the ID stored in the property file
@@ -91,14 +98,6 @@ class MainActivity : AppCompatActivity() {
 //        println("Not same")
 //      }
         println(sendCustomIntent("com.trimble.tmm.REGISTER"))
-        if (registrationResult == "OK")
-        {
-          println("Registration success")
-        }
-        else
-        {
-          println("Please register your app.")
-        }
     }
 
 //    Get receiver button
