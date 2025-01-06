@@ -1,6 +1,6 @@
 <resources>
 <!--  Title -->
-  <string name="app_name">kotlin_sample</string>
+  <string name="app_name">Kotlin Sample</string>
   <string name="version">Version %1$s</string>
 
 <!--  App ID field -->
@@ -10,6 +10,8 @@
 <!--  Receiver -->
   <string name="receiver_name_label">Receiver Name</string>
   <string name="receiver_name_button">Get Receiver</string>
+  <string name="error_text">Please register your app</string>
+
 
 <!--  Web socket V2 -->
   <string name="latitude">Latitude</string>

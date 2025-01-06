@@ -46,17 +46,6 @@ Constraint is the simplest to organize using the built in previewer -->
 
   <!-- The referenced text is stored in the "values" directory, where the format is @xmlFileName/resourceName -->
 
-  <com.google.android.material.textfield.TextInputLayout
-    android:id="@+id/appIDTextTitle"
-    android:layout_width="261dp"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="1dp"
-    android:layout_marginTop="36dp"
-    android:layout_marginEnd="1dp"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/titleText"/>
-
   <Button
     android:id="@+id/startStopButton"
     android:layout_width="wrap_content"
@@ -68,20 +57,20 @@ Constraint is the simplest to organize using the built in previewer -->
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintHorizontal_bias="0.505"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/altitudeTextField" />
+    app:layout_constraintTop_toBottomOf="@+id/textInputLayout3" />
 
   <Button
     android:id="@+id/registerButton"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginStart="155dp"
-    android:layout_marginTop="8dp"
+    android:layout_marginTop="14dp"
     android:layout_marginEnd="155dp"
     android:text="@string/register_button"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.0"
+    app:layout_constraintHorizontal_bias="1.0"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/appIDTextTitle" />
+    app:layout_constraintTop_toBottomOf="@+id/titleText" />
 
   <TextView
     android:id="@+id/receiverNameTextView"
@@ -98,32 +87,33 @@ Constraint is the simplest to organize using the built in previewer -->
     app:layout_constraintTop_toBottomOf="@+id/registerButton" />
 
   <com.google.android.material.textfield.TextInputLayout
-    android:id="@+id/receiverNameTextField"
-    android:layout_width="202dp"
-    android:layout_height="49dp"
+    android:id="@+id/receiverNameTextLayout"
+    android:layout_width="203dp"
+    android:layout_height="70dp"
     android:layout_marginStart="16dp"
     android:layout_marginTop="8dp"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/receiverNameTextView">
 
     <com.google.android.material.textfield.TextInputEditText
+      android:id="@+id/receiverNameText"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:hint="@string/receiver_name_label"
-      android:focusableInTouchMode="false" />
+      android:layout_height="59dp"
+      android:focusableInTouchMode="false"
+      android:hint="@string/receiver_name_label" />
   </com.google.android.material.textfield.TextInputLayout>
 
   <Button
     android:id="@+id/getReceiverButton"
-    android:layout_width="113dp"
-    android:layout_height="57dp"
+    android:layout_width="117dp"
+    android:layout_height="63dp"
     android:layout_marginStart="44dp"
     android:layout_marginTop="56dp"
     android:layout_marginEnd="17dp"
     android:text="@string/receiver_name_button"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.421"
-    app:layout_constraintStart_toEndOf="@+id/receiverNameTextField"
+    app:layout_constraintHorizontal_bias="0.972"
+    app:layout_constraintStart_toEndOf="@+id/receiverNameTextLayout"
     app:layout_constraintTop_toBottomOf="@+id/registerButton" />
 
   <TextView
@@ -138,7 +128,7 @@ Constraint is the simplest to organize using the built in previewer -->
     android:textStyle="bold"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/receiverNameTextField" />
+    app:layout_constraintTop_toBottomOf="@+id/receiverNameTextLayout" />
 
   <TextView
     android:id="@+id/longitudeTextView"
@@ -152,7 +142,7 @@ Constraint is the simplest to organize using the built in previewer -->
     android:textStyle="bold"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/latitudeTextField" />
+    app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
 
   <TextView
     android:id="@+id/altitudeTextView"
@@ -166,10 +156,10 @@ Constraint is the simplest to organize using the built in previewer -->
     android:textStyle="bold"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/longitudeTextField" />
+    app:layout_constraintTop_toBottomOf="@+id/textInputLayout2" />
 
   <com.google.android.material.textfield.TextInputLayout
-    android:id="@+id/latitudeTextField"
+    android:id="@+id/textInputLayout"
     android:layout_width="294dp"
     android:layout_height="53dp"
     android:layout_marginStart="58dp"
@@ -180,14 +170,15 @@ Constraint is the simplest to organize using the built in previewer -->
     app:layout_constraintTop_toBottomOf="@+id/latitudeTextView">
 
     <com.google.android.material.textfield.TextInputEditText
+      android:id="@+id/latitudeTextField"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:hint="@string/latitude"
-      android:focusableInTouchMode="false" />
+      android:focusableInTouchMode="false"
+      android:hint="@string/latitude" />
   </com.google.android.material.textfield.TextInputLayout>
 
   <com.google.android.material.textfield.TextInputLayout
-    android:id="@+id/longitudeTextField"
+    android:id="@+id/textInputLayout2"
     android:layout_width="300dp"
     android:layout_height="50dp"
     android:layout_marginStart="53dp"
@@ -198,14 +189,15 @@ Constraint is the simplest to organize using the built in previewer -->
     app:layout_constraintTop_toBottomOf="@+id/longitudeTextView">
 
     <com.google.android.material.textfield.TextInputEditText
+      android:id="@+id/longitudeTextField"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:hint="@string/longitude"
-      android:focusableInTouchMode="false" />
+      android:focusableInTouchMode="false"
+      android:hint="@string/longitude" />
   </com.google.android.material.textfield.TextInputLayout>
 
   <com.google.android.material.textfield.TextInputLayout
-    android:id="@+id/altitudeTextField"
+    android:id="@+id/textInputLayout3"
     android:layout_width="297dp"
     android:layout_height="56dp"
     android:layout_marginStart="57dp"
@@ -215,10 +207,11 @@ Constraint is the simplest to organize using the built in previewer -->
     app:layout_constraintTop_toBottomOf="@+id/altitudeTextView">
 
     <com.google.android.material.textfield.TextInputEditText
+      android:id="@+id/altitudeTextField"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:hint="@string/altitude"
-      android:focusableInTouchMode="false" />
+      android:focusableInTouchMode="false"
+      android:hint="@string/altitude" />
   </com.google.android.material.textfield.TextInputLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
