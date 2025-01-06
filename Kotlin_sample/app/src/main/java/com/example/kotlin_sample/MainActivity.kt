@@ -16,13 +16,21 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
 import io.ktor.client.*
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
+import io.ktor.client.plugins.websocket.WebSockets
+import io.ktor.client.plugins.websocket.webSocketSession
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.URLProtocol
+import io.ktor.websocket.CloseReason
+import io.ktor.websocket.Frame
+import io.ktor.websocket.close
+import io.ktor.websocket.readText
+import kotlinx.coroutines.isActive
 import org.json.JSONObject
 import java.util.Date
 
@@ -32,10 +40,18 @@ class MainActivity : AppCompatActivity() {
 //   Assign variable called startForResult (with property lateinit https://kotlinlang.org/docs/properties.html#late-initialized-properties-and-variables)
 //   While creating an instance of ActivityResultLauncher
 
+//  Values returned from registration intent
   private var registrationResult: String? = null
   private var apiPort: Int = -1
   private var positionsPort: Int = -1
   private var positionsV2Port: Int = -1
+
+//  Web socket
+//  https://ktor.io/docs/client-engines.html#limitations
+  private val websocketLocationV2 = HttpClient(CIO) {
+    install(WebSockets)
+}
+  private var socket: DefaultClientWebSocketSession? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -86,60 +102,51 @@ class MainActivity : AppCompatActivity() {
 //        Input field for App ID
     val buttonRegister: Button = findViewById(R.id.registerButton)
     buttonRegister.setOnClickListener {
-//      Checks whether the input is the same as the ID stored in the property file
-//      val appIDInput = appIDInput.text.toString()
-//      if (androidRegistration(appIDInput))
-//      {
-//        println("Same")
-
-//      }
-//      else
-//      {
-//        println("Not same")
-//      }
         println(sendCustomIntent("com.trimble.tmm.REGISTER"))
     }
 
 //    Get receiver button
-
-
     val getReceiverBut: Button = findViewById(R.id.getReceiverButton)
     getReceiverBut.setOnClickListener {
+
       val appID = BuildConfig.appID
       val utcTime = Date()
       val accessCode = AccessCodeGenerator.generateAccessCode(appID, utcTime)
-      val authorizationHeader = "Basic, $accessCode"
-
+      val authorizationHeader = "Basic $accessCode"
 
       //HTTP client
-      val client = HttpClient()
-
+      val client = HttpClient(CIO)
       CoroutineScope(Dispatchers.IO).launch {
         try {
           val response: HttpResponse = client.get("http://localhost:9637/api/v1/receiver") {
             header("Authorization", authorizationHeader)
           }
-          if (response.status == HttpStatusCode.OK) {
-            var payload = response.bodyAsText()
-            payload = JSONObject(payload).toString(4)
+
+          val receiverTextBox: TextInputEditText = findViewById(R.id.receiverNameText)
+
+          if (registrationResult == "OK") {
+            var receiverName = response.bodyAsText()
+//            payload = JSONObject(payload).toString(4)
+            receiverName = JSONObject(receiverName).getString("bluetoothName")
             withContext(Dispatchers.Main) {
-              Toast.makeText(this@MainActivity, payload, Toast.LENGTH_LONG).show()
+              Toast.makeText(this@MainActivity, receiverName, Toast.LENGTH_LONG).show()
+              receiverTextBox.setText(receiverName)
             }
           } else {
             withContext(Dispatchers.Main) {
-              Toast.makeText(this@MainActivity, "Error: ${response.status.value}", Toast.LENGTH_SHORT).show()
+              Toast.makeText(this@MainActivity, "Error: ${response.status} or app not registered", Toast.LENGTH_SHORT).show()
+              receiverTextBox.setText(getString(R.string.error_text))
             }
           }
         } catch (e:Exception) {
           withContext(Dispatchers.Main) {
-            Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            println("Error: ${e.message}")
           }
         } finally {
           client.close()
         }
       }
     }
-
 
     // Start/Stop position stream button button
     val startStopBut: Button = findViewById(R.id.startStopButton)
@@ -151,19 +158,49 @@ class MainActivity : AppCompatActivity() {
       if (startStopBut.text == startText)
       {
         startStopBut.text = stopText
+        startWebSocket()
       }
       else
       {
         startStopBut.text = startText
+        stopWebSocket()
       }
     }
   }
 
-//  Method checks whether the value is the same as the stored value
-//  private fun androidRegistration(input: String): Boolean {
-//    val appID = BuildConfig.appID
-//    return appID == input
-//  }
+  private fun startWebSocket() {
+    CoroutineScope(Dispatchers.IO).launch {
+      try {
+          socket = websocketLocationV2.webSocketSession {
+            url {
+              protocol = URLProtocol.WS
+              host = "localhost"
+              port = apiPort
+            }
+          }
+        socket?.send(Frame.Text("Hello, WebSocket!"))
+        while (socket?.isActive == true) {
+          val frame = socket?.incoming?.receive() as? Frame.Text
+          frame?.let {
+            val receivedText = it.readText()
+            println("Received: $receivedText")
+          }
+        }
+      } catch (e: Exception) {
+        println(e.message)
+      }
+    }
+  }
+  private fun stopWebSocket() {
+    CoroutineScope(Dispatchers.IO).launch {
+      try {
+        socket?.close(CloseReason(CloseReason.Codes.NORMAL, "Client closed connection"))
+        websocketLocationV2.close()
+      } catch (e: Exception) {
+        println(e.message)
+      }
+    }
+  }
 
   private fun sendCustomIntent(action: String) {
 //    Gets the app ID from the property file. Just one of few ways to not use hard-coded value
