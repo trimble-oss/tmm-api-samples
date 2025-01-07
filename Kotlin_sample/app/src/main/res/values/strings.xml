@@ -10,7 +10,8 @@
 <!--  Receiver -->
   <string name="receiver_name_label">Receiver Name</string>
   <string name="receiver_name_button">Get Receiver</string>
-  <string name="error_text">Please register your app</string>
+  <string name="register_error_text">Please register your app</string>
+  <string name="error_text">Error: %1$s</string>
 
 
 <!--  Web socket V2 -->
