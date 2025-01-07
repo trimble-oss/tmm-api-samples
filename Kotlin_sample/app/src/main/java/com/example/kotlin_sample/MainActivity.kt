@@ -12,25 +12,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.textfield.TextInputEditText
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import io.ktor.client.*
 import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
-import io.ktor.client.plugins.websocket.WebSockets
-import io.ktor.client.plugins.websocket.webSocketSession
+import io.ktor.client.plugins.websocket.*
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLProtocol
-import io.ktor.websocket.CloseReason
-import io.ktor.websocket.Frame
-import io.ktor.websocket.close
-import io.ktor.websocket.readText
-import kotlinx.coroutines.isActive
+import io.ktor.websocket.*
 import org.json.JSONObject
 import java.util.Date
 
@@ -40,13 +33,18 @@ class MainActivity : AppCompatActivity() {
 //   Assign variable called startForResult (with property lateinit https://kotlinlang.org/docs/properties.html#late-initialized-properties-and-variables)
 //   While creating an instance of ActivityResultLauncher
 
+//  AppID
+private val appID = BuildConfig.appID
+
 //  Values returned from registration intent
   private var registrationResult: String? = null
   private var apiPort: Int = -1
-  private var positionsPort: Int = -1
   private var positionsV2Port: Int = -1
 
-//  Web socket
+//  Http client - Can't be reused for web socket as it causes `Parent process has finished` exception
+  private val client = HttpClient(CIO)
+
+//  Web socket client
 //  https://ktor.io/docs/client-engines.html#limitations
   private val websocketLocationV2 = HttpClient(CIO) {
     install(WebSockets)
@@ -71,81 +69,41 @@ class MainActivity : AppCompatActivity() {
         if (data != null) {
           registrationResult = data.getStringExtra("registrationResult")
           apiPort = data.getIntExtra("apiPort", -1)
-          positionsPort = data.getIntExtra("locationPort", -1)
           positionsV2Port = data.getIntExtra("locationV2Port", -1)
 
-          // Handle the retrieved data here
+          // Debugging purposes
           println("Registration Result: $registrationResult")
           println("API Port: $apiPort")
-          println("Positions Port: $positionsPort")
           println("Positions V2 Port: $positionsV2Port")
-        }
-        if (registrationResult == "OK")
-        {
-          println("Registration success")
-        }
-        else
-        {
-          println("Please register your app.")
         }
       }
     }
 
 //      Version - Shows the version as text
     val versionText: TextView = findViewById(R.id.versionText)
-    var versionNumber = applicationContext.packageManager.getPackageInfo(
+    val versionNumber = applicationContext.packageManager.getPackageInfo(
       applicationContext.packageName,
       0
     ).versionName
     versionText.text = getString(R.string.version, versionNumber)
 
-//        Input field for App ID
+//        register button
     val buttonRegister: Button = findViewById(R.id.registerButton)
     buttonRegister.setOnClickListener {
-        println(sendCustomIntent("com.trimble.tmm.REGISTER"))
+        println(sendCustomIntent("com.trimble.tmm.REGISTER", true))
     }
+
+    // Test for sending intent without AppID
+    val test: Button = findViewById(R.id.testButton)
+    test.setOnClickListener {
+      println(sendCustomIntent("com.trimble.tmm.GNSS_STATUS", false))
+    }
+
 
 //    Get receiver button
     val getReceiverBut: Button = findViewById(R.id.getReceiverButton)
     getReceiverBut.setOnClickListener {
-
-      val appID = BuildConfig.appID
-      val utcTime = Date()
-      val accessCode = AccessCodeGenerator.generateAccessCode(appID, utcTime)
-      val authorizationHeader = "Basic $accessCode"
-
-      //HTTP client
-      val client = HttpClient(CIO)
-      CoroutineScope(Dispatchers.IO).launch {
-        try {
-          val response: HttpResponse = client.get("http://localhost:9637/api/v1/receiver") {
-            header("Authorization", authorizationHeader)
-          }
-
-          val receiverTextBox: TextInputEditText = findViewById(R.id.receiverNameText)
-
-          if (registrationResult == "OK") {
-            var receiverName = response.bodyAsText()
-//            payload = JSONObject(payload).toString(4)
-            receiverName = JSONObject(receiverName).getString("bluetoothName")
-            withContext(Dispatchers.Main) {
-              Toast.makeText(this@MainActivity, receiverName, Toast.LENGTH_LONG).show()
-              receiverTextBox.setText(receiverName)
-            }
-          } else {
-            withContext(Dispatchers.Main) {
-              Toast.makeText(this@MainActivity, "Error: ${response.status} or app not registered", Toast.LENGTH_SHORT).show()
-              receiverTextBox.setText(getString(R.string.error_text))
-            }
-          }
-        } catch (e:Exception) {
-          withContext(Dispatchers.Main) {
-            println("Error: ${e.message}")
-          }
-        } finally {
-          client.close()
-        }
-      }
+      getReceiverName()
     }
 
     // Start/Stop position stream button button
@@ -156,38 +114,105 @@ class MainActivity : AppCompatActivity() {
 //    This is the preferred way to use hard-coded values
     startStopBut.setOnClickListener {
       if (startStopBut.text == startText)
+//      TODO: Add check for app registration
       {
+//        Change text from start --> stop and run the web socket
         startStopBut.text = stopText
         startWebSocket()
       }
       else
       {
+//      Change text from stop --> start and stop the web socket
         startStopBut.text = startText
         stopWebSocket()
       }
     }
   }
 
-  private fun startWebSocket() {
+  private fun getReceiverName() {
     CoroutineScope(Dispatchers.IO).launch {
       try {
-          socket = websocketLocationV2.webSocketSession {
-            url {
-              protocol = URLProtocol.WS
-              host = "localhost"
-              port = apiPort
-            }
+        val response = checkReceiverConnection()
+        val receiverTextBox: TextInputEditText = findViewById(R.id.receiverNameText)
+
+        if (registrationResult == "OK") {
+          var receiverName = response.bodyAsText()
+          receiverName = JSONObject(receiverName).getString("bluetoothName")
+          withContext(Dispatchers.Main) {
+            receiverTextBox.setText(receiverName)
           }
-        socket?.send(Frame.Text("Hello, WebSocket!"))
-        while (socket?.isActive == true) {
-          val frame = socket?.incoming?.receive() as? Frame.Text
-          frame?.let {
-            val receivedText = it.readText()
-            println("Received: $receivedText")
+        } else {
+          withContext(Dispatchers.Main) {
+//            Asks user to register app, otherwise will show a Http status code
+            if (response.status != HttpStatusCode.OK) {
+              Toast.makeText(this@MainActivity, getString(R.string.error_text, response.status), Toast.LENGTH_SHORT).show()
+            } else {
+              Toast.makeText(this@MainActivity, getString(R.string.register_error_text), Toast.LENGTH_SHORT).show()
+            }
           }
         }
       } catch (e: Exception) {
-        println(e.message)
+        withContext(Dispatchers.Main) {
+          println("Error: ${e.message}")
+        }
+      }
+    }
+  }
+
+  private suspend fun checkReceiverConnection(): HttpResponse {
+    val utcTime = Date()
+    val accessCode = AccessCodeGenerator.generateAccessCode(appID, utcTime)
+    val authorizationHeader = "Basic $accessCode"
+    // Get authorization header with access code through the generator
+
+        return client.get("http://localhost:$apiPort/api/v1/receiver") {
+          header("Authorization", authorizationHeader)
+        }
+  }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    // Close the client when the activity is destroyed
+    client.close()
+  }
+
+  private fun startWebSocket() {
+    CoroutineScope(Dispatchers.IO).launch {
+      val response = checkReceiverConnection()
+      var isConnected = response.bodyAsText()
+      isConnected = JSONObject(isConnected).getString("isConnected")
+
+      if (isConnected == "true")
+      {
+        println("Connected")
+        socket = websocketLocationV2.webSocketSession {
+          url {
+            protocol = URLProtocol.WS
+            host = "localhost"
+            port = positionsV2Port
+          }
+        }
+      } else {
+        println("Not connected")
+      }
+      socket?.send(Frame.Text("Hello, WebSocket!"))
+      while (socket?.isActive == true) {
+        val frame = socket?.incoming?.receive()
+        if  (frame is Frame.Binary) {
+          val data = frame.readBytes()
+          val jsonString = data.decodeToString()
+          withContext(Dispatchers.Main) {
+            val latTextBox: TextInputEditText = findViewById(R.id.latitudeTextField)
+            val longTextBox: TextInputEditText = findViewById(R.id.longitudeTextField)
+            val altTextBox: TextInputEditText = findViewById(R.id.altitudeTextField)
+
+            try {
+//              val latJsonObject = Json.parseToJsonElement
+            } catch (e: Exception) {
+              println(e.message)
+            }
+          }
+        }
       }
     }
   }
@@ -202,14 +227,18 @@ class MainActivity : AppCompatActivity() {
     }
   }
 
-  private fun sendCustomIntent(action: String) {
-//    Gets the app ID from the property file. Just one of few ways to not use hard-coded value
-//    This was the simplest way, not necessarily the best
-    val appID = BuildConfig.appID
+  private fun sendCustomIntent(action: String, includeAppID: Boolean) {
+
 
     // Launching the intent and passing the AppID to the intent
+    // Most intents will either need or not need AppID, which the function can handle
     val intent = Intent(action)
-    intent.putExtra("applicationID", appID)
+
+    if (includeAppID) {
+      // Gets the app ID from the property file. Just one of few ways to not use hard-coded value
+      // This was the simplest way, not necessarily the best
+      intent.putExtra("applicationID", appID)
+    }
     startForResult.launch(intent)
+    }
   }
-}

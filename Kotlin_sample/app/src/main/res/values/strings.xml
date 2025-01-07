@@ -10,9 +10,6 @@
 <!--  Receiver -->
   <string name="receiver_name_label">Receiver Name</string>
   <string name="receiver_name_button">Get Receiver</string>
-  <string name="register_error_text">Please register your app</string>
-  <string name="error_text">Error: %1$s</string>
-
 
 <!--  Web socket V2 -->
   <string name="latitude">Latitude</string>
@@ -21,4 +18,7 @@
   <string name="start">Start position stream</string>
   <string name="stop">Stop position stream</string>
 
+<!--  Error text -->
+  <string name="register_error_text">Please register your app</string>
+  <string name="error_text">Error: %1$s</string>
 </resources>
