@@ -65,4 +65,5 @@ dependencies {
     implementation(libs.ktor.client.cio)
     implementation (libs.converter.gson)
     implementation (libs.okhttp)
+  implementation(libs.kotlinx.serialization.json)
 }

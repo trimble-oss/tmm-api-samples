@@ -63,12 +63,11 @@ Constraint is the simplest to organize using the built in previewer -->
     android:id="@+id/registerButton"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginStart="155dp"
-    android:layout_marginTop="14dp"
-    android:layout_marginEnd="155dp"
+    android:layout_marginStart="170dp"
+    android:layout_marginTop="20dp"
+    android:layout_marginEnd="140dp"
     android:text="@string/register_button"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="1.0"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/titleText" />
 
@@ -120,48 +119,42 @@ Constraint is the simplest to organize using the built in previewer -->
     android:id="@+id/latitudeTextView"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginStart="173dp"
-    android:layout_marginTop="35dp"
-    android:layout_marginEnd="163dp"
+    android:layout_marginTop="20dp"
+    android:layout_marginEnd="150dp"
     android:text="@string/latitude"
     android:textSize="20sp"
     android:textStyle="bold"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/receiverNameTextLayout" />
 
   <TextView
     android:id="@+id/longitudeTextView"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginStart="157dp"
-    android:layout_marginTop="24dp"
-    android:layout_marginEnd="163dp"
+    android:layout_marginTop="16dp"
+    android:layout_marginEnd="145dp"
     android:text="@string/longitude"
     android:textSize="20sp"
     android:textStyle="bold"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
 
   <TextView
     android:id="@+id/altitudeTextView"
     android:layout_width="72dp"
     android:layout_height="29dp"
-    android:layout_marginStart="169dp"
     android:layout_marginTop="15dp"
-    android:layout_marginEnd="170dp"
+    android:layout_marginEnd="150dp"
     android:text="@string/altitude"
     android:textSize="20sp"
     android:textStyle="bold"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/textInputLayout2" />
 
   <com.google.android.material.textfield.TextInputLayout
     android:id="@+id/textInputLayout"
-    android:layout_width="294dp"
-    android:layout_height="53dp"
+    android:layout_width="303dp"
+    android:layout_height="65dp"
     android:layout_marginStart="58dp"
     android:layout_marginTop="7dp"
     android:layout_marginEnd="59dp"
@@ -179,8 +172,8 @@ Constraint is the simplest to organize using the built in previewer -->
 
   <com.google.android.material.textfield.TextInputLayout
     android:id="@+id/textInputLayout2"
-    android:layout_width="300dp"
-    android:layout_height="50dp"
+    android:layout_width="303dp"
+    android:layout_height="65dp"
     android:layout_marginStart="53dp"
     android:layout_marginTop="6dp"
     android:layout_marginEnd="58dp"
@@ -198,8 +191,8 @@ Constraint is the simplest to organize using the built in previewer -->
 
   <com.google.android.material.textfield.TextInputLayout
     android:id="@+id/textInputLayout3"
-    android:layout_width="297dp"
-    android:layout_height="56dp"
+    android:layout_width="303dp"
+    android:layout_height="65dp"
     android:layout_marginStart="57dp"
     android:layout_marginEnd="57dp"
     app:layout_constraintEnd_toEndOf="parent"
@@ -213,18 +206,6 @@ Constraint is the simplest to organize using the built in previewer -->
       android:focusableInTouchMode="false"
       android:hint="@string/altitude" />
   </com.google.android.material.textfield.TextInputLayout>
-
-  <Button
-    android:id="@+id/testButton"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="29dp"
-    android:layout_marginEnd="35dp"
-    android:layout_marginBottom="25dp"
-    android:text="Test Button"
-    app:layout_constraintBottom_toTopOf="@+id/receiverNameTextView"
-    app:layout_constraintEnd_toStartOf="@+id/registerButton"
-    app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

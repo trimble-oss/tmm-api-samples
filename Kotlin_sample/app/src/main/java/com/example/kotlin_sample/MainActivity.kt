@@ -20,12 +20,12 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
-import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLProtocol
 import io.ktor.websocket.*
 import org.json.JSONObject
 import java.util.Date
+import kotlinx.serialization.json.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -94,10 +94,10 @@ private val appID = BuildConfig.appID
     }
 
     // Test for sending intent without AppID
-    val test: Button = findViewById(R.id.testButton)
-    test.setOnClickListener {
-      println(sendCustomIntent("com.trimble.tmm.GNSS_STATUS", false))
-    }
+//    val test: Button = findViewById(R.id.testButton)
+//    test.setOnClickListener {
+//      println(sendCustomIntent("com.trimble.tmm.GNSS_STATUS", false))
+//    }
 
 
 //    Get receiver button
@@ -112,21 +112,43 @@ private val appID = BuildConfig.appID
     val startText = getString(R.string.start)
     val stopText = getString(R.string.stop)
 //    This is the preferred way to use hard-coded values
+
     startStopBut.setOnClickListener {
-      if (startStopBut.text == startText)
-//      TODO: Add check for app registration
-      {
-//        Change text from start --> stop and run the web socket
-        startStopBut.text = stopText
-        startWebSocket()
-      }
-      else
-      {
-//      Change text from stop --> start and stop the web socket
-        startStopBut.text = startText
-        stopWebSocket()
+      CoroutineScope(Dispatchers.IO).launch {
+        try {
+          if (startStopBut.text == startText) {
+            if (registrationResult == "OK") {
+              val response = checkReceiverConnection()
+              var isConnected = response.bodyAsText()
+              isConnected = JSONObject(isConnected).getString("isConnected")
+
+              withContext(Dispatchers.Main) {
+                if (isConnected == "true") {
+                  startWebSocket()
+                  startStopBut.text = stopText
+                } else {
+                  sendCustomIntent("com.trimble.tmm.RECEIVERSELECTION", false)
+                }
+              }
+            } else {
+              withContext(Dispatchers.Main) {
+                Toast.makeText(this@MainActivity, getString(R.string.register_error_text), Toast.LENGTH_SHORT).show()
+              }
+            }
+          } else {
+            stopWebSocket()
+            withContext(Dispatchers.Main) {
+              startStopBut.text = startText
+            }
+          }
+        } catch (e: Exception) {
+          withContext(Dispatchers.Main) {
+            println("Error: ${e.message}")
+          }
+        }
       }
     }
+
   }
 
   private fun getReceiverName() {
@@ -136,6 +158,8 @@ private val appID = BuildConfig.appID
         val receiverTextBox: TextInputEditText = findViewById(R.id.receiverNameText)
 
         if (registrationResult == "OK") {
+//          Only runs if app is registered.
+//          Displays the receiver name to the text box
           var receiverName = response.bodyAsText()
           receiverName = JSONObject(receiverName).getString("bluetoothName")
           withContext(Dispatchers.Main) {
@@ -165,49 +189,39 @@ private val appID = BuildConfig.appID
     val authorizationHeader = "Basic $accessCode"
     // Get authorization header with access code through the generator
 
-        return client.get("http://localhost:$apiPort/api/v1/receiver") {
-          header("Authorization", authorizationHeader)
-        }
-  }
-
-  override fun onDestroy() {
-    super.onDestroy()
-    // Close the client when the activity is destroyed
-    client.close()
+    return client.get("http://localhost:9637/api/v1/receiver") {
+      header("Authorization", authorizationHeader)
+    }
   }
 
   private fun startWebSocket() {
     CoroutineScope(Dispatchers.IO).launch {
-      val response = checkReceiverConnection()
-      var isConnected = response.bodyAsText()
-      isConnected = JSONObject(isConnected).getString("isConnected")
-
-      if (isConnected == "true")
-      {
-        println("Connected")
-        socket = websocketLocationV2.webSocketSession {
-          url {
-            protocol = URLProtocol.WS
-            host = "localhost"
-            port = positionsV2Port
-          }
+      socket = websocketLocationV2.webSocketSession {
+        url {
+          protocol = URLProtocol.WS
+          host = "localhost"
+          port = positionsV2Port
         }
-      } else {
-        println("Not connected")
       }
-      socket?.send(Frame.Text("Hello, WebSocket!"))
+
       while (socket?.isActive == true) {
         val frame = socket?.incoming?.receive()
-        if  (frame is Frame.Binary) {
-          val data = frame.readBytes()
-          val jsonString = data.decodeToString()
+        if  (frame is Frame.Text) {
+          val jsonString = frame.readText()
           withContext(Dispatchers.Main) {
             val latTextBox: TextInputEditText = findViewById(R.id.latitudeTextField)
             val longTextBox: TextInputEditText = findViewById(R.id.longitudeTextField)
             val altTextBox: TextInputEditText = findViewById(R.id.altitudeTextField)
 
             try {
-//              val latJsonObject = Json.parseToJsonElement
+              val jsonObject = Json.parseToJsonElement(jsonString).jsonObject
+              val latitude = jsonObject["latitude"]?.jsonPrimitive?.content
+              val longitude = jsonObject["longitude"]?.jsonPrimitive?.content
+              val altitude = jsonObject["altitude"]?.jsonPrimitive?.content
+
+              latTextBox.setText(latitude)
+              longTextBox.setText(longitude)
+              altTextBox.setText(altitude)
             } catch (e: Exception) {
               println(e.message)
             }
@@ -216,13 +230,16 @@ private val appID = BuildConfig.appID
       }
     }
   }
+
   private fun stopWebSocket() {
     CoroutineScope(Dispatchers.IO).launch {
       try {
         socket?.close(CloseReason(CloseReason.Codes.NORMAL, "Client closed connection"))
         websocketLocationV2.close()
       } catch (e: Exception) {
+        withContext(Dispatchers.Main) {
         println(e.message)
+        }
       }
     }
   }
@@ -241,4 +258,10 @@ private val appID = BuildConfig.appID
     }
     startForResult.launch(intent)
     }
+
+//  Occurs when app is closed
+  override fun onDestroy() {
+    super.onDestroy()
+    client.close()
   }
+}
