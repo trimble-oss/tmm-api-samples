@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 //   While creating an instance of ActivityResultLauncher
 
 //  AppID
-private val appID = "BuildConfig.appID"
+  private lateinit var appIDInput: TextInputEditText
 
 //  Values returned from registration intent
   private var registrationResult: String? = null
@@ -89,6 +89,7 @@ private val appID = "BuildConfig.appID"
     versionText.text = getString(R.string.version, versionNumber)
 
 //        register button
+    appIDInput = findViewById(R.id.registerEditField)
     val buttonRegister: Button = findViewById(R.id.registerButton)
     buttonRegister.setOnClickListener {
         println(sendCustomIntent("com.trimble.tmm.REGISTER", true))
@@ -188,7 +189,7 @@ private val appID = "BuildConfig.appID"
 
   private suspend fun checkReceiverConnection(): HttpResponse {
     val utcTime = Date()
-    val accessCode = AccessCodeGenerator.generateAccessCode(appID, utcTime)
+    val accessCode = AccessCodeGenerator.generateAccessCode(appIDInput.text.toString(), utcTime)
     val authorizationHeader = "Basic $accessCode"
     // Get authorization header with access code through the generator
 
@@ -237,8 +238,18 @@ private val appID = "BuildConfig.appID"
   private fun stopWebSocket() {
     CoroutineScope(Dispatchers.IO).launch {
       try {
+        println("1")
         socket?.close(CloseReason(CloseReason.Codes.NORMAL, "Client closed connection"))
-        websocketLocationV2.close()
+        println("2")
+        withContext(Dispatchers.Main) {
+          val latTextBox: TextInputEditText = findViewById(R.id.latitudeTextField)
+          val longTextBox: TextInputEditText = findViewById(R.id.longitudeTextField)
+          val altTextBox: TextInputEditText = findViewById(R.id.altitudeTextField)
+
+          latTextBox.setText("")
+          longTextBox.setText("")
+          altTextBox.setText("")
+        }
       } catch (e: Exception) {
         withContext(Dispatchers.Main) {
         println(e.message)
@@ -257,7 +268,7 @@ private val appID = "BuildConfig.appID"
     if (includeAppID) {
       // Gets the app ID from the property file. Just one of few ways to not use hard-coded value
       // This was the simplest way, not necessarily the best
-      intent.putExtra("applicationID", appID)
+      intent.putExtra("applicationID", appIDInput.text.toString())
     }
     startForResult.launch(intent)
     }
@@ -266,5 +277,6 @@ private val appID = "BuildConfig.appID"
   override fun onDestroy() {
     super.onDestroy()
     client.close()
+  websocketLocationV2.close()
   }
 }
