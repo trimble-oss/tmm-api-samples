@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 //   While creating an instance of ActivityResultLauncher
 
 //  AppID
-private val appID = BuildConfig.appID
+private val appID = "BuildConfig.appID"
 
 //  Values returned from registration intent
   private var registrationResult: String? = null
@@ -71,10 +71,11 @@ private val appID = BuildConfig.appID
           apiPort = data.getIntExtra("apiPort", -1)
           positionsV2Port = data.getIntExtra("locationV2Port", -1)
 
-          // Debugging purposes
-          println("Registration Result: $registrationResult")
-          println("API Port: $apiPort")
-          println("Positions V2 Port: $positionsV2Port")
+          if (registrationResult != "OK") {
+            Toast.makeText(this@MainActivity, "Registration Error: $registrationResult", Toast.LENGTH_SHORT).show()
+          } else {
+            Toast.makeText(this@MainActivity, "Registration successful", Toast.LENGTH_SHORT).show()
+          }
         }
       }
     }
@@ -177,7 +178,9 @@ private val appID = BuildConfig.appID
         }
       } catch (e: Exception) {
         withContext(Dispatchers.Main) {
+//          If TMM isn't open it will throw an exception
           println("Error: ${e.message}")
+          Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
         }
       }
     }
