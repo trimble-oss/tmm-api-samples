@@ -209,27 +209,33 @@ class MainActivity : AppCompatActivity() {
       }
 
       while (socket?.isActive == true) {
-        val frame = socket?.incoming?.receive()
-        if  (frame is Frame.Text) {
-          val jsonString = frame.readText()
-          withContext(Dispatchers.Main) {
-            val latTextBox: TextInputEditText = findViewById(R.id.latitudeTextField)
-            val longTextBox: TextInputEditText = findViewById(R.id.longitudeTextField)
-            val altTextBox: TextInputEditText = findViewById(R.id.altitudeTextField)
+        try {
+          val frame = socket?.incoming?.receive()
+          if (frame is Frame.Text) {
+            val jsonString = frame.readText()
+            withContext(Dispatchers.Main) {
+              val latTextBox: TextInputEditText = findViewById(R.id.latitudeTextField)
+              val longTextBox: TextInputEditText = findViewById(R.id.longitudeTextField)
+              val altTextBox: TextInputEditText = findViewById(R.id.altitudeTextField)
 
-            try {
-              val jsonObject = Json.parseToJsonElement(jsonString).jsonObject
-              val latitude = jsonObject["latitude"]?.jsonPrimitive?.content
-              val longitude = jsonObject["longitude"]?.jsonPrimitive?.content
-              val altitude = jsonObject["altitude"]?.jsonPrimitive?.content
+              try {
+                val jsonObject = Json.parseToJsonElement(jsonString).jsonObject
+                val latitude = jsonObject["latitude"]?.jsonPrimitive?.content
+                val longitude = jsonObject["longitude"]?.jsonPrimitive?.content
+                val altitude = jsonObject["altitude"]?.jsonPrimitive?.content
 
-              latTextBox.setText(latitude)
-              longTextBox.setText(longitude)
-              altTextBox.setText(altitude)
-            } catch (e: Exception) {
-              println(e.message)
+                latTextBox.setText(latitude)
+                longTextBox.setText(longitude)
+                altTextBox.setText(altitude)
+              } catch (e: Exception) {
+                println(e.message)
+              }
             }
           }
+        } catch (e: Exception) {
+//          Exception here was causing app to crash because coroutine chanel was closed
+//          While the loop was still running
+          println(e.message)
         }
       }
     }
@@ -238,9 +244,7 @@ class MainActivity : AppCompatActivity() {
   private fun stopWebSocket() {
     CoroutineScope(Dispatchers.IO).launch {
       try {
-        println("1")
-        socket?.close(CloseReason(CloseReason.Codes.NORMAL, "Client closed connection"))
-        println("2")
+        socket?.close(CloseReason(CloseReason.Codes.NORMAL, ""))
         withContext(Dispatchers.Main) {
           val latTextBox: TextInputEditText = findViewById(R.id.latitudeTextField)
           val longTextBox: TextInputEditText = findViewById(R.id.longitudeTextField)
