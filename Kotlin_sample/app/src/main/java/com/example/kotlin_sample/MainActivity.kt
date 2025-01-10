@@ -2,9 +2,7 @@ package com.example.kotlin_sample
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -13,19 +11,12 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.*
-import io.ktor.client.*
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.websocket.*
-import io.ktor.client.request.get
-import io.ktor.client.request.header
-import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.URLProtocol
-import io.ktor.websocket.*
 import org.json.JSONObject
-import java.util.Date
-import kotlinx.serialization.json.*
+
+
+import com.example.kotlin_sample.utils.ApiUtils
+import com.example.kotlin_sample.utils.WebSocketManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -42,14 +33,10 @@ class MainActivity : AppCompatActivity() {
   private var positionsV2Port: Int = -1
 
 //  Http client - Can't be reused for web socket as it causes `Parent process has finished` exception
-  private val client = HttpClient(CIO)
+  private val client = ApiUtils()
 
-//  Web socket client
-//  https://ktor.io/docs/client-engines.html#limitations
-  private val websocketLocationV2 = HttpClient(CIO) {
-    install(WebSockets)
-}
-  private var socket: DefaultClientWebSocketSession? = null
+//  Web socket
+  private val webSocket = WebSocketManager()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -105,7 +92,7 @@ class MainActivity : AppCompatActivity() {
 //    Get receiver button
     val getReceiverBut: Button = findViewById(R.id.getReceiverButton)
     getReceiverBut.setOnClickListener {
-      getReceiverName()
+      client.getReceiverName(this@MainActivity, registrationResult ?: "", appIDInput)
     }
 
     // Start/Stop position stream button button
@@ -120,13 +107,13 @@ class MainActivity : AppCompatActivity() {
         try {
           if (startStopBut.text == startText) {
             if (registrationResult == "OK") {
-              val response = checkReceiverConnection()
+              val response = client.checkReceiverConnection(appIDInput)
               var isConnected = response.bodyAsText()
               isConnected = JSONObject(isConnected).getString("isConnected")
 
               withContext(Dispatchers.Main) {
                 if (isConnected == "true") {
-                  startWebSocket()
+                  webSocket.startWebSocket(this@MainActivity, positionsV2Port)
                   startStopBut.text = stopText
                 } else {
                   sendCustomIntent("com.trimble.tmm.RECEIVERSELECTION", false)
@@ -138,7 +125,7 @@ class MainActivity : AppCompatActivity() {
               }
             }
           } else {
-            stopWebSocket()
+            webSocket.stopWebSocket(this@MainActivity)
             withContext(Dispatchers.Main) {
               startStopBut.text = startText
             }
@@ -147,116 +134,6 @@ class MainActivity : AppCompatActivity() {
           withContext(Dispatchers.Main) {
             println("Error: ${e.message}")
           }
-        }
-      }
-    }
-
-  }
-
-  private fun getReceiverName() {
-    CoroutineScope(Dispatchers.IO).launch {
-      try {
-        val response = checkReceiverConnection()
-        val receiverTextBox: TextInputEditText = findViewById(R.id.receiverNameText)
-
-        if (registrationResult == "OK") {
-//          Only runs if app is registered.
-//          Displays the receiver name to the text box
-          var receiverName = response.bodyAsText()
-          receiverName = JSONObject(receiverName).getString("bluetoothName")
-          withContext(Dispatchers.Main) {
-            receiverTextBox.setText(receiverName)
-          }
-        } else {
-          withContext(Dispatchers.Main) {
-//            Asks user to register app, otherwise will show a Http status code
-            if (response.status != HttpStatusCode.OK) {
-              Toast.makeText(this@MainActivity, getString(R.string.error_text, response.status), Toast.LENGTH_SHORT).show()
-            } else {
-              Toast.makeText(this@MainActivity, getString(R.string.register_error_text), Toast.LENGTH_SHORT).show()
-            }
-          }
-        }
-      } catch (e: Exception) {
-        withContext(Dispatchers.Main) {
-//          If TMM isn't open it will throw an exception
-          println("Error: ${e.message}")
-          Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-      }
-    }
-  }
-
-  private suspend fun checkReceiverConnection(): HttpResponse {
-    val utcTime = Date()
-    val accessCode = AccessCodeGenerator.generateAccessCode(appIDInput.text.toString(), utcTime)
-    val authorizationHeader = "Basic $accessCode"
-    // Get authorization header with access code through the generator
-
-    return client.get("http://localhost:9637/api/v1/receiver") {
-      header("Authorization", authorizationHeader)
-    }
-  }
-
-  private fun startWebSocket() {
-    CoroutineScope(Dispatchers.IO).launch {
-      socket = websocketLocationV2.webSocketSession {
-        url {
-          protocol = URLProtocol.WS
-          host = "localhost"
-          port = positionsV2Port
-        }
-      }
-
-      while (socket?.isActive == true) {
-        try {
-          val frame = socket?.incoming?.receive()
-          if (frame is Frame.Text) {
-            val jsonString = frame.readText()
-            withContext(Dispatchers.Main) {
-              val latTextBox: TextInputEditText = findViewById(R.id.latitudeTextField)
-              val longTextBox: TextInputEditText = findViewById(R.id.longitudeTextField)
-              val altTextBox: TextInputEditText = findViewById(R.id.altitudeTextField)
-
-              try {
-                val jsonObject = Json.parseToJsonElement(jsonString).jsonObject
-                val latitude = jsonObject["latitude"]?.jsonPrimitive?.content
-                val longitude = jsonObject["longitude"]?.jsonPrimitive?.content
-                val altitude = jsonObject["altitude"]?.jsonPrimitive?.content
-
-                latTextBox.setText(latitude)
-                longTextBox.setText(longitude)
-                altTextBox.setText(altitude)
-              } catch (e: Exception) {
-                println(e.message)
-              }
-            }
-          }
-        } catch (e: Exception) {
-//          Exception here was causing app to crash because coroutine chanel was closed
-//          While the loop was still running
-          println(e.message)
-        }
-      }
-    }
-  }
-
-  private fun stopWebSocket() {
-    CoroutineScope(Dispatchers.IO).launch {
-      try {
-        socket?.close(CloseReason(CloseReason.Codes.NORMAL, ""))
-        withContext(Dispatchers.Main) {
-          val latTextBox: TextInputEditText = findViewById(R.id.latitudeTextField)
-          val longTextBox: TextInputEditText = findViewById(R.id.longitudeTextField)
-          val altTextBox: TextInputEditText = findViewById(R.id.altitudeTextField)
-
-          latTextBox.setText("")
-          longTextBox.setText("")
-          altTextBox.setText("")
-        }
-      } catch (e: Exception) {
-        withContext(Dispatchers.Main) {
-        println(e.message)
         }
       }
     }
@@ -280,7 +157,7 @@ class MainActivity : AppCompatActivity() {
 //  Occurs when app is closed
   override fun onDestroy() {
     super.onDestroy()
-    client.close()
-  websocketLocationV2.close()
+    client.clientClose()
+    webSocket.sessionClose()
   }
 }
