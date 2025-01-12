@@ -9,6 +9,5 @@ namespace Maui_sample.Models
   internal class PortInfo
   {
     public static int APIPort { get; set; }
-    public static int LocationV2Port { get; set; }
   }
 }
