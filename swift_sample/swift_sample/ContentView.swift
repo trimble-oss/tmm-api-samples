@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct ContentView: View {
+  @EnvironmentObject var appState: AppState
   @State private var appID: String = ""
   @State private var receiverName: String = ""
-  @State private var webSocketData: String = "Waiting for message..."
   @State private var lat: String = ""
   @State private var long: String = ""
   @State private var alt: String = ""
@@ -28,7 +28,7 @@ struct ContentView: View {
         // Header text fixed at the top
         Text(headerText)
           .font(.largeTitle)
-          .padding(.top, 20)
+          .padding([.top, .leading, .trailing], 20)
         
         Spacer() // Spacer to push the content to the center
         
@@ -49,6 +49,7 @@ struct ContentView: View {
           HStack {
             TextField("Receiver name", text: $receiverName)
               .textFieldStyle(RoundedBorderTextFieldStyle())
+              .disabled(true)
               .padding()
             Button("Get Receiver") {
               // Change activity
@@ -60,12 +61,15 @@ struct ContentView: View {
           // WebSocket
           TextField("Latitude", text: $lat)
             .textFieldStyle(RoundedBorderTextFieldStyle())
+            .disabled(true)
             .padding()
           TextField("Longitude", text: $long)
             .textFieldStyle(RoundedBorderTextFieldStyle())
+            .disabled(true)
             .padding()
           TextField("Altitude", text: $alt)
             .textFieldStyle(RoundedBorderTextFieldStyle())
+            .disabled(true)
             .padding()
           
           Button("Start Position Stream") {
@@ -82,8 +86,28 @@ struct ContentView: View {
 }
 
 private func register(with appID: String) {
-        print("Registering with app ID: \(appID)")
+  print("Registering with app ID: \(appID)")
+  //  returl
+  var params: [String: String] =
+  [
+  "application_id": appID,
+  "returl": "trimble.tmm.iOS"
+  ]
+
+  do {
+    let jsonData = try JSONSerialization.data(withJSONObject: params, options: [])
+    let jsonString = String(data: jsonData, encoding: .utf8)
+    let base64Encoded = jsonString?.data(using: .utf8)?.base64EncodedString()
+    let customUrl = URL(string: "tmmregister://?" + base64Encoded!)!
+    UIApplication.shared.open(customUrl) { (success) in
+      if success{
+      }
     }
+  }
+  catch {
+    print("Json serialization issue: \(error.localizedDescription)")
+  }
+}
 
 #Preview {
     ContentView()
