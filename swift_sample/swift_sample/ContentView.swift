@@ -5,10 +5,15 @@
 //  Created by Terence Chen on 14/01/2025.
 //
 
+import Foundation
 import SwiftUI
 
+struct ApiResponse: Codable {
+  let receiverName: String
+}
+
 struct ContentView: View {
-  @EnvironmentObject var appState: AppState
+  @State private var callbackInfo: [String: Any?] = [:]
   @State private var appID: String = ""
   @State private var receiverName: String = ""
   @State private var lat: String = ""
@@ -20,67 +25,70 @@ struct ContentView: View {
     "Swift Sample: Version \(versionNumber)"
   }
   private var versionNumber: String {
-          Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
-      }
+    Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+    ?? "Unknown"
+  }
   
   var body: some View {
+    VStack {
+      // Header text fixed at the top
+      Text(headerText)
+        .font(.largeTitle)
+        .padding([.top, .leading, .trailing], 20)
+      
+      Spacer()  // Spacer to push the content to the center
+      
       VStack {
-        // Header text fixed at the top
-        Text(headerText)
-          .font(.largeTitle)
-          .padding([.top, .leading, .trailing], 20)
-        
-        Spacer() // Spacer to push the content to the center
-        
-        VStack {
-          // Registration
-          HStack {
-            TextField("Enter your app's ID", text: $appID)
-              .textFieldStyle(RoundedBorderTextFieldStyle())
-              .padding()
-            
-            Button("Register") {
-              register(with: appID)
-            }
-            .buttonStyle(.borderedProminent)
-          }
-          
-          // REST API
-          HStack {
-            TextField("Receiver name", text: $receiverName)
-              .textFieldStyle(RoundedBorderTextFieldStyle())
-              .disabled(true)
-              .padding()
-            Button("Get Receiver") {
-              // Change activity
-            }
-            .buttonStyle(.borderedProminent)
-          }
-          
-          
-          // WebSocket
-          TextField("Latitude", text: $lat)
+        // Registration
+        HStack {
+          TextField("Enter your app's ID", text: $appID)
             .textFieldStyle(RoundedBorderTextFieldStyle())
-            .disabled(true)
-            .padding()
-          TextField("Longitude", text: $long)
-            .textFieldStyle(RoundedBorderTextFieldStyle())
-            .disabled(true)
-            .padding()
-          TextField("Altitude", text: $alt)
-            .textFieldStyle(RoundedBorderTextFieldStyle())
-            .disabled(true)
             .padding()
           
-          Button("Start Position Stream") {
-            // Change activity
+          Button("Register") {
+            register(with: appID)
           }
           .buttonStyle(.borderedProminent)
         }
-        .padding()
         
-        Spacer() // Spacer to push the content to the center
+        // REST API
+        HStack {
+          TextField("Receiver name", text: $receiverName)
+            .textFieldStyle(RoundedBorderTextFieldStyle())
+            .disabled(true)
+            .padding()
+//        TODO: Fix register before this button can work
+          Button("Get Receiver", action: {
+            receiverInfo(appID: appID) { bluetoothName in
+              self.receiverName = bluetoothName
+            }
+          })
+        }
+        .buttonStyle(.borderedProminent)
+        
+        // WebSocket
+        TextField("Latitude", text: $lat)
+          .textFieldStyle(RoundedBorderTextFieldStyle())
+          .disabled(true)
+          .padding()
+        TextField("Longitude", text: $long)
+          .textFieldStyle(RoundedBorderTextFieldStyle())
+          .disabled(true)
+          .padding()
+        TextField("Altitude", text: $alt)
+          .textFieldStyle(RoundedBorderTextFieldStyle())
+          .disabled(true)
+          .padding()
+        
+        Button("Start Position Stream") {
+          // Change activity
+        }
+        .buttonStyle(.borderedProminent)
       }
+      .padding()
+      
+      Spacer()  // Spacer to push the content to the center
+    }
     .padding()
   }
 }
@@ -90,25 +98,76 @@ private func register(with appID: String) {
   //  returl
   var params: [String: String] =
   [
-  "application_id": appID,
-  "returl": "trimble.tmm.iOS"
+    "application_id": appID,
+    "returl": "trimble.tmm.iOS",
   ]
-
+  
   do {
     let jsonData = try JSONSerialization.data(withJSONObject: params, options: [])
+    print(jsonData)
     let jsonString = String(data: jsonData, encoding: .utf8)
-    let base64Encoded = jsonString?.data(using: .utf8)?.base64EncodedString()
-    let customUrl = URL(string: "tmmregister://?" + base64Encoded!)!
-    UIApplication.shared.open(customUrl) { (success) in
-      if success{
+    let base64Encoded = jsonString?.data(using: .utf8)?.base64EncodedString() ?? ""
+    if let customUrl = URL(string: "tmmregister://" + base64Encoded) {
+      print(customUrl)
+      UIApplication.shared.open(customUrl, options: [:]) { success in
+        if success {
+          // The URL was delivered successfully
+          print("The URL was delivered successfully.")
+        } else {
+          // Handle failure
+          print("Failed to open the URL.")
+        }
       }
     }
-  }
-  catch {
+  } catch {
     print("Json serialization issue: \(error.localizedDescription)")
   }
 }
 
+private func receiverInfo(appID: String, completion: @escaping (String) -> Void) {
+  guard let url = URL(string: "http://localhost:9637/api/v1/receiver") else {
+    print("Invalid URL")
+    return
+  }
+  
+  let utcTime = Date()
+  guard let accessCode = AccessCodeGenerator.generateAccessCode(appID: appID, utcTime: utcTime) else {
+    print("Failed to generate access code")
+    return
+  }
+  
+  var request = URLRequest(url: url)
+  request.httpMethod = "GET"
+  request.addValue("Basic \(accessCode)", forHTTPHeaderField: "Authorization")
+  
+  let task = URLSession.shared.dataTask(with: request) { data, response, error in
+    if let error = error {
+      print("Error: \(error.localizedDescription)")
+      return
+    }
+    
+    guard let data = data else {
+      print("No data received")
+      return
+    }
+    
+    do {
+      if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+         let bluetoothName = json["bluetoothName"] as? String {
+        DispatchQueue.main.async {
+          completion(bluetoothName)
+        }
+      } else {
+        print("Invalid JSON format or app is not registered")
+      }
+    } catch {
+      print("JSON parsing error: \(error.localizedDescription)")
+    }
+  }
+  
+  task.resume()
+}
+
 #Preview {
-    ContentView()
+  ContentView()
 }

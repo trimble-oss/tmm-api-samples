@@ -13,7 +13,6 @@ struct swift_sampleApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-            .environmentObject(appDelegate.appState)
         }
     }
 }
