@@ -8,34 +8,34 @@
 import UIKit
 import SwiftUI
 
-
 class AppDelegate: UIResponder, UIApplicationDelegate {
   
   var window: UIWindow?
-  var viewModel: ViewModel?
+  var viewModel = registrationViewModel()
   
-  func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-    guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-          let queryItems = components.queryItems else {
-      return false
-    }
+  func application(_ application: UIApplication,
+                   open url: URL,
+                   options: [UIApplication.OpenURLOptionsKey : Any] = [:] ) -> Bool {
     
-    for queryItem in queryItems {
-      switch queryItem.name {
-      case "registrationResult":
-        viewModel?.registrationResult = queryItem.value
-      case "apiPort":
-        viewModel?.apiPort = Int(queryItem.value ?? "")
-      case "locationPort":
-        viewModel?.locationPort = Int(queryItem.value ?? "")
-      case "locationSecurePort":
-        viewModel?.locationSecurePort = Int(queryItem.value ?? "")
-      case "locationV2Port":
-        viewModel?.locationV2Port = Int(queryItem.value ?? "")
-      default:
-        break
+    // Changed from what is in the docs for iOS version 15 but functions the same
+    if let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+       let query = components.query,
+       let data = Data(base64Encoded: query) {
+      do {
+        if let jsonObject = try JSONSerialization.jsonObject(with: data, options: []) as? [String: String] {
+          viewModel.registrationResult = jsonObject["registrationResult"]!
+          viewModel.locationPort = Int(jsonObject["locationPort"]!)
+          viewModel.locationV2Port = Int(jsonObject["locationV2Port"]!)
+          viewModel.apiPort = Int(jsonObject["apiPort"]!)
+          return true
+        }
+      } catch {
+        print("Error deserializing JSON: \(error)")
+        return false
       }
+    } else {
+      print("Error: Unable to extract query from URL or decode data")
     }
-    return true
+    return false
   }
 }

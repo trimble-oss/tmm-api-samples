@@ -34,7 +34,7 @@ struct ContentView: View {
         .padding([.top, .leading, .trailing], 20)
       
       Spacer()  // Spacer to push the content to the center
-      Button("Clipboard test") {
+      Button("Clipboard workaround") {
         let pasteboard = UIPasteboard.general
                 pasteboard.string = "Hello, World!"
                 
@@ -64,10 +64,9 @@ struct ContentView: View {
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .disabled(true)
             .padding()
-//        TODO: Fix register before this button can work
           Button("Get Receiver", action: {
             receiverInfo(appID: appID) { bluetoothName in
-              self.receiverName = bluetoothName
+              self.receiverName = bluetoothName	
             }
           })
         }
@@ -112,10 +111,8 @@ private func register(with appID: String) {
   do {
     let jsonData = try JSONSerialization.data(withJSONObject: params, options: [])
     let jsonString = String(data: jsonData, encoding: .utf8)
-    print(jsonString)
     let base64Encoded = jsonString?.data(using: .utf8)?.base64EncodedString() ?? ""
     if let customUrl = URL(string: "tmmregister://?" + base64Encoded) {
-      print(customUrl)
       UIApplication.shared.open(customUrl, options: [:]) { success in
         if success {
           // The URL was delivered successfully
@@ -166,6 +163,7 @@ private func receiverInfo(appID: String, completion: @escaping (String) -> Void)
         }
       } else {
         print("Invalid JSON format or app is not registered")
+//        receiverName = ""
       }
     } catch {
       print("JSON parsing error: \(error.localizedDescription)")
