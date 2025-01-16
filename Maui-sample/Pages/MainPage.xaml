@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Maui_sample.MainPage"
+             xmlns:local="clr-namespace:Maui_sample"
+             x:DataType="local:MainPageViewModel">
+
+  <ContentPage.BindingContext>
+    <local:MainPageViewModel></local:MainPageViewModel>
+  </ContentPage.BindingContext>
+  <ScrollView>
+    <Grid HorizontalOptions="Center">
+      <VerticalStackLayout>
+        
+        <HorizontalStackLayout>
+          <VerticalStackLayout>
+          <Label Text="Enter App ID"
+                 Margin="0,0,0,10"/>
+          <Editor
+            x:Name="AppIDEntry"
+            Text="{Binding ApplicationID}"
+            AutoSize="TextChanges"
+            BackgroundColor="White"
+            Margin="0,0,20,0"
+            WidthRequest="200"/>
+          </VerticalStackLayout>
+
+          <Button
+            x:Name="RegisterButton"
+            Text="Register"
+            Clicked="RegisterButton_Clicked"
+            VerticalOptions="End"
+            WidthRequest="100"/>
+        </HorizontalStackLayout>
+
+        <HorizontalStackLayout Margin="0,20,0,0">
+          
+          <VerticalStackLayout>
+          <Label Text="Receiver name"
+                 Margin="0,10,0,10"/>
+
+            <Editor
+              x:Name="ReceiverDisplayName"
+              Text="{Binding ReceiverName}"
+              IsReadOnly="True"
+              AutoSize="TextChanges"
+              BackgroundColor="WhiteSmoke"
+              Margin="0,0,20,0"
+              WidthRequest="200"/>
+          </VerticalStackLayout>
+          
+          <Button
+            x:Name="GetReceiverButton"
+            Text="Get receiver"
+            Clicked="GetReceiverButton_Clicked"
+            VerticalOptions="End"
+            WidthRequest="120"/>
+          
+        </HorizontalStackLayout>
+
+        <VerticalStackLayout Margin="0,20,0,0">
+        <Label Text="{Binding Messages}"
+               IsVisible="{Binding AreLabelsVisible}"/>
+
+        <Label Text="Latitude"
+               Margin="0,20,0,0"/>
+        <Editor Text="{Binding Latitude}"
+                IsReadOnly="True"
+                AutoSize="TextChanges"
+                BackgroundColor="WhiteSmoke"/>
+
+        <Label Text="Longitude"
+               Margin="0,20,0,0"/>
+          <Editor Text="{Binding Longitude}"
+                  IsReadOnly="True"
+                  AutoSize="TextChanges"
+                  BackgroundColor="WhiteSmoke"/>
+
+        <Label Text="Altitude"
+               Margin="0,20,0,0"/>
+          <Editor Text="{Binding Altitude}"
+                  IsReadOnly="True"
+                  AutoSize="TextChanges"
+                  BackgroundColor="WhiteSmoke"
+                  Margin="0,0,0,10"/>
+
+          <Button
+            x:Name="StartPositionStreamButton"
+            Text="Start position stream"
+            Clicked="StartPositionStreamButton_Clicked"/>
+        </VerticalStackLayout>
+      </VerticalStackLayout>
+    </Grid>
+  </ScrollView>
+</ContentPage>
