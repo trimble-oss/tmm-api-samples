@@ -1,31 +1,53 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.VisualBasic;
+﻿using System.Reactive;
 using ReactiveUI;
 
 namespace Maui_sample
 {
     class MainPageViewModel : ReactiveObject
     {
-    private bool _appID = false;
 
-    public bool AppID
+    private bool _areLabelsVisible;
+    public bool AreLabelsVisible
     {
-      get => _appID;
-      set
-      {
-        if (_appID != value)
-        {
-          _appID = value;
-          Preferences.Default.Set("UseAppID", _appID);
-          UpdateAppID();
-          this.RaisePropertyChanged();
-        }
-      }
+      get => _areLabelsVisible;
+      set => this.RaiseAndSetIfChanged(ref _areLabelsVisible, value);
     }
+
+    private string _messages;
+    public string Messages
+    {
+      get => _messages;
+      set => this.RaiseAndSetIfChanged(ref _messages, value);
+    }
+
+    private string _receiverName;
+    public string ReceiverName
+    {
+      get => _receiverName;
+      set => this.RaiseAndSetIfChanged(ref _receiverName, value);
+    }
+
+    private double? _latitude;
+    public double? Latitude
+    {
+      get => _latitude;
+      set => this.RaiseAndSetIfChanged(ref _latitude, value);
+    }
+
+    private double? _longitude;
+    public double? Longitude
+    {
+      get => _longitude;
+      set => this.RaiseAndSetIfChanged(ref _longitude, value);
+    }
+
+    private double? _altitude;
+    public double? Altitude
+    {
+      get => _altitude;
+      set => this.RaiseAndSetIfChanged(ref _altitude, value);
+    }
+
     private string _applicationID = string.Empty;
 
     public string ApplicationID
@@ -37,20 +59,24 @@ namespace Maui_sample
         {
           _applicationID = value;
           Preferences.Default.Set("ApplicationID", value);
-          UpdateAppID();
           this.RaisePropertyChanged();
         }
       }
     }
 
+    private string _registrationStatus;
+    public string RegistrationStatus
+    {
+      get => _registrationStatus;
+      set => this.RaiseAndSetIfChanged(ref _registrationStatus, value);
+    }
+
+
     public MainPageViewModel()
     {
+      _messages = string.Empty;
       _applicationID = Preferences.Default.Get("ApplicationID", string.Empty);
-      _appID = Preferences.Default.Get("UseAppID", false);
-    }
-    private void UpdateAppID()
-    {
-      Values.AppID = _appID ? _applicationID.Trim() : Environment.GetEnvironmentVariable("SampleAppID");
+
     }
   }
 }

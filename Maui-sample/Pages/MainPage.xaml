@@ -9,55 +9,86 @@
     <local:MainPageViewModel></local:MainPageViewModel>
   </ContentPage.BindingContext>
   <ScrollView>
-    <Grid ColumnDefinitions="0.15*, 0.7*, 0.15*" VerticalOptions="Center">
-      <VerticalStackLayout Spacing="10">
-        <HorizontalStackLayout Spacing="10">
-          <CheckBox IsChecked="{Binding AppID}"></CheckBox>
-          <Label
-            Text="Enter Application ID"
-            HorizontalOptions="Start"
-            VerticalOptions="Center"/>
+    <Grid HorizontalOptions="Center">
+      <VerticalStackLayout>
+        
+        <HorizontalStackLayout>
+          <VerticalStackLayout>
+          <Label Text="Enter App ID"
+                 Margin="0,0,0,10"/>
+          <Editor
+            x:Name="AppIDEntry"
+            Text="{Binding ApplicationID}"
+            AutoSize="TextChanges"
+            BackgroundColor="White"
+            Margin="0,0,20,0"
+            WidthRequest="200"/>
+          </VerticalStackLayout>
+
+          <Button
+            x:Name="RegisterButton"
+            Text="Register"
+            Clicked="RegisterButton_Clicked"
+            VerticalOptions="End"
+            WidthRequest="100"/>
         </HorizontalStackLayout>
-        <Editor
-        x:Name="AppIDEntry"
-        Text="{Binding ApplicationID}"
-        AutoSize="TextChanges"
-        BackgroundColor="WhiteSmoke"
-        IsVisible="{Binding AppID}"/>
 
-        <Button
-        x:Name="LocationButton"
-        Clicked="OnLocationButtonClicked"
-        HorizontalOptions="FillAndExpand"
-        SemanticProperties.Hint="Location"
-        Text="Location" />
+        <HorizontalStackLayout Margin="0,20,0,0">
+          
+          <VerticalStackLayout>
+          <Label Text="Receiver name"
+                 Margin="0,10,0,10"/>
 
-        <Button
-        x:Name="WebSocketLocationButton"
-        Clicked="OnWebSocketLocationButtonClickedV2"
-        HorizontalOptions="FillAndExpand"
-        SemanticProperties.Hint="Websocket Location"
-        Text="Websocket Location" />
+            <Editor
+              x:Name="ReceiverDisplayName"
+              Text="{Binding ReceiverName}"
+              IsReadOnly="True"
+              AutoSize="TextChanges"
+              BackgroundColor="WhiteSmoke"
+              Margin="0,0,20,0"
+              WidthRequest="200"/>
+          </VerticalStackLayout>
+          
+          <Button
+            x:Name="GetReceiverButton"
+            Text="Get receiver"
+            Clicked="GetReceiverButton_Clicked"
+            VerticalOptions="End"
+            WidthRequest="120"/>
+          
+        </HorizontalStackLayout>
 
-        <Button
-        x:Name="WebSocketLocationButtonV2"
-        Clicked="OnWebSocketLocationButtonClickedV2"
-        HorizontalOptions="FillAndExpand"
-        SemanticProperties.Hint="Websocket Location V2"
-        Text="Websocket Location V2" />
-        <Button
-        x:Name="WinRequestSchemeButton"
-        Clicked="OnWinRequestSchemeButtonClicked"
-        HorizontalOptions="FillAndExpand"
-        IsVisible="{OnPlatform WinUI=True,
-                                Default=False}"
-        SemanticProperties.Hint="Request Schemes"
-        Text="Window Schemes" />
-        <Button
-        x:Name="RestfulApiButton"
-        Text="RESTful API"
-        Clicked="OnRestfulApiButtonClicked"
-        HorizontalOptions="FillAndExpand"/>
+        <VerticalStackLayout Margin="0,20,0,0">
+        <Label Text="{Binding Messages}"
+               IsVisible="{Binding AreLabelsVisible}"/>
+
+        <Label Text="Latitude"
+               Margin="0,20,0,0"/>
+        <Editor Text="{Binding Latitude}"
+                IsReadOnly="True"
+                AutoSize="TextChanges"
+                BackgroundColor="WhiteSmoke"/>
+
+        <Label Text="Longitude"
+               Margin="0,20,0,0"/>
+          <Editor Text="{Binding Longitude}"
+                  IsReadOnly="True"
+                  AutoSize="TextChanges"
+                  BackgroundColor="WhiteSmoke"/>
+
+        <Label Text="Altitude"
+               Margin="0,20,0,0"/>
+          <Editor Text="{Binding Altitude}"
+                  IsReadOnly="True"
+                  AutoSize="TextChanges"
+                  BackgroundColor="WhiteSmoke"
+                  Margin="0,0,0,10"/>
+
+          <Button
+            x:Name="StartPositionStreamButton"
+            Text="Start position stream"
+            Clicked="StartPositionStreamButton_Clicked"/>
+        </VerticalStackLayout>
       </VerticalStackLayout>
     </Grid>
   </ScrollView>

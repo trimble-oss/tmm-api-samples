@@ -1,126 +1,127 @@
+using System.Diagnostics;
+using CommunityToolkit.Mvvm.Messaging;
+using Newtonsoft.Json.Linq;
+using Maui_sample.RestApi;
+using Maui_sample.WebSocket;
+using Maui_sample.Utills;
+using Maui_sample.Models;
+
 namespace Maui_sample;
 
 public partial class MainPage : ContentPage
 {
-	public MainPage()
-	{
-		InitializeComponent();
-    Title = $"TMM Test App (v{GetAppVersionString()})";
-    // Retrieves the version number and displays as the title
+  private bool _startStop = false;
+  internal CancellationTokenSource? _cancellationTokenSource;
+  internal MainPageViewModel? _viewModel => BindingContext as MainPageViewModel;
+  private TaskCompletionSource<string> _registrationStatusCompletionSource = new TaskCompletionSource<string>();
+  public MainPage()
+  {
+    InitializeComponent();
+    WeakReferenceMessenger.Default.Register<UriMessage>(this, (r, m) => UseUri(m.Value));
+    // Messenger allows App.xaml.cs to pass the callback uri to MainPage
   }
 
-  private string GetAppVersionString()
+  private async void RegisterButton_Clicked(object sender, EventArgs e)
   {
-#if WINDOWS
-    var version = Windows.ApplicationModel.Package.Current.Id.Version;
-    return $"{version.Major}.{version.Minor}.{version.Build}.{version.Revision}";
-#else
-    return "";
-#endif
-  }
-  public async Task<PermissionStatus> CheckAndRequestLocationPermission()
-  {
-    PermissionStatus status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+      string? appID = _viewModel?.ApplicationID;
 
-    if (status == PermissionStatus.Granted)
-    {
-      return status;
-    }
-
-    if (status == PermissionStatus.Denied && DeviceInfo.Platform == DevicePlatform.WinUI)
-    {
-      await DisplayAlert("Location", "Please enable location permission in settings", "OK");
-      return status;
-    }
-
-    if (Permissions.ShouldShowRationale<Permissions.LocationWhenInUse>())
-    {
-      await DisplayAlert("Location", "Location permission is required to request locations", "OK");
-    }
-
-    status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-
-    return status;
-  }
-
-  // The rest are just button functions that opens their respective interfaces
-  private async void OnLocationButtonClicked(object sending, EventArgs e)
-  {
-    // Checks if location permission is on before opening the page. Pops an alert if it does.
-    try
-    {
-      PermissionStatus status = await CheckAndRequestLocationPermission();
-
-      if (status == PermissionStatus.Granted)
+      if (string.IsNullOrWhiteSpace(appID) && appID == "")
       {
-        await Navigation.PushAsync(new LocationPage());
-        SemanticScreenReader.Announce(LocationButton.Text);
+        Debug.WriteLine("App ID is null or empty.");
       }
-    }
-    catch
+
+    // Run register URI. Check to see if the application ID is the same as the one stored in environment variables.
+    Debug.WriteLine("Starting registration...");
+    string requestId = "tmmRegister";
+    string callback = Uri.EscapeDataString("tmmapisample://response/tmmRegister");
+    string applicationId = appID;
+    string requestUri = $"trimbleMobileManager://request/{requestId}?applicationId={applicationId}&callback={callback}";
+    await UtilMethods.checkRequest(requestUri);
+    string registrationStatus = await _registrationStatusCompletionSource.Task;
+    // Waits until the registration Uri is returned before continuing
+
+    if (registrationStatus == "OK")
     {
+      Debug.WriteLine($"Registration status: {registrationStatus}");
+    }
+    else if (registrationStatus == "NoNetwork")
+    {
+      Debug.WriteLine("No Network");
+    }
+    else
+    {
+      Debug.WriteLine("UnAuthorized");
     }
   }
 
-  private async void OnWebSocketLocationButtonClicked(object sender, EventArgs e)
+  private async void GetReceiverButton_Clicked(object sender, EventArgs e)
   {
-    try
-    {
-      if (LocationWebsocketClient.LocationPort != 0)
-      {
-        await Navigation.PushAsync(new LocationWebsocketPage(LocationWebsocketClient.LocationPort));
-        SemanticScreenReader.Announce(WebSocketLocationButton.Text);
-      }
-      else
-      {
-        await DisplayAlert("Error", "Port value is not set. Please get the port value first.", "OK");
-      }
-    }
-    catch (Exception ex)
-    {
-      Console.WriteLine($"An error occurred: {ex.Message}");
-    }
+    await ReceiverMethods.GetReceiverAsync(this);
   }
 
-  private async void OnWebSocketLocationButtonClickedV2(object sender, EventArgs e)
-  {
-    try
+    private WebSocketMethods _webSocketMethods = new WebSocketMethods();
+
+    private async void StartPositionStreamButton_Clicked(object sender, EventArgs e)
     {
-      if (LocationWebsocketClientV2.LocationV2Port != 0)
+        // Checks registration status. Alert user to register app if not. Otherwise will try to get position via web socket
+        if (_viewModel.RegistrationStatus == "OK")
+        {
+            _startStop = !_startStop;
+            StartPositionStreamButton.Text = _startStop ? "Stop position stream" : "Start position stream";
+            if (_startStop)
+            {
+                _cancellationTokenSource = new CancellationTokenSource();
+                await _webSocketMethods.ReadPositionsAsync(this, _cancellationTokenSource.Token);
+            }
+            else
+            {
+                _cancellationTokenSource?.Cancel();
+                _cancellationTokenSource?.Dispose();
+                _cancellationTokenSource = null;
+
+                _viewModel.Latitude = null;
+                _viewModel.Longitude = null;
+                _viewModel.Altitude = null;
+            }
+        }
+        else
+        {
+            _viewModel.AreLabelsVisible = true;
+            _viewModel.Messages = "Please register your app first";
+        }
+    }
+
+  public void UseUri(Uri uri)
+  {
+    // Retrieves the callback URI and processes it.
+    var queryParameters = uri.Query.TrimStart('?')
+        .Split('&', StringSplitOptions.RemoveEmptyEntries)
+        .Select(param => param.Split('='))
+        .ToDictionary(pair => pair[0], pair => Uri.UnescapeDataString(pair[1]));
+
+    var jsonObject = new JObject();
+    foreach (var param in queryParameters)
+    {
+      jsonObject[param.Key] = param.Value;
+    }
+
+    string responseJson = jsonObject.ToString();
+    Debug.WriteLine(responseJson);
+    var parsedJson = JObject.Parse(responseJson);
+
+    string? registrationStatus = parsedJson["status"]?.ToString();
+    // Specifically grabs the status from the response Json.
+    string? apiPortString = parsedJson["apiPort"]?.ToString();
+
+    if (_viewModel != null && !string.IsNullOrEmpty(registrationStatus))
+    {
+      _viewModel.RegistrationStatus = registrationStatus;
+      _registrationStatusCompletionSource.SetResult(registrationStatus);
+      if (int.TryParse(apiPortString, out int apiPort))
       {
-        await Navigation.PushAsync(new LocationWebsocketPageV2(LocationWebsocketClientV2.LocationV2Port));
-        SemanticScreenReader.Announce(WebSocketLocationButtonV2.Text);
+        PortInfo.APIPort = apiPort;
       }
-      else
-      {
-        await DisplayAlert("Error", "Port value is not set. Please get the port value first.", "OK");
-      }
-    }
-    catch (Exception ex)
-    {
-      Console.WriteLine($"An error occurred: {ex.Message}");
-    }
-  }
-  private async void OnWinRequestSchemeButtonClicked(object sender, EventArgs e)
-  {
-    try
-    {
-      await Navigation.PushAsync(new WinRequestSchemePage());
-      SemanticScreenReader.Announce(WinRequestSchemeButton.Text);
-    }
-    catch
-    {
-    }
-  }
-  private async void OnRestfulApiButtonClicked(object sender, EventArgs e)
-  {
-    try
-    {
-      await Navigation.PushAsync(new RestfulApiPage());
-      SemanticScreenReader.Announce(RestfulApiButton.Text);
-    }
-    catch
-    {
+      // Task completed. Passes registrationStatus back to the RegisterButton_Clicked
     }
   }
 }

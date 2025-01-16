@@ -39,7 +39,7 @@
       <!-- This is the format for registering your custom URI -->
       <Extensions>
         <uap:Extension Category="windows.protocol">
-          <uap:Protocol Name="sampleapp">
+          <uap:Protocol Name="tmmapisample">
             <uap:DisplayName>TMM Sample App</uap:DisplayName>
           </uap:Protocol>
         </uap:Extension>
