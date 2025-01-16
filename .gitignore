@@ -204,4 +204,3 @@ Scripts/Jira/.venv/
 *.externalNativeBuild
 *.cxx
 *local.properties
-*sensitiveData.properties

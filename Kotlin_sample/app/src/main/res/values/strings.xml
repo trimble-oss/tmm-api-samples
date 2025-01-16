@@ -1,0 +1,24 @@
+<resources>
+<!--  Title -->
+  <string name="app_name">Kotlin Sample</string>
+  <string name="version">Version %1$s</string>
+
+<!--  App ID field -->
+  <string name="enter_app_id">Enter App ID</string>
+  <string name="register_button">Register</string>
+
+<!--  Receiver -->
+  <string name="receiver_name_label">Receiver Name</string>
+  <string name="receiver_name_button">Get Receiver</string>
+
+<!--  Web socket V2 -->
+  <string name="latitude">Latitude</string>
+  <string name="longitude">Longitude</string>
+  <string name="altitude">Altitude</string>
+  <string name="start">Start position stream</string>
+  <string name="stop">Stop position stream</string>
+
+<!--  Error text -->
+  <string name="register_error_text">Please register your app</string>
+  <string name="error_text">Error: %1$s</string>
+</resources>
