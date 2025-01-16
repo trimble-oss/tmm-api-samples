@@ -8,9 +8,6 @@
 import Foundation
 import SwiftUI
 
-struct ApiResponse: Codable {
-  let receiverName: String
-}
 
 struct ContentView: View {
   @State private var callbackInfo: [String: Any?] = [:]
@@ -37,7 +34,17 @@ struct ContentView: View {
         .padding([.top, .leading, .trailing], 20)
       
       Spacer()  // Spacer to push the content to the center
-      
+      Button("Clipboard test") {
+        let pasteboard = UIPasteboard.general
+                pasteboard.string = "Hello, World!"
+                
+                // Read from clipboard
+                if let clipboardContent = pasteboard.string {
+                    print("Clipboard content: \(clipboardContent)")
+                } else {
+                    print("No string content in clipboard")
+                }
+      } .buttonStyle(.borderedProminent)
       VStack {
         // Registration
         HStack {
@@ -99,15 +106,15 @@ private func register(with appID: String) {
   var params: [String: String] =
   [
     "application_id": appID,
-    "returl": "trimble.tmm.iOS",
+    "returl": "tmmapisample://com.trimble.tmmapisample",
   ]
   
   do {
     let jsonData = try JSONSerialization.data(withJSONObject: params, options: [])
-    print(jsonData)
     let jsonString = String(data: jsonData, encoding: .utf8)
+    print(jsonString)
     let base64Encoded = jsonString?.data(using: .utf8)?.base64EncodedString() ?? ""
-    if let customUrl = URL(string: "tmmregister://" + base64Encoded) {
+    if let customUrl = URL(string: "tmmregister://?" + base64Encoded) {
       print(customUrl)
       UIApplication.shared.open(customUrl, options: [:]) { success in
         if success {
