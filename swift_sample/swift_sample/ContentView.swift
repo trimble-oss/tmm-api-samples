@@ -102,7 +102,7 @@ struct ContentView: View {
 private func register(with appID: String) {
   print("Registering with app ID: \(appID)")
   //  returl
-  var params: [String: String] =
+  let params: [String: String] =
   [
     "application_id": appID,
     "returl": "tmmapisample://com.trimble.tmmapisample",
