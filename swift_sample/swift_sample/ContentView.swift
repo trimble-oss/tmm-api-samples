@@ -10,13 +10,13 @@ import SwiftUI
 
 
 struct ContentView: View {
-  @State private var callbackInfo: [String: Any?] = [:]
   @State private var appID: String = ""
   @State private var receiverName: String = ""
   @State private var lat: String = ""
   @State private var long: String = ""
   @State private var alt: String = ""
   // All need a value
+  @EnvironmentObject var viewModel: registrationViewModel
   
   private var headerText: String {
     "Swift Sample: Version \(versionNumber)"
@@ -36,14 +36,14 @@ struct ContentView: View {
       Spacer()  // Spacer to push the content to the center
       Button("Clipboard workaround") {
         let pasteboard = UIPasteboard.general
-                pasteboard.string = "Hello, World!"
-                
-                // Read from clipboard
-                if let clipboardContent = pasteboard.string {
-                    print("Clipboard content: \(clipboardContent)")
-                } else {
-                    print("No string content in clipboard")
-                }
+        pasteboard.string = "Hello, World!"
+        
+        // Read from clipboard
+        if let clipboardContent = pasteboard.string {
+          print("Clipboard content: \(clipboardContent)")
+        } else {
+          print("No string content in clipboard")
+        }
       } .buttonStyle(.borderedProminent)
       VStack {
         // Registration
@@ -66,7 +66,7 @@ struct ContentView: View {
             .padding()
           Button("Get Receiver", action: {
             receiverInfo(appID: appID) { bluetoothName in
-              self.receiverName = bluetoothName	
+              self.receiverName = bluetoothName
             }
           })
         }
@@ -156,14 +156,13 @@ private func receiverInfo(appID: String, completion: @escaping (String) -> Void)
     }
     
     do {
-      if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
-         let bluetoothName = json["bluetoothName"] as? String {
+      if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+        let bluetoothName = json["bluetoothName"] as? String ?? "App is not registered"
         DispatchQueue.main.async {
           completion(bluetoothName)
         }
       } else {
         print("Invalid JSON format or app is not registered")
-//        receiverName = ""
       }
     } catch {
       print("JSON parsing error: \(error.localizedDescription)")
