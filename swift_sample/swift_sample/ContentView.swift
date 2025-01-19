@@ -16,7 +16,7 @@ struct ContentView: View {
   @State private var long: String = ""
   @State private var alt: String = ""
   // All need a value
-  @EnvironmentObject var viewModel: registrationViewModel
+  @EnvironmentObject var rViewModel: registrationViewModel
   
   private var headerText: String {
     "Swift Sample: Version \(versionNumber)"
@@ -65,7 +65,7 @@ struct ContentView: View {
             .disabled(true)
             .padding()
           Button("Get Receiver", action: {
-            receiverInfo(appID: appID) { bluetoothName in
+            receiverInfo(appID: appID, apiPort: rViewModel.apiPort) { bluetoothName in
               self.receiverName = bluetoothName
             }
           })
@@ -100,7 +100,6 @@ struct ContentView: View {
 }
 
 private func register(with appID: String) {
-  print("Registering with app ID: \(appID)")
   //  returl
   let params: [String: String] =
   [
@@ -128,8 +127,8 @@ private func register(with appID: String) {
   }
 }
 
-private func receiverInfo(appID: String, completion: @escaping (String) -> Void) {
-  guard let url = URL(string: "http://localhost:9637/api/v1/receiver") else {
+private func receiverInfo(appID: String, apiPort: Int,  completion: @escaping (String) -> Void) {
+  guard let url = URL(string: "http://localhost:\(apiPort)/api/v1/receiver") else {
     print("Invalid URL")
     return
   }
@@ -168,7 +167,6 @@ private func receiverInfo(appID: String, completion: @escaping (String) -> Void)
       print("JSON parsing error: \(error.localizedDescription)")
     }
   }
-  
   task.resume()
 }
 
