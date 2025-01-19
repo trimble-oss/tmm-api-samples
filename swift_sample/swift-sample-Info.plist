@@ -11,7 +11,7 @@
 			<string>com.trimble.tmmapisample</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>tmmregister</string>
+				<string>tmmapisample</string>
 			</array>
 		</dict>
 	</array>
