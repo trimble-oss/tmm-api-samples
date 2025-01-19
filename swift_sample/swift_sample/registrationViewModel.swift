@@ -9,9 +9,9 @@ import SwiftUI
 import Combine
 
 class registrationViewModel: ObservableObject {
-    @Published var registrationResult: String?
-    @Published var apiPort: Int?
-    @Published var locationPort: Int?
-    @Published var locationSecurePort: Int?
-    @Published var locationV2Port: Int?
+    @Published var registrationResult: String = ""
+    @Published var apiPort: Int = -1
+    @Published var locationPort: Int = -1
+    @Published var locationSecurePort: Int = -1
+    @Published var locationV2Port: Int = -1
 }
