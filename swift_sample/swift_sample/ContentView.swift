@@ -10,13 +10,16 @@ import SwiftUI
 
 
 struct ContentView: View {
+  // All need a value
   @State private var appID: String = ""
   @State private var receiverName: String = ""
-  @State private var lat: String = ""
-  @State private var long: String = ""
-  @State private var alt: String = ""
-  // All need a value
+  
+  // Registration
   @EnvironmentObject var rViewModel: registrationViewModel
+  
+  // Web socket location
+  @StateObject var wsViewModel = webSocketViewModel()
+  @State private var wsButtonText: String = "Start Position Stream"
   
   private var headerText: String {
     "Swift Sample: Version \(versionNumber)"
@@ -67,27 +70,28 @@ struct ContentView: View {
           Button("Get Receiver", action: {
             receiverInfo(appID: appID, apiPort: rViewModel.apiPort) { bluetoothName in
               self.receiverName = bluetoothName
+//              bluetoothName comes from the completion handler in the function
             }
           })
         }
         .buttonStyle(.borderedProminent)
         
         // WebSocket
-        TextField("Latitude", text: $lat)
+        TextField("Latitude", text: $wsViewModel.lat)
           .textFieldStyle(RoundedBorderTextFieldStyle())
           .disabled(true)
           .padding()
-        TextField("Longitude", text: $long)
+        TextField("Longitude", text: $wsViewModel.long)
           .textFieldStyle(RoundedBorderTextFieldStyle())
           .disabled(true)
           .padding()
-        TextField("Altitude", text: $alt)
+        TextField("Altitude", text: $wsViewModel.alt)
           .textFieldStyle(RoundedBorderTextFieldStyle())
           .disabled(true)
           .padding()
         
-        Button("Start Position Stream") {
-          // Change activity
+        Button(action: {webSocketConnection(wsButtonText: $wsButtonText)}) {
+          Text(wsButtonText)
         }
         .buttonStyle(.borderedProminent)
       }
@@ -113,11 +117,10 @@ private func register(with appID: String) {
     let base64Encoded = jsonString?.data(using: .utf8)?.base64EncodedString() ?? ""
     if let customUrl = URL(string: "tmmregister://?" + base64Encoded) {
       UIApplication.shared.open(customUrl, options: [:]) { success in
+        // Sends the URL to TMM
         if success {
-          // The URL was delivered successfully
           print("The URL was delivered successfully.")
         } else {
-          // Handle failure
           print("Failed to open the URL.")
         }
       }
@@ -158,6 +161,7 @@ private func receiverInfo(appID: String, apiPort: Int,  completion: @escaping (S
       if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
         let bluetoothName = json["bluetoothName"] as? String ?? "App is not registered"
         DispatchQueue.main.async {
+//          Updates to UI's must be completed on the main thread
           completion(bluetoothName)
         }
       } else {
@@ -168,6 +172,18 @@ private func receiverInfo(appID: String, apiPort: Int,  completion: @escaping (S
     }
   }
   task.resume()
+//  Starts connection
+}
+
+private func webSocketConnection(wsButtonText: Binding<String>) {
+//  Toggles text when pressed
+  if wsButtonText.wrappedValue == "Start Position Stream" {
+    print("Start --> Stop")
+    wsButtonText.wrappedValue = "Stop Position Stream"
+  } else {
+    print("Stop --> Start")
+    wsButtonText.wrappedValue = "Start Position Stream"
+  }
 }
 
 #Preview {

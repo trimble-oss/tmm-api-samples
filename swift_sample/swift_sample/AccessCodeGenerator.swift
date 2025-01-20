@@ -8,6 +8,7 @@
 import Foundation
 import CommonCrypto
 
+// Same as in the documents but converted to Swift
 struct AccessCodeGenerator {
     static func generateAccessCode(appID: String, utcTime: Date) -> String? {
         let lowercaseID = appID.lowercased()

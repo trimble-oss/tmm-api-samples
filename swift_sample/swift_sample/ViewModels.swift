@@ -8,10 +8,17 @@
 import SwiftUI
 import Combine
 
+// View Model for registration. This can be used the same way for other models
 class registrationViewModel: ObservableObject {
     @Published var registrationResult: String = ""
     @Published var apiPort: Int = -1
     @Published var locationPort: Int = -1
     @Published var locationSecurePort: Int = -1
     @Published var locationV2Port: Int = -1
+}
+
+class webSocketViewModel: ObservableObject {
+  @Published var lat: String = ""
+  @Published var long: String = ""
+  @Published var alt: String = ""
 }

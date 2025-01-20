@@ -15,6 +15,7 @@ struct swift_sampleApp: App {
     WindowGroup {
       ContentView()
         .environmentObject(rViewModel)
+//      Keeps the ContentView updated when view model values are changed
         .onOpenURL { url in
           handleCallbackURL(url)
         }
@@ -22,7 +23,7 @@ struct swift_sampleApp: App {
   }
   
   private func handleCallbackURL(_ url: URL) {
-    // Parse the URL and extract the data
+    // URL returns json. Extract the properties from the json
     if let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
        let query = components.query,
        let data = Data(base64Encoded: query) {
@@ -31,6 +32,8 @@ struct swift_sampleApp: App {
           rViewModel.registrationResult = jsonObject["registrationResult"]!
           rViewModel.apiPort = Int(jsonObject["apiPort"]!)!
           rViewModel.locationV2Port = Int(jsonObject["locationV2Port"]!)!
+          
+//          Updates the view model with parsed json
         }
       } catch {
         print("Error deserializing JSON: \(error)")
