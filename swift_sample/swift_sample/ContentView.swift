@@ -8,8 +8,22 @@
 import Foundation
 import SwiftUI
 
+struct LocationV2: Codable {
+  var lat: Double
+  var long: Double
+  var alt: Double
+}
 
 struct ContentView: View {
+  
+  private var versionNumber: String {
+    Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+    ?? "Unknown"
+  }
+  private var headerText: String {
+    "Swift Sample: Version \(versionNumber)"
+  }
+  
   // All need a value
   @State private var appID: String = ""
   @State private var receiverName: String = ""
@@ -18,16 +32,11 @@ struct ContentView: View {
   @EnvironmentObject var rViewModel: registrationViewModel
   
   // Web socket location
-  @StateObject var wsViewModel = webSocketViewModel()
   @State private var wsButtonText: String = "Start Position Stream"
-  
-  private var headerText: String {
-    "Swift Sample: Version \(versionNumber)"
-  }
-  private var versionNumber: String {
-    Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-    ?? "Unknown"
-  }
+  @State private var latitude: String = ""
+  @State private var longitude: String = ""
+  @State private var altitude: String = ""
+  @State private var wsTask: URLSessionWebSocketTask?
   
   var body: some View {
     VStack {
@@ -77,20 +86,22 @@ struct ContentView: View {
         .buttonStyle(.borderedProminent)
         
         // WebSocket
-        TextField("Latitude", text: $wsViewModel.lat)
+        TextField("Latitude", text: $latitude)
           .textFieldStyle(RoundedBorderTextFieldStyle())
           .disabled(true)
           .padding()
-        TextField("Longitude", text: $wsViewModel.long)
+        TextField("Longitude", text: $latitude)
           .textFieldStyle(RoundedBorderTextFieldStyle())
           .disabled(true)
           .padding()
-        TextField("Altitude", text: $wsViewModel.alt)
+        TextField("Altitude", text: $altitude)
           .textFieldStyle(RoundedBorderTextFieldStyle())
           .disabled(true)
           .padding()
         
-        Button(action: {webSocketConnection(wsButtonText: $wsButtonText)}) {
+        Button(action: {
+          startWsConnection(locationPort: rViewModel.locationPort)
+        }) {
           Text(wsButtonText)
         }
         .buttonStyle(.borderedProminent)
@@ -100,6 +111,19 @@ struct ContentView: View {
       Spacer()  // Spacer to push the content to the center
     }
     .padding()
+  }
+  
+  private func startWsConnection(locationPort: Int) {
+  }
+
+  private func stopWsConnection() {
+    wsTask?.cancel(with: .goingAway, reason: nil)
+    longitude = ""
+    latitude = ""
+    altitude = ""
+  }
+
+  private func updateFields(with text: String) {
   }
 }
 
@@ -130,10 +154,16 @@ private func register(with appID: String) {
   }
 }
 
-private func receiverInfo(appID: String, apiPort: Int,  completion: @escaping (String) -> Void) {
+private func receiverInfo(appID: String, apiPort: Int, completion: @escaping (String) -> Void) {
   guard let url = URL(string: "http://localhost:\(apiPort)/api/v1/receiver") else {
     print("Invalid URL")
     return
+  }
+  if apiPort == -1 {
+    DispatchQueue.main.async {
+      //          Updates to UI's must be completed on the main thread
+      completion("Invalid api port or App is not registered")
+    }
   }
   
   let utcTime = Date()
@@ -173,17 +203,6 @@ private func receiverInfo(appID: String, apiPort: Int,  completion: @escaping (S
   }
   task.resume()
 //  Starts connection
-}
-
-private func webSocketConnection(wsButtonText: Binding<String>) {
-//  Toggles text when pressed
-  if wsButtonText.wrappedValue == "Start Position Stream" {
-    print("Start --> Stop")
-    wsButtonText.wrappedValue = "Stop Position Stream"
-  } else {
-    print("Stop --> Start")
-    wsButtonText.wrappedValue = "Start Position Stream"
-  }
 }
 
 #Preview {
