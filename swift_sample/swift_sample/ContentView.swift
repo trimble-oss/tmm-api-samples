@@ -8,12 +8,6 @@
 import Foundation
 import SwiftUI
 
-struct LocationV2: Codable {
-  var lat: Double
-  var long: Double
-  var alt: Double
-}
-
 struct ContentView: View {
   
   private var versionNumber: String {
@@ -32,11 +26,8 @@ struct ContentView: View {
   @EnvironmentObject var rViewModel: registrationViewModel
   
   // Web socket location
-  @State private var wsButtonText: String = "Start Position Stream"
-  @State private var latitude: String = ""
-  @State private var longitude: String = ""
-  @State private var altitude: String = ""
-  @State private var wsTask: URLSessionWebSocketTask?
+  @State private var isConnected: Bool = false
+  @StateObject private var wsManager = WebSocketManager()
   
   var body: some View {
     VStack {
@@ -86,23 +77,28 @@ struct ContentView: View {
         .buttonStyle(.borderedProminent)
         
         // WebSocket
-        TextField("Latitude", text: $latitude)
+        TextField("Latitude", text: $wsManager.lat)
           .textFieldStyle(RoundedBorderTextFieldStyle())
           .disabled(true)
           .padding()
-        TextField("Longitude", text: $latitude)
+        TextField("Longitude", text: $wsManager.long)
           .textFieldStyle(RoundedBorderTextFieldStyle())
           .disabled(true)
           .padding()
-        TextField("Altitude", text: $altitude)
+        TextField("Altitude", text: $wsManager.alt)
           .textFieldStyle(RoundedBorderTextFieldStyle())
           .disabled(true)
           .padding()
         
         Button(action: {
-          startWsConnection(locationPort: rViewModel.locationPort)
+          if isConnected {
+            wsManager.disconnect()
+          } else {
+            wsManager.connect(with: rViewModel.locationV2Port)
+          }
+          isConnected.toggle()
         }) {
-          Text(wsButtonText)
+          Text(isConnected ? "Stop Position Stream" : "Start Position Stream")
         }
         .buttonStyle(.borderedProminent)
       }
@@ -111,19 +107,6 @@ struct ContentView: View {
       Spacer()  // Spacer to push the content to the center
     }
     .padding()
-  }
-  
-  private func startWsConnection(locationPort: Int) {
-  }
-
-  private func stopWsConnection() {
-    wsTask?.cancel(with: .goingAway, reason: nil)
-    longitude = ""
-    latitude = ""
-    altitude = ""
-  }
-
-  private func updateFields(with text: String) {
   }
 }
 
