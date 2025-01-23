@@ -14,6 +14,7 @@ struct ContentView: View {
     Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
     ?? "Unknown"
   }
+//  Gets version number from properties and assign to headerText
   private var headerText: String {
     "Swift Sample: Version \(versionNumber)"
   }
@@ -27,6 +28,7 @@ struct ContentView: View {
   
 //  Receiver
   @State private var returnBluetoothName: Bool = true
+  @State private var receiverClass = ReceiverClass()
   
   // Web socket location
   @State private var isConnectedInt: Int = 0
@@ -55,7 +57,7 @@ struct ContentView: View {
           .buttonStyle(.borderedProminent)
         }
         
-        // REST API
+        // REST API - Receiver
         HStack {
           TextField("Receiver name", text: $receiverName)
             .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -64,7 +66,7 @@ struct ContentView: View {
           Button("Get Receiver", action: {
             returnBluetoothName = true
             if returnBluetoothName {
-              receiverInfo(appID: appID, apiPort: rViewModel.apiPort, bluetoothNameBool: returnBluetoothName) { (bluetoothName: String?, isConnectedJson: Int?) in
+              receiverClass.receiverInfo(appID: appID, apiPort: rViewModel.apiPort, bluetoothNameBool: returnBluetoothName) { (bluetoothName: String?, isConnectedJson: Int?) in
                 if bluetoothName != nil {
                   self.receiverName = bluetoothName ?? ""
                 }
@@ -91,8 +93,8 @@ struct ContentView: View {
         
         Button(action: {
           returnBluetoothName = false
-          receiverInfo(appID: appID, apiPort: rViewModel.apiPort, bluetoothNameBool: returnBluetoothName) {(bluetoothName: String?, isConnected: Int?) in
-            if isConnected != nil {
+          receiverClass.receiverInfo(appID: appID, apiPort: rViewModel.apiPort, bluetoothNameBool: returnBluetoothName) {(bluetoothName: String?, isConnected: Int?) in
+            if isConnected != nil && isConnected == 1 {
               self.isConnectedInt = isConnected ?? 0
               
               if isConnectedBool {
@@ -104,7 +106,7 @@ struct ContentView: View {
             }
             else {
               wsManager.lat = "Please register your app"
-              openReceiverSelectionScreen()
+              receiverClass.openReceiverSelectionScreen()
             }
           }
         }) {
@@ -120,26 +122,29 @@ struct ContentView: View {
   }
 }
 
-private func openReceiverSelectionScreen() {
-    if let customUrl = URL(string: "tmmopentoreceiverselection://?") {
-      UIApplication.shared.open(customUrl, options: [:]) { success in
-        // Sends the URL to TMM
-        if success {
-          print("The URL was delivered successfully.")
-        } else {
-          print("Failed to open the URL.")
-        }
-      }
-    }
-}
-
 private func register(with appID: String) {
-  //  returl
   let params: [String: String] =
   [
     "application_id": appID,
     "returl": "tmmapisample://com.trimble.tmmapisample",
   ]
+//    Create a custom url scheme for your app in the info.plist where "tmmapisample" is the URL schemes if you're using the GUI in Xcode and "com.trimble.tmmapisample" is the identifier.
+//    If you're working with the source code, then it will look something like this:
+//    <dict>
+//      <key>CFBundleURLTypes</key>
+//      <array>
+//        <dict>
+//          <key>CFBundleTypeRole</key>
+//          <string>None</string>
+//          <key>CFBundleURLName</key>
+//          <string>com.trimble.tmmapisample</string>
+//          <key>CFBundleURLSchemes</key>
+//          <array>
+//            <string>tmmapisample</string>
+//          </array>
+//        </dict>
+//      </array>
+//    </dict>
   
   do {
     let jsonData = try JSONSerialization.data(withJSONObject: params, options: [])
@@ -158,62 +163,6 @@ private func register(with appID: String) {
   } catch {
     print("Json serialization issue: \(error.localizedDescription)")
   }
-}
-
-private func receiverInfo(appID: String, apiPort: Int, bluetoothNameBool: Bool, completion: @escaping (String?, Int?) -> Void) {
-  guard let url = URL(string: "http://localhost:\(apiPort)/api/v1/receiver") else {
-    print("Invalid URL")
-    return
-  }
-  if apiPort == -1 {
-    DispatchQueue.main.async {
-      //          Updates to UI's must be completed on the main thread
-      completion("Invalid api port or App is not registered", nil)
-    }
-  }
-  
-  let utcTime = Date()
-  guard let accessCode = AccessCodeGenerator.generateAccessCode(appID: appID, utcTime: utcTime) else {
-    print("Failed to generate access code")
-    return
-  }
-  
-  var request = URLRequest(url: url)
-  request.httpMethod = "GET"
-  request.addValue("Basic \(accessCode)", forHTTPHeaderField: "Authorization")
-  
-  let task = URLSession.shared.dataTask(with: request) { data, response, error in
-    if let error = error {
-      print("\(error.localizedDescription) App might not be registered.")
-      return
-    }
-    
-    guard let data = data else {
-      print("No data received")
-      return
-    }
-    
-    do {
-      if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-        let bluetoothName = json["bluetoothName"] as? String ?? "App is not registered"
-        let isConnected = json["isConnected"] as? Int ?? 0
-        DispatchQueue.main.async {
-//          Updates to UI's must be completed on the main thread
-          if bluetoothNameBool {
-            completion(bluetoothName, nil)
-          } else {
-            completion(nil, isConnected)
-          }
-        }
-      } else {
-        print("Invalid JSON format or app is not registered")
-      }
-    } catch {
-      print("JSON parsing error: \(error.localizedDescription)")
-    }
-  }
-  task.resume()
-//  Starts connection
 }
 
 #Preview {

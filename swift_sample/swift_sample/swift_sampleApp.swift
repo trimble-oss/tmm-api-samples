@@ -10,6 +10,7 @@ import SwiftUI
 @main
 struct swift_sampleApp: App {
   @State private var rViewModel = registrationViewModel()
+  @State private var wsViewModel = webSocketViewModel()
   
   var body: some Scene {
     WindowGroup {

@@ -15,4 +15,11 @@ class registrationViewModel: ObservableObject {
     @Published var locationPort: Int = -1
     @Published var locationSecurePort: Int = -1
     @Published var locationV2Port: Int = -1
+//  Variables that are being returned from the registration callback
+}
+
+class webSocketViewModel: ObservableObject {
+  @Published var lat: String = ""
+  @Published var long: String = ""
+  @Published var alt: String = ""
 }
