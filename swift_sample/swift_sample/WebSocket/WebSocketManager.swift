@@ -66,7 +66,6 @@ class WebSocketManager: ObservableObject {
     
     do {
       let jsonString = try JSONDecoder().decode(WebSocketMessage.self, from: data)
-      print("Lat:\(String(jsonString.latitude)), Long: \(jsonString.longitude), Alt: \(jsonString.altitude)")
       DispatchQueue.main.async {
         self.lat = String(jsonString.latitude)
         self.long = String(jsonString.longitude)
