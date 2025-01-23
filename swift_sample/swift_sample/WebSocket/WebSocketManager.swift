@@ -38,6 +38,11 @@ class WebSocketManager: ObservableObject {
     webSocketTask?.cancel(with: .goingAway, reason: "Stop button pressed.".data(using: .utf8))
     cancellables.forEach { $0.cancel() }
     cancellables.removeAll()
+    DispatchQueue.main.async {
+      self.lat = ""
+      self.long = ""
+      self.alt = ""
+    }
   }
   
   func receiveMSG() {
@@ -48,7 +53,6 @@ class WebSocketManager: ObservableObject {
       case .success(let msg):
         switch msg {
         case .string(let txt):
-          print("Successfully received msg")
           self?.handleMsg(text: txt)
         case .data(_):
           print("Do something with binary data...")

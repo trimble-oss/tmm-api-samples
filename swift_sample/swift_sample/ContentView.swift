@@ -25,8 +25,12 @@ struct ContentView: View {
   // Registration
   @EnvironmentObject var rViewModel: registrationViewModel
   
+//  Receiver
+  @State private var returnBluetoothName: Bool = true
+  
   // Web socket location
-  @State private var isConnected: Bool = false
+  @State private var isConnectedInt: Int = 0
+  @State private var isConnectedBool: Bool = false
   @StateObject private var wsManager = WebSocketManager()
   
   var body: some View {
@@ -68,8 +72,13 @@ struct ContentView: View {
             .disabled(true)
             .padding()
           Button("Get Receiver", action: {
-            receiverInfo(appID: appID, apiPort: rViewModel.apiPort) { bluetoothName in
-              self.receiverName = bluetoothName
+            returnBluetoothName = true
+            if returnBluetoothName {
+              receiverInfo(appID: appID, apiPort: rViewModel.apiPort, bluetoothNameBool: returnBluetoothName) { (bluetoothName: String?, isConnectedJson: Int?) in
+                if bluetoothName != nil {
+                  self.receiverName = bluetoothName ?? ""
+                }
+              }
 //              bluetoothName comes from the completion handler in the function
             }
           })
@@ -91,14 +100,25 @@ struct ContentView: View {
           .padding()
         
         Button(action: {
-          if isConnected {
-            wsManager.disconnect()
-          } else {
-            wsManager.connect(with: rViewModel.locationV2Port)
+          returnBluetoothName = false
+          receiverInfo(appID: appID, apiPort: rViewModel.apiPort, bluetoothNameBool: returnBluetoothName) {(bluetoothName: String?, isConnected: Int?) in
+            if isConnected != nil {
+              self.isConnectedInt = isConnected ?? 0
+              
+              if isConnectedBool {
+                wsManager.disconnect()
+              } else {
+                wsManager.connect(with: rViewModel.locationV2Port)
+              }
+              isConnectedBool.toggle()
+            }
+            else {
+              wsManager.lat = "Please register your app"
+              openReceiverSelectionScreen()
+            }
           }
-          isConnected.toggle()
         }) {
-          Text(isConnected ? "Stop Position Stream" : "Start Position Stream")
+          Text(isConnectedBool ? "Stop Position Stream" : "Start Position Stream")
         }
         .buttonStyle(.borderedProminent)
       }
@@ -108,6 +128,19 @@ struct ContentView: View {
     }
     .padding()
   }
+}
+
+private func openReceiverSelectionScreen() {
+    if let customUrl = URL(string: "tmmopentoreceiverselection://?") {
+      UIApplication.shared.open(customUrl, options: [:]) { success in
+        // Sends the URL to TMM
+        if success {
+          print("The URL was delivered successfully.")
+        } else {
+          print("Failed to open the URL.")
+        }
+      }
+    }
 }
 
 private func register(with appID: String) {
@@ -137,7 +170,7 @@ private func register(with appID: String) {
   }
 }
 
-private func receiverInfo(appID: String, apiPort: Int, completion: @escaping (String) -> Void) {
+private func receiverInfo(appID: String, apiPort: Int, bluetoothNameBool: Bool, completion: @escaping (String?, Int?) -> Void) {
   guard let url = URL(string: "http://localhost:\(apiPort)/api/v1/receiver") else {
     print("Invalid URL")
     return
@@ -145,7 +178,7 @@ private func receiverInfo(appID: String, apiPort: Int, completion: @escaping (St
   if apiPort == -1 {
     DispatchQueue.main.async {
       //          Updates to UI's must be completed on the main thread
-      completion("Invalid api port or App is not registered")
+      completion("Invalid api port or App is not registered", nil)
     }
   }
   
@@ -161,7 +194,7 @@ private func receiverInfo(appID: String, apiPort: Int, completion: @escaping (St
   
   let task = URLSession.shared.dataTask(with: request) { data, response, error in
     if let error = error {
-      print("Error: \(error.localizedDescription)")
+      print("\(error.localizedDescription) App might not be registered.")
       return
     }
     
@@ -173,9 +206,14 @@ private func receiverInfo(appID: String, apiPort: Int, completion: @escaping (St
     do {
       if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
         let bluetoothName = json["bluetoothName"] as? String ?? "App is not registered"
+        let isConnected = json["isConnected"] as? Int ?? 0
         DispatchQueue.main.async {
 //          Updates to UI's must be completed on the main thread
-          completion(bluetoothName)
+          if bluetoothNameBool {
+            completion(bluetoothName, nil)
+          } else {
+            completion(nil, isConnected)
+          }
         }
       } else {
         print("Invalid JSON format or app is not registered")
