@@ -41,17 +41,7 @@ struct ContentView: View {
         .padding([.top, .leading, .trailing], 20)
       
       Spacer()  // Spacer to push the content to the center
-      Button("Clipboard workaround") {
-        let pasteboard = UIPasteboard.general
-        pasteboard.string = "Hello, World!"
-        
-        // Read from clipboard
-        if let clipboardContent = pasteboard.string {
-          print("Clipboard content: \(clipboardContent)")
-        } else {
-          print("No string content in clipboard")
-        }
-      } .buttonStyle(.borderedProminent)
+     
       VStack {
         // Registration
         HStack {
