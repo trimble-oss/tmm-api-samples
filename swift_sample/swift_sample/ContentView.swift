@@ -103,6 +103,7 @@ struct ContentView: View {
                 wsManager.connect(with: rViewModel.locationV2Port)
               }
               isConnectedBool.toggle()
+//              Most consistent with text changes
             }
             else {
               wsManager.lat = "Please register your app"

@@ -30,7 +30,7 @@ class ReceiverClass {
     }
     if apiPort == -1 {
       DispatchQueue.main.async {
-        //          Updates to UI's must be completed on the main thread
+//        Updates to UI's must be completed on the main thread
         completion("Invalid api port or App is not registered", nil)
       }
     }
