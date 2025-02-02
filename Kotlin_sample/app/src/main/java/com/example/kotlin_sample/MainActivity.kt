@@ -21,10 +21,8 @@ import com.example.kotlin_sample.utils.WebSocketManager
 class MainActivity : AppCompatActivity() {
 
   private lateinit var startForResult: ActivityResultLauncher<Intent>
-//   Assign variable called startForResult (with property lateinit https://kotlinlang.org/docs/properties.html#late-initialized-properties-and-variables)
-//   While creating an instance of ActivityResultLauncher
 
-//  AppID
+//  AppID textbox
   private lateinit var appIDInput: TextInputEditText
 
 //  Values returned from registration intent
@@ -35,7 +33,7 @@ class MainActivity : AppCompatActivity() {
 //  Http client - Can't be reused for web socket as it causes `Parent process has finished` exception
   private val client = ReceiverUtils()
 
-//  Web socket
+//  Web socket client
   private val webSocket = WebSocketManager()
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +47,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     startForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-      // Result from the StartActivityForResult(). The data can be extracted with a lambda.
+      // Result from the StartActivityForResult(). This receives the information from the callback URL.
       if (result.resultCode == RESULT_OK) {
         val data: Intent? = result.data
 
@@ -75,21 +73,14 @@ class MainActivity : AppCompatActivity() {
     ).versionName
     versionText.text = getString(R.string.version, versionNumber)
 
-//        register button
+//  register button. Sends the register intent.
     appIDInput = findViewById(R.id.registerEditField)
     val buttonRegister: Button = findViewById(R.id.registerButton)
     buttonRegister.setOnClickListener {
         println(sendCustomIntent("com.trimble.tmm.REGISTER", true))
     }
 
-    // Test for sending intent without AppID
-//    val test: Button = findViewById(R.id.testButton)
-//    test.setOnClickListener {
-//      println(sendCustomIntent("com.trimble.tmm.GNSS_STATUS", false))
-//    }
-
-
-//    Get receiver button
+//    Get receiver button. Shows the receiver name via receiverselection intent.
     val getReceiverBut: Button = findViewById(R.id.getReceiverButton)
     getReceiverBut.setOnClickListener {
       client.getReceiverName(this@MainActivity, registrationResult ?: "", appIDInput, apiPort)
@@ -100,9 +91,10 @@ class MainActivity : AppCompatActivity() {
 
     val startText = getString(R.string.start)
     val stopText = getString(R.string.stop)
-//    This is the preferred way to use hard-coded values
 
     startStopBut.setOnClickListener {
+//      Start/stop position stream button.
+//      Will attempt to connect to Web Socket and if it isn't, will tell user to register the app or connect to receiver.
       CoroutineScope(Dispatchers.IO).launch {
         try {
           if (startStopBut.text == startText) {
@@ -116,6 +108,7 @@ class MainActivity : AppCompatActivity() {
                   webSocket.startWebSocket(this@MainActivity, positionsV2Port)
                   startStopBut.text = stopText
                 } else {
+
                   sendCustomIntent("com.trimble.tmm.RECEIVERSELECTION", false)
                 }
               }
@@ -140,15 +133,12 @@ class MainActivity : AppCompatActivity() {
   }
 
   private fun sendCustomIntent(action: String, includeAppID: Boolean) {
-
-
     // Launching the intent and passing the AppID to the intent
     // Most intents will either need or not need AppID, which the function can handle
     val intent = Intent(action)
 
     if (includeAppID) {
-      // Gets the app ID from the property file. Just one of few ways to not use hard-coded value
-      // This was the simplest way, not necessarily the best
+//      Gets app id from the textbox
       intent.putExtra("applicationID", appIDInput.text.toString())
     }
     startForResult.launch(intent)

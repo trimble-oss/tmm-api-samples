@@ -21,6 +21,7 @@ class ReceiverUtils {
   private val client = HttpClient(CIO)
 
   fun getReceiverName(context: Context, registrationResult: String, appIDInput: TextInputEditText, apiPort: Int) {
+//    Called by the receiver name button.
     CoroutineScope(Dispatchers.IO).launch {
       try {
         val response = checkReceiverConnection(appIDInput, apiPort)
@@ -55,6 +56,7 @@ class ReceiverUtils {
   }
 
   suspend fun checkReceiverConnection(appIDInput: TextInputEditText, apiPort: Int): HttpResponse {
+//    Called whenever connection needs to be checked like when opening web socket.
     val utcTime = Date()
     val accessCode = generateAccessCode(appIDInput.text.toString(), utcTime)
     val authorizationHeader = "Basic $accessCode"

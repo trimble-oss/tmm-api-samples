@@ -33,6 +33,7 @@ namespace Maui_sample.AccessCode
 
     public static string GenerateAccessCode(string appID, DateTime utcTime)
     {
+      // Generates access code when trying to acccess receiver API or any API that requires it.
       string lowercaseID = appID.ToLowerInvariant();
       // Format utcTime as an ISO8601 compliant string, like this: 2024-02-22T18:00:00Z
       string iso8601Time = utcTime.ToString("yyyy-MM-dd'T'HH:mm:ssK", CultureInfo.InvariantCulture);

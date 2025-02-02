@@ -23,6 +23,7 @@ class WebSocketManager {
   private var socket: DefaultClientWebSocketSession? = null
 
   fun startWebSocket(context: Context, positionsV2Port: Int) {
+//    Ran when position stream starts and receiver is connected.
     CoroutineScope(Dispatchers.IO).launch {
       socket = websocketLocationV2.webSocketSession {
         url {
@@ -32,6 +33,7 @@ class WebSocketManager {
         }
       }
 
+//      Continuously receives the message until button is pressed again.
       while (socket?.isActive == true) {
         try {
           val frame = socket?.incoming?.receive()
@@ -66,6 +68,7 @@ class WebSocketManager {
   }
 
   fun stopWebSocket(context: Context) {
+//    Stops position stream when button is pressed after streaming has started.
     CoroutineScope(Dispatchers.IO).launch {
       try {
         socket?.close(CloseReason(CloseReason.Codes.NORMAL, "Stop button pressed"))
