@@ -6,10 +6,10 @@ namespace Maui_sample.Utills
   {
     public static async Task<bool> checkRequest(string requestUri)
     {
+      // Runs whenever a URL wants to be opened.
       if (await Launcher.Default.CanOpenAsync(requestUri))
       {
         bool result = await Launcher.Default.OpenAsync(requestUri);
-        Debug.WriteLine($"Result: {result}");
         return result;
       }
       return false;

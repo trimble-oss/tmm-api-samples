@@ -24,14 +24,14 @@ public partial class MainPage : ContentPage
   private async void RegisterButton_Clicked(object sender, EventArgs e)
   {
     //Register button. Should be first thing ran in the app.
+    // Run register URI. Check to see if the application ID is the same as the one stored in environment variables.
     string? appID = _viewModel?.ApplicationID;
 
     if (string.IsNullOrWhiteSpace(appID) && appID == "")
     {
       Debug.WriteLine("App ID is null or empty.");
     }
-
-    // Run register URI. Check to see if the application ID is the same as the one stored in environment variables.
+    
     Debug.WriteLine("Starting registration...");
     string requestId = "tmmRegister";
     string callback = Uri.EscapeDataString("tmmapisample://response/tmmRegister");
@@ -67,7 +67,7 @@ public partial class MainPage : ContentPage
   private async void StartPositionStreamButton_Clicked(object sender, EventArgs e)
   {
     //Third button in UI. Will attempt to start position stream.
-    // Checks registration status. Alert user to register app if not. Otherwise will try to get position via web socket
+    // Checks registration status. Alert user to register app if not. Otherwise will try to get position via web socket.
     if (_viewModel.RegistrationStatus == "OK")
     {
       if (await _receiverMethods.CheckReceiverConnection())
