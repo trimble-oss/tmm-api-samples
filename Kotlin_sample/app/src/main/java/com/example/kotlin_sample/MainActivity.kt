@@ -15,7 +15,7 @@ import io.ktor.client.statement.bodyAsText
 import org.json.JSONObject
 
 
-import com.example.kotlin_sample.utils.ApiUtils
+import com.example.kotlin_sample.utils.ReceiverUtils
 import com.example.kotlin_sample.utils.WebSocketManager
 
 class MainActivity : AppCompatActivity() {
@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
   private var positionsV2Port: Int = -1
 
 //  Http client - Can't be reused for web socket as it causes `Parent process has finished` exception
-  private val client = ApiUtils()
+  private val client = ReceiverUtils()
 
 //  Web socket
   private val webSocket = WebSocketManager()
@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity() {
 //    Get receiver button
     val getReceiverBut: Button = findViewById(R.id.getReceiverButton)
     getReceiverBut.setOnClickListener {
-      client.getReceiverName(this@MainActivity, registrationResult ?: "", appIDInput)
+      client.getReceiverName(this@MainActivity, registrationResult ?: "", appIDInput, apiPort)
     }
 
     // Start/Stop position stream button button
@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity() {
         try {
           if (startStopBut.text == startText) {
             if (registrationResult == "OK") {
-              val response = client.checkReceiverConnection(appIDInput)
+              val response = client.checkReceiverConnection(appIDInput, apiPort)
               var isConnected = response.bodyAsText()
               isConnected = JSONObject(isConnected).getString("isConnected")
 

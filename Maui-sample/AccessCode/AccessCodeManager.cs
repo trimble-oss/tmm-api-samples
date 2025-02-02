@@ -37,8 +37,7 @@ namespace Maui_sample
     private DateTime GetCurrentTimeRounded()
     {
       DateTime currentTime = _clock.UtcNow;
-      return new DateTime(currentTime.Year, currentTime.Month, currentTime.Day, currentTime.Hour,
-          currentTime.Minute, currentTime.Second, DateTimeKind.Utc);
+      return new DateTime(currentTime.Year, currentTime.Month, currentTime.Day, currentTime.Hour, currentTime.Minute, currentTime.Second, DateTimeKind.Utc);
     }
   }
 }

@@ -17,13 +17,13 @@ import kotlinx.coroutines.*
 import org.json.JSONObject
 import java.util.Date
 
-class ApiUtils {
+class ReceiverUtils {
   private val client = HttpClient(CIO)
 
-  fun getReceiverName(context: Context, registrationResult: String, appIDInput: TextInputEditText) {
+  fun getReceiverName(context: Context, registrationResult: String, appIDInput: TextInputEditText, apiPort: Int) {
     CoroutineScope(Dispatchers.IO).launch {
       try {
-        val response = checkReceiverConnection(appIDInput)
+        val response = checkReceiverConnection(appIDInput, apiPort)
         val receiverTextBox: TextInputEditText = (context as MainActivity).findViewById(R.id.receiverNameText)
 
         if (registrationResult == "OK") {
@@ -54,13 +54,13 @@ class ApiUtils {
     }
   }
 
-  suspend fun checkReceiverConnection(appIDInput: TextInputEditText): HttpResponse {
+  suspend fun checkReceiverConnection(appIDInput: TextInputEditText, apiPort: Int): HttpResponse {
     val utcTime = Date()
     val accessCode = generateAccessCode(appIDInput.text.toString(), utcTime)
     val authorizationHeader = "Basic $accessCode"
     // Get authorization header with access code through the generator
 
-    return client.get("http://localhost:9637/api/v1/receiver") {
+    return client.get("http://localhost:${apiPort}/api/v1/receiver") {
       header("Authorization", authorizationHeader)
     }
   }
