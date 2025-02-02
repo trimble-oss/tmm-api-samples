@@ -4,16 +4,18 @@ using System.Text.Json.Nodes;
 using System.Text;
 using Maui_sample.AccessCode;
 using System.Net.Http.Headers;
-using Newtonsoft.Json.Linq;
 using Maui_sample.Utills;
 using Maui_sample.Models;
+using Maui_sample.RestApi;
 
 namespace Maui_sample.WebSocket
 {
   public class WebSocketMethods
   {
+    private ReceiverMethods _receiverMethods = new ReceiverMethods();
     internal async Task ReadPositionsAsync(MainPage mainPage, CancellationToken cancel)
     {
+      // Called when app tries to connect to the web socket.
       try
       {
         // query the position port
@@ -23,7 +25,7 @@ namespace Maui_sample.WebSocket
         using ClientWebSocket client = new ClientWebSocket();
         await client.ConnectAsync(new Uri($"ws://localhost:{port}"), cancel);
 
-        if (!CheckReceiverConnection().Result)
+        if (!_receiverMethods.CheckReceiverConnection().Result)
         {
           mainPage._viewModel.AreLabelsVisible = true;
           mainPage._viewModel.Messages = "Please connect receiver.";
@@ -54,7 +56,7 @@ namespace Maui_sample.WebSocket
           mainPage._viewModel.AreLabelsVisible = false;
         }
 
-        while (!cancel.IsCancellationRequested && CheckReceiverConnection().Result)
+        while (!cancel.IsCancellationRequested && _receiverMethods.CheckReceiverConnection().Result)
         {
           mainPage._viewModel.AreLabelsVisible = false;
           // read the next position
@@ -126,32 +128,6 @@ namespace Maui_sample.WebSocket
       }
       int port = jnode["port"]?.GetValue<int>() ?? 0;
       return port;
-    }
-
-    private async Task<bool> CheckReceiverConnection()
-    {
-      // Checks whether receiver is connected
-      bool receiverConnected = false;
-
-      HttpClient client = new HttpClient
-      {
-        BaseAddress = new Uri($"http://localhost:{PortInfo.APIPort}/"),
-        Timeout = TimeSpan.FromSeconds(30)
-      };
-      string accessCode = AccessCodeManager.Instance.GetNextAccessCode();
-      client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", accessCode);
-
-      var response = await client.GetAsync("api/v1/receiver").ConfigureAwait(false);
-      var payload = await response.Content.ReadAsStringAsync();
-      var JsonPayload = JToken.Parse(payload);
-      var isConnected = JsonPayload["isConnected"]?.ToString(Newtonsoft.Json.Formatting.Indented);
-      Debug.WriteLine($"Receiver connection status: {isConnected}");
-
-      if (isConnected == "true")
-      {
-        receiverConnected = true;
-      }
-      return receiverConnected;
     }
   }
 }

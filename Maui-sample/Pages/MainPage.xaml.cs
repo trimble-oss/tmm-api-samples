@@ -23,12 +23,13 @@ public partial class MainPage : ContentPage
 
   private async void RegisterButton_Clicked(object sender, EventArgs e)
   {
-      string? appID = _viewModel?.ApplicationID;
+    //Register button. Should be first thing ran in the app.
+    string? appID = _viewModel?.ApplicationID;
 
-      if (string.IsNullOrWhiteSpace(appID) && appID == "")
-      {
-        Debug.WriteLine("App ID is null or empty.");
-      }
+    if (string.IsNullOrWhiteSpace(appID) && appID == "")
+    {
+      Debug.WriteLine("App ID is null or empty.");
+    }
 
     // Run register URI. Check to see if the application ID is the same as the one stored in environment variables.
     Debug.WriteLine("Starting registration...");
@@ -56,40 +57,51 @@ public partial class MainPage : ContentPage
 
   private async void GetReceiverButton_Clicked(object sender, EventArgs e)
   {
+    // second button in UI. Retrieves the receiver's name.
     await ReceiverMethods.GetReceiverAsync(this);
   }
 
-    private WebSocketMethods _webSocketMethods = new WebSocketMethods();
+  private WebSocketMethods _webSocketMethods = new WebSocketMethods();
+  private ReceiverMethods _receiverMethods = new ReceiverMethods();
 
-    private async void StartPositionStreamButton_Clicked(object sender, EventArgs e)
+  private async void StartPositionStreamButton_Clicked(object sender, EventArgs e)
+  {
+    //Third button in UI. Will attempt to start position stream.
+    // Checks registration status. Alert user to register app if not. Otherwise will try to get position via web socket
+    if (_viewModel.RegistrationStatus == "OK")
     {
-        // Checks registration status. Alert user to register app if not. Otherwise will try to get position via web socket
-        if (_viewModel.RegistrationStatus == "OK")
+      if (await _receiverMethods.CheckReceiverConnection())
+      {
+        _startStop = !_startStop;
+        StartPositionStreamButton.Text = _startStop ? "Stop position stream" : "Start position stream";
+        if (_startStop)
         {
-            _startStop = !_startStop;
-            StartPositionStreamButton.Text = _startStop ? "Stop position stream" : "Start position stream";
-            if (_startStop)
-            {
-                _cancellationTokenSource = new CancellationTokenSource();
-                await _webSocketMethods.ReadPositionsAsync(this, _cancellationTokenSource.Token);
-            }
-            else
-            {
-                _cancellationTokenSource?.Cancel();
-                _cancellationTokenSource?.Dispose();
-                _cancellationTokenSource = null;
-
-                _viewModel.Latitude = null;
-                _viewModel.Longitude = null;
-                _viewModel.Altitude = null;
-            }
+          _cancellationTokenSource = new CancellationTokenSource();
+          await _webSocketMethods.ReadPositionsAsync(this, _cancellationTokenSource.Token);
         }
         else
         {
-            _viewModel.AreLabelsVisible = true;
-            _viewModel.Messages = "Please register your app first";
+          _cancellationTokenSource?.Cancel();
+          _cancellationTokenSource?.Dispose();
+          _cancellationTokenSource = null;
+
+          _viewModel.Latitude = null;
+          _viewModel.Longitude = null;
+          _viewModel.Altitude = null;
         }
+      }
+      else
+      {
+        _viewModel.AreLabelsVisible = true;
+        _viewModel.Messages = "Please connect receiver";
+      }
     }
+    else
+    {
+      _viewModel.AreLabelsVisible = true;
+      _viewModel.Messages = "Please register your app first or connect receiver";
+    }
+  }
 
   public void UseUri(Uri uri)
   {
