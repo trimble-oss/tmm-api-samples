@@ -34,8 +34,8 @@ namespace Maui_sample.WebSocket
           {
             string requestId = "tmmOpenToReceiverSelection";
             string callback = Uri.EscapeDataString("tmmapisample://response/");
-            string requestUri = $"trimbleMobileManager://request/{requestId}?callback={callback}";
-            if (!await UtilMethods.checkRequest(requestUri))
+            
+            if (!await UtilMethods.checkRequest(requestId, callback))
             {
               mainPage._viewModel.Messages = "Failed to connect to receiver...";
               // Cancel task if receiver didn't connect after opening TMM.

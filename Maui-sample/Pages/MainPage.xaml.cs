@@ -36,8 +36,7 @@ public partial class MainPage : ContentPage
     string requestId = "tmmRegister";
     string callback = Uri.EscapeDataString("tmmapisample://response/tmmRegister");
     string applicationId = appID;
-    string requestUri = $"trimbleMobileManager://request/{requestId}?applicationId={applicationId}&callback={callback}";
-    await UtilMethods.checkRequest(requestUri);
+    await UtilMethods.checkRequest(requestId, callback, appID);
     string registrationStatus = await _registrationStatusCompletionSource.Task;
     // Waits until the registration Uri is returned before continuing
 
@@ -70,8 +69,10 @@ public partial class MainPage : ContentPage
     // Checks registration status. Alert user to register app if not. Otherwise will try to get position via web socket.
     if (_viewModel.RegistrationStatus == "OK")
     {
+      //Checks if app is registered
       if (await _receiverMethods.CheckReceiverConnection())
       {
+        // checks if receiver is connected
         _startStop = !_startStop;
         StartPositionStreamButton.Text = _startStop ? "Stop position stream" : "Start position stream";
         if (_startStop)
@@ -92,13 +93,19 @@ public partial class MainPage : ContentPage
       }
       else
       {
-        _viewModel.AreLabelsVisible = true;
-        _viewModel.Messages = "Please connect receiver";
-        await DisplayAlert("Please connect receiver", "You will now be redirected to TMM", "OK");
-        string requestId = "tmmOpenToReceiverSelection";
+        // Pop up window to ask user if they'd like to configure their receiver. Otherwise will take them to connection window.
+        bool userResponse = await DisplayAlert("Receiver not connected to TMM", "Make sure you have connected the receiver to the OS's bluetooth.\n\nWould you configured your DA2 Receiver?", "Yes", "No");
+        string requestId;
         string callback = Uri.EscapeDataString("tmmapisample://response/");
-        string requestUri = $"trimbleMobileManager://request/{requestId}?callback={callback}";
-        await UtilMethods.checkRequest(requestUri);
+        if (userResponse)
+        {
+          requestId = "tmmOpenToConfiguration";
+        }
+        else
+        {
+          requestId = "tmmOpenToReceiverSelection";
+        }
+        await UtilMethods.checkRequest(requestId, callback);
       }
     }
     else
