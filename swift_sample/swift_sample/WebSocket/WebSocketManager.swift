@@ -24,11 +24,11 @@ class WebSocketManager: ObservableObject {
   private var webSocketTask: URLSessionWebSocketTask?
   
   func connect(with locationPortV2: Int) {
+    //    Start the web socket session & connect to it
     guard let url = URL(string: "ws://localhost:\(locationPortV2)") else { return }
     
     webSocketTask = URLSession.shared.webSocketTask(with: url)
     webSocketTask?.resume()
-//    Start the web socket session & connect to it
     
     receiveMSG()
 //    Receive the message and assign to the @Published variables
@@ -46,7 +46,7 @@ class WebSocketManager: ObservableObject {
   
   func receiveMSG() {
     webSocketTask?.receive { [weak self] result in
-//      weak self releases memory once job is finished. Reduces the chances of causing retain cycles
+//      weak self releases memory once job is finished. Reduces the chances of causing (memory leaks)
       switch result {
       case .failure(_):
         print("Failed to receive msg...")
@@ -68,8 +68,9 @@ class WebSocketManager: ObservableObject {
   }
   
   private func handleMsg(text: String) {
+    //    Decodes the json from the data
     guard let data = text.data(using: .utf8) else { return }
-//    Decodes the json from the data
+
     do {
       let jsonString = try JSONDecoder().decode(WebSocketMessage.self, from: data)
       DispatchQueue.main.async {

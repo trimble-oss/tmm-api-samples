@@ -19,11 +19,10 @@ struct ContentView: View {
     "Swift Sample: Version \(versionNumber)"
   }
   
-  // All need a value
   @State private var appID: String = ""
   @State private var receiverName: String = ""
   
-  // Registration
+  // Registration - Allows the UI to receive the callback
   @EnvironmentObject var rViewModel: registrationViewModel
   
 //  Receiver
@@ -32,7 +31,7 @@ struct ContentView: View {
   
   // Web socket location
   @State private var isConnectedInt: Int = 0
-  @State private var isConnectedBool: Bool = false
+  @State private var isReceiverConnected: Bool = false
   @StateObject private var wsManager = WebSocketManager()
   
   var body: some View {
@@ -45,7 +44,7 @@ struct ContentView: View {
       Spacer()  // Spacer to push the content to the center
      
       VStack {
-        // Registration
+        // Registration textfield and button
         HStack {
           TextField("Enter your app's ID", text: $appID)
             .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -64,9 +63,10 @@ struct ContentView: View {
             .disabled(true)
             .padding()
           Button("Get Receiver", action: {
+//            Shows the receiver name in the textfield
             returnBluetoothName = true
             if returnBluetoothName {
-              receiverClass.receiverInfo(appID: appID, apiPort: rViewModel.apiPort, bluetoothNameBool: returnBluetoothName) { (bluetoothName: String?, isConnectedJson: Int?) in
+              receiverClass.receiverInfo(appID: appID, apiPort: rViewModel.apiPort, returnReceiverName: returnBluetoothName) { (bluetoothName: String?, isConnectedJson: Int?) in
                 if bluetoothName != nil {
                   self.receiverName = bluetoothName ?? ""
                 }
@@ -77,7 +77,7 @@ struct ContentView: View {
         }
         .buttonStyle(.borderedProminent)
         
-        // WebSocket
+        // WebSocket - Position stream
         TextField("Latitude", text: $wsManager.lat)
           .textFieldStyle(RoundedBorderTextFieldStyle())
           .disabled(true)
@@ -92,17 +92,20 @@ struct ContentView: View {
           .padding()
         
         Button(action: {
+//          Position stream. When pressed, will attempt to start the connection. If receiver is not connected will switch to TMM.
+//          Text will switch over and start showing positions from receiver if it's connected.
+//          If already started, the button's text will switch over again and stop streaming.
           returnBluetoothName = false
-          receiverClass.receiverInfo(appID: appID, apiPort: rViewModel.apiPort, bluetoothNameBool: returnBluetoothName) {(bluetoothName: String?, isConnected: Int?) in
+          receiverClass.receiverInfo(appID: appID, apiPort: rViewModel.apiPort, returnReceiverName: returnBluetoothName) {(bluetoothName: String?, isConnected: Int?) in
             if isConnected != nil && isConnected == 1 {
               self.isConnectedInt = isConnected ?? 0
               
-              if isConnectedBool {
+              if isReceiverConnected {
                 wsManager.disconnect()
               } else {
                 wsManager.connect(with: rViewModel.locationV2Port)
               }
-              isConnectedBool.toggle()
+              isReceiverConnected.toggle()
 //              Most consistent with text changes
             }
             else {
@@ -111,7 +114,7 @@ struct ContentView: View {
             }
           }
         }) {
-          Text(isConnectedBool ? "Stop Position Stream" : "Start Position Stream")
+          Text(isReceiverConnected ? "Stop Position Stream" : "Start Position Stream")
         }
         .buttonStyle(.borderedProminent)
       }
@@ -124,28 +127,12 @@ struct ContentView: View {
 }
 
 private func register(with appID: String) {
+//  Sends the register URL to TMM with the required params. Should be the first button pressed.
   let params: [String: String] =
   [
     "application_id": appID,
     "returl": "tmmapisample://com.trimble.tmmapisample",
   ]
-//    Create a custom url scheme for your app in the info.plist where "tmmapisample" is the URL schemes if you're using the GUI in Xcode and "com.trimble.tmmapisample" is the identifier.
-//    If you're working with the source code, then it will look something like this:
-//    <dict>
-//      <key>CFBundleURLTypes</key>
-//      <array>
-//        <dict>
-//          <key>CFBundleTypeRole</key>
-//          <string>None</string>
-//          <key>CFBundleURLName</key>
-//          <string>com.trimble.tmmapisample</string>
-//          <key>CFBundleURLSchemes</key>
-//          <array>
-//            <string>tmmapisample</string>
-//          </array>
-//        </dict>
-//      </array>
-//    </dict>
   
   do {
     let jsonData = try JSONSerialization.data(withJSONObject: params, options: [])

@@ -10,7 +10,8 @@ import SwiftUI
 class ReceiverClass {
   
   func openReceiverSelectionScreen() {
-  //  If no input is needed from the schemas then simply inputting the URL without the params array is fine
+//    Opens when receiver needs to be connected.
+//    If no input is needed from the schemas then simply inputting the URL without the params array is fine
       if let customUrl = URL(string: "tmmopentoreceiverselection://?") {
         UIApplication.shared.open(customUrl, options: [:]) { success in
           if success {
@@ -22,8 +23,8 @@ class ReceiverClass {
       }
   }
   
-  func receiverInfo(appID: String, apiPort: Int, bluetoothNameBool: Bool, completion: @escaping (String?, Int?) -> Void) {
-//    This function will return 2 variables, bluetoothName(String) and isConnected(Int) so that it can be reused in the View depending on what is returned.
+  func receiverInfo(appID: String, apiPort: Int, returnReceiverName: Bool, completion: @escaping (String?, Int?) -> Void) {
+//    This function either return the receiver's name or receiver's connection status. It depends on which button is pressed.
     guard let url = URL(string: "http://localhost:\(apiPort)/api/v1/receiver") else {
       print("Invalid URL")
       return
@@ -36,7 +37,7 @@ class ReceiverClass {
     }
     
     let utcTime = Date()
-  //  Generates the access code
+  //  Generates the access code. This is for accessing the receiver API
     guard let accessCode = AccessCodeGenerator.generateAccessCode(appID: appID, utcTime: utcTime) else {
       print("Failed to generate access code")
       return
@@ -63,8 +64,8 @@ class ReceiverClass {
           let isConnected = json["isConnected"] as? Int ?? 0
           DispatchQueue.main.async {
   //          Updates to UI's must be completed on the main thread
-            if bluetoothNameBool {
-//              This variable determines if the View wants the bluetoothName or not
+            if returnReceiverName {
+//              returns required property, back to the UI.
               completion(bluetoothName, nil)
             } else {
               completion(nil, isConnected)
