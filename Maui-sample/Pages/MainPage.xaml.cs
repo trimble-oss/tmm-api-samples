@@ -67,6 +67,7 @@ public partial class MainPage : ContentPage
   {
     //Third button in UI. Will attempt to start position stream.
     // Checks registration status. Alert user to register app if not. Otherwise will try to get position via web socket.
+    
     if (_viewModel.RegistrationStatus == "OK")
     {
       //Checks if app is registered
@@ -82,6 +83,8 @@ public partial class MainPage : ContentPage
         }
         else
         {
+          // If button is pressed when streaming has begun, the stream will stop
+          // UI textboxes will be blanked
           _cancellationTokenSource?.Cancel();
           _cancellationTokenSource?.Dispose();
           _cancellationTokenSource = null;
@@ -93,7 +96,8 @@ public partial class MainPage : ContentPage
       }
       else
       {
-        // Pop up window to ask user if they'd like to configure their receiver. Otherwise will take them to connection window.
+        // Pop up window to ask user if they'd like to configure their receiver.
+        // Otherwise will take them to connection window.
         bool userResponse = await DisplayAlert("Receiver not connected to TMM", "Make sure you have connected the receiver to the OS's bluetooth.\n\nWould you configured your DA2 Receiver?", "Yes", "No");
         string requestId;
         string callback = Uri.EscapeDataString("tmmapisample://response/");
@@ -133,8 +137,8 @@ public partial class MainPage : ContentPage
     Debug.WriteLine(responseJson);
     var parsedJson = JObject.Parse(responseJson);
 
+    // Grabs the status and apiPort from the response Json. This can then be used for other functions in the app.
     string? registrationStatus = parsedJson["status"]?.ToString();
-    // Specifically grabs the status from the response Json.
     string? apiPortString = parsedJson["apiPort"]?.ToString();
 
     if (_viewModel != null && !string.IsNullOrEmpty(registrationStatus))
@@ -145,7 +149,7 @@ public partial class MainPage : ContentPage
       {
         PortInfo.APIPort = apiPort;
       }
-      // Task completed. Passes registrationStatus back to the RegisterButton_Clicked
+      // Task completed. Passes registrationStatus back to the Register Button
     }
   }
 }
