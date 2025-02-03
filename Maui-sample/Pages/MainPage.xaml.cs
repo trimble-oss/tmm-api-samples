@@ -94,6 +94,11 @@ public partial class MainPage : ContentPage
       {
         _viewModel.AreLabelsVisible = true;
         _viewModel.Messages = "Please connect receiver";
+        await DisplayAlert("Please connect receiver", "You will now be redirected to TMM", "OK");
+        string requestId = "tmmOpenToReceiverSelection";
+        string callback = Uri.EscapeDataString("tmmapisample://response/");
+        string requestUri = $"trimbleMobileManager://request/{requestId}?callback={callback}";
+        await UtilMethods.checkRequest(requestUri);
       }
     }
     else
