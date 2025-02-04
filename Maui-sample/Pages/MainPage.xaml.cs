@@ -35,10 +35,9 @@ public partial class MainPage : ContentPage
     Debug.WriteLine("Starting registration...");
     string requestId = "tmmRegister";
     string callback = Uri.EscapeDataString("tmmapisample://response/tmmRegister");
-    string applicationId = appID;
     await UtilMethods.checkRequest(requestId, callback, appID);
     string registrationStatus = await _registrationStatusCompletionSource.Task;
-    // Waits until the registration Uri is returned before continuing
+    // Waits until the registration Uri is returned by the UseUri method before continuing.
 
     if (registrationStatus == "OK")
     {
@@ -52,6 +51,7 @@ public partial class MainPage : ContentPage
     {
       Debug.WriteLine("UnAuthorized");
     }
+    // One of 3 registration status will be returned. Anything that is not "OK" means registration failed.
   }
 
   private async void GetReceiverButton_Clicked(object sender, EventArgs e)
@@ -60,8 +60,8 @@ public partial class MainPage : ContentPage
     await ReceiverMethods.GetReceiverAsync(this);
   }
 
-  private WebSocketMethods _webSocketMethods = new WebSocketMethods();
-  private ReceiverMethods _receiverMethods = new ReceiverMethods();
+  private readonly WebSocketMethods _webSocketMethods = new WebSocketMethods();
+  private readonly ReceiverMethods _receiverMethods = new ReceiverMethods();
 
   private async void StartPositionStreamButton_Clicked(object sender, EventArgs e)
   {
@@ -98,7 +98,7 @@ public partial class MainPage : ContentPage
       {
         // Pop up window to ask user if they'd like to configure their receiver.
         // Otherwise will take them to connection window.
-        bool userResponse = await DisplayAlert("Receiver not connected to TMM", "Make sure you have connected the receiver to the OS's bluetooth.\n\nWould you configured your DA2 Receiver?", "Yes", "No");
+        bool userResponse = await DisplayAlert("Receiver not connected to TMM", "Make sure you have connected the receiver to the OS's bluetooth.\n\nWould you like to configure your DA2 Receiver?", "Yes", "No");
         string requestId;
         string callback = Uri.EscapeDataString("tmmapisample://response/");
         if (userResponse)
@@ -145,6 +145,7 @@ public partial class MainPage : ContentPage
     {
       _viewModel.RegistrationStatus = registrationStatus;
       _registrationStatusCompletionSource.SetResult(registrationStatus);
+      // Sets the completion source. This is then passed to the Register button method when task is completed.
       if (int.TryParse(apiPortString, out int apiPort))
       {
         PortInfo.APIPort = apiPort;
