@@ -6,6 +6,7 @@ import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -20,6 +21,7 @@ import com.example.kotlin_sample.utils.WebSocketManager
 
 class MainActivity : AppCompatActivity() {
 
+//  Initiates variable but assigns it only when used
   private lateinit var startForResult: ActivityResultLauncher<Intent>
 
 //  AppID textbox
@@ -108,8 +110,15 @@ class MainActivity : AppCompatActivity() {
                   webSocket.startWebSocket(this@MainActivity, positionsV2Port)
                   startStopBut.text = stopText
                 } else {
-
-                  sendCustomIntent("com.trimble.tmm.RECEIVERSELECTION", false)
+//                  Shows dialog box asking if they would like to configure the receiver
+                  val alert = AlertDialog.Builder(this@MainActivity)
+                  alert.setMessage("Receiver not connected.\n\nWould you like to configure your DA2 receiver?")
+                  .setPositiveButton("Yes") { dialog, id ->
+                    sendCustomIntent("com.trimble.tmm.OPEN_TO_CONFIGURATION", false)
+                  }.setNegativeButton("No") {dialog, id ->
+                    sendCustomIntent("com.trimble.tmm.RECEIVERSELECTION", false)
+                  }
+                    .create().show()
                 }
               }
             } else {

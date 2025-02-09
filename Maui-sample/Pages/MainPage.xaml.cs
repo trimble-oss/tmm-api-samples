@@ -35,11 +35,9 @@ public partial class MainPage : ContentPage
     Debug.WriteLine("Starting registration...");
     string requestId = "tmmRegister";
     string callback = Uri.EscapeDataString("tmmapisample://response/tmmRegister");
-    string applicationId = appID;
-    string requestUri = $"trimbleMobileManager://request/{requestId}?applicationId={applicationId}&callback={callback}";
-    await UtilMethods.checkRequest(requestUri);
+    await UtilMethods.checkRequest(requestId, callback, appID);
     string registrationStatus = await _registrationStatusCompletionSource.Task;
-    // Waits until the registration Uri is returned before continuing
+    // Waits until the registration Uri is returned by the UseUri method before continuing.
 
     if (registrationStatus == "OK")
     {
@@ -53,6 +51,7 @@ public partial class MainPage : ContentPage
     {
       Debug.WriteLine("UnAuthorized");
     }
+    // One of 3 registration status will be returned. Anything that is not "OK" means registration failed.
   }
 
   private async void GetReceiverButton_Clicked(object sender, EventArgs e)
@@ -61,17 +60,20 @@ public partial class MainPage : ContentPage
     await ReceiverMethods.GetReceiverAsync(this);
   }
 
-  private WebSocketMethods _webSocketMethods = new WebSocketMethods();
-  private ReceiverMethods _receiverMethods = new ReceiverMethods();
+  private readonly WebSocketMethods _webSocketMethods = new WebSocketMethods();
+  private readonly ReceiverMethods _receiverMethods = new ReceiverMethods();
 
   private async void StartPositionStreamButton_Clicked(object sender, EventArgs e)
   {
     //Third button in UI. Will attempt to start position stream.
     // Checks registration status. Alert user to register app if not. Otherwise will try to get position via web socket.
+    
     if (_viewModel.RegistrationStatus == "OK")
     {
+      //Checks if app is registered
       if (await _receiverMethods.CheckReceiverConnection())
       {
+        // checks if receiver is connected
         _startStop = !_startStop;
         StartPositionStreamButton.Text = _startStop ? "Stop position stream" : "Start position stream";
         if (_startStop)
@@ -81,6 +83,8 @@ public partial class MainPage : ContentPage
         }
         else
         {
+          // If button is pressed when streaming has begun, the stream will stop
+          // UI textboxes will be blanked
           _cancellationTokenSource?.Cancel();
           _cancellationTokenSource?.Dispose();
           _cancellationTokenSource = null;
@@ -92,8 +96,20 @@ public partial class MainPage : ContentPage
       }
       else
       {
-        _viewModel.AreLabelsVisible = true;
-        _viewModel.Messages = "Please connect receiver";
+        // Pop up window to ask user if they'd like to configure their receiver.
+        // Otherwise will take them to connection window.
+        bool userResponse = await DisplayAlert("Receiver not connected to TMM", "Make sure you have connected the receiver to the OS's bluetooth.\n\nWould you like to configure your DA2 Receiver?", "Yes", "No");
+        string requestId;
+        string callback = Uri.EscapeDataString("tmmapisample://response/");
+        if (userResponse)
+        {
+          requestId = "tmmOpenToConfiguration";
+        }
+        else
+        {
+          requestId = "tmmOpenToReceiverSelection";
+        }
+        await UtilMethods.checkRequest(requestId, callback);
       }
     }
     else
@@ -121,19 +137,20 @@ public partial class MainPage : ContentPage
     Debug.WriteLine(responseJson);
     var parsedJson = JObject.Parse(responseJson);
 
+    // Grabs the status and apiPort from the response Json. This can then be used for other functions in the app.
     string? registrationStatus = parsedJson["status"]?.ToString();
-    // Specifically grabs the status from the response Json.
     string? apiPortString = parsedJson["apiPort"]?.ToString();
 
     if (_viewModel != null && !string.IsNullOrEmpty(registrationStatus))
     {
       _viewModel.RegistrationStatus = registrationStatus;
       _registrationStatusCompletionSource.SetResult(registrationStatus);
+      // Sets the completion source. This is then passed to the Register button method when task is completed.
       if (int.TryParse(apiPortString, out int apiPort))
       {
         PortInfo.APIPort = apiPort;
       }
-      // Task completed. Passes registrationStatus back to the RegisterButton_Clicked
+      // Task completed. Passes registrationStatus back to the Register Button
     }
   }
 }

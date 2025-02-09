@@ -16,12 +16,13 @@ namespace Maui_sample.WebSocket
     internal async Task ReadPositionsAsync(MainPage mainPage, CancellationToken cancel)
     {
       // Called when app tries to connect to the web socket.
+      // Needs the cancellation token used in main page to disconnect web socket when receiver not connected
       try
       {
-        // query the position port
+        // query for the position port
         int port = await GetPositionStreamPortAsync(mainPage);
 
-        // connect to the WebSocket
+        // connect to the WebSocket using the aforementioned position port
         using ClientWebSocket client = new ClientWebSocket();
         await client.ConnectAsync(new Uri($"ws://localhost:{port}"), cancel);
 
@@ -34,8 +35,8 @@ namespace Maui_sample.WebSocket
           {
             string requestId = "tmmOpenToReceiverSelection";
             string callback = Uri.EscapeDataString("tmmapisample://response/");
-            string requestUri = $"trimbleMobileManager://request/{requestId}?callback={callback}";
-            if (!await UtilMethods.checkRequest(requestUri))
+            
+            if (!await UtilMethods.checkRequest(requestId, callback))
             {
               mainPage._viewModel.Messages = "Failed to connect to receiver...";
               // Cancel task if receiver didn't connect after opening TMM.
@@ -58,8 +59,9 @@ namespace Maui_sample.WebSocket
 
         while (!cancel.IsCancellationRequested && _receiverMethods.CheckReceiverConnection().Result)
         {
+          // Will continue to run as long as the web socket and receiver are connected
           mainPage._viewModel.AreLabelsVisible = false;
-          // read the next position
+          // Attempts to read the next position
           var data = new ArraySegment<byte>(new byte[10240]);
           WebSocketReceiveResult result = await client.ReceiveAsync(data, cancel);
           // Stops here if no receiver info
@@ -82,7 +84,7 @@ namespace Maui_sample.WebSocket
               double? altitude = jnode["altitude"]?.GetValue<double>();
               if (mainPage._viewModel != null)
               {
-                // Shows lat, long and alt
+                // Updates the UI to show the lat, long and alt data.
                 mainPage._viewModel.Latitude = latitude;
                 mainPage._viewModel.Longitude = longitude;
                 mainPage._viewModel.Altitude = altitude;
@@ -98,8 +100,9 @@ namespace Maui_sample.WebSocket
       }
     }
 
-    internal async Task<int> GetPositionStreamPortAsync(MainPage mainPage)
+    private static async Task<int> GetPositionStreamPortAsync(MainPage mainPage)
     {
+      // This will return the port number to the app so it can connect to the web socket
       string? appID = mainPage._viewModel?.ApplicationID;
 
       // set up the HTTP client
@@ -109,17 +112,17 @@ namespace Maui_sample.WebSocket
         Timeout = TimeSpan.FromSeconds(30)
       };
 
-      // generate the access code and put it in the authorization header
+      // generate the access code for authorization header in the API
       string accessCode = AccessCodeGenerator.GenerateAccessCode(appID, DateTime.UtcNow);
       client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", accessCode);
 
-      // send the request
+      // send the request to position stream API
       string url = $"api/v1/positionStream?format=locationV2";
       HttpResponseMessage response = await client.GetAsync(url);
       if (!response.IsSuccessStatusCode)
         throw new Exception("Failed to get position stream port");
 
-      // parse the response
+      // parse the response if successfullly received
       string jsonString = await response.Content.ReadAsStringAsync();
       JsonNode? jnode = JsonNode.Parse(jsonString);
       if (jnode is null)
