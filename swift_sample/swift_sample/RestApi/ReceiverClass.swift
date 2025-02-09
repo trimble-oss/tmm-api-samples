@@ -9,10 +9,10 @@ import SwiftUI
 
 class ReceiverClass {
   
-  func openReceiverSelectionScreen() {
+  func openTmmScreen(url: String) {
 //    Opens when receiver needs to be connected.
 //    If no input is needed from the schemas then simply inputting the URL without the params array is fine
-      if let customUrl = URL(string: "tmmopentoreceiverselection://?") {
+      if let customUrl = URL(string: "\(url)") {
         UIApplication.shared.open(customUrl, options: [:]) { success in
           if success {
             print("The URL was delivered successfully.")

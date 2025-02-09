@@ -41,7 +41,7 @@ struct ContentView: View {
         .font(.largeTitle)
         .padding([.top, .leading, .trailing], 20)
       
-      Spacer()  // Spacer to push the content to the center
+      Spacer()  // Spacer to push the content to bottom of the screen. Combined with the bottom Spacer() it centres the content.
      
       VStack {
         // Registration textfield and button
@@ -96,6 +96,7 @@ struct ContentView: View {
 //          Text will switch over and start showing positions from receiver if it's connected.
 //          If already started, the button's text will switch over again and stop streaming.
           returnBluetoothName = false
+          
           receiverClass.receiverInfo(appID: appID, apiPort: rViewModel.apiPort, returnReceiverName: returnBluetoothName) {(bluetoothName: String?, isConnected: Int?) in
             if isConnected != nil && isConnected == 1 {
               self.isConnectedInt = isConnected ?? 0
@@ -106,21 +107,39 @@ struct ContentView: View {
                 wsManager.connect(with: rViewModel.locationV2Port)
               }
               isReceiverConnected.toggle()
-//              Most consistent with text changes
+//              Most consistent with text changes. Changes the state of receiver connected status.
             }
             else {
-              wsManager.lat = "Please register your app"
-              receiverClass.openReceiverSelectionScreen()
+//              Pop up window asking user whether they want to configure the receiver
+              let alert = UIAlertController(title: "DA2 receiver not connected", message: "Do you want to configure your DA2 receiver?\n\nNo button will take you to connect to receiver.", preferredStyle: .alert)
+              let configureAction = 	UIAlertAction(title: "Yes", style: .default) {_ in
+                receiverClass.openTmmScreen(url: "tmmopentoconfiguration://?")
+//               Opens configuration screen in TMM
+              }
+              
+              let receiverSelectAction = UIAlertAction(title: "No", style: .cancel) {_ in
+                receiverClass.openTmmScreen(url: "tmmopentoreceiverselection://?")
+//               Opens receiver selection screen in TMM
+              }
+              
+              alert.addAction(configureAction)
+              alert.addAction(receiverSelectAction)
+              
+              if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                 let rootViewController = windowScene.windows.first?.rootViewController {
+                rootViewController.present(alert, animated: true, completion: nil)
+              }
             }
           }
         }) {
           Text(isReceiverConnected ? "Stop Position Stream" : "Start Position Stream")
+//          Changes button text based on receiver connection status
         }
         .buttonStyle(.borderedProminent)
       }
       .padding()
       
-      Spacer()  // Spacer to push the content to the center
+      Spacer()  // Spacer to push the content upwards. Combined with the top Spacer() it centres the screen
     }
     .padding()
   }
