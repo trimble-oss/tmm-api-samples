@@ -9,11 +9,11 @@ namespace Maui_sample.RestApi
   {
     public static async Task GetReceiverAsync(MainPage mainPage)
     {
-      // Ran after Receiver button is clicked. Will attempt to retrieve name.
+      // Ran after Receiver button is clicked. Will attempt to retrieve the connected receiver's name.
       string registrationStatus = mainPage._viewModel?.RegistrationStatus;
       if (registrationStatus == "OK")
       {
-        // Creates HttpClient
+        // Creates HttpClient for the receiver.
         HttpClient client = new HttpClient
         {
           BaseAddress = new Uri($"http://localhost:{PortInfo.APIPort}/"),
@@ -26,7 +26,7 @@ namespace Maui_sample.RestApi
         HttpResponseMessage response = await client.GetAsync("api/v1/receiver").ConfigureAwait(false);
         string payload = await response.Content.ReadAsStringAsync();
         var JsonPayload = JToken.Parse(payload);
-        // Gets bluetooth name from the returned json.
+        // Gets the receiver's bluetooth name from the returned json.
         string? receiverName = JsonPayload["bluetoothName"]?.ToString(Newtonsoft.Json.Formatting.Indented);
         if (mainPage._viewModel != null)
         {
@@ -41,7 +41,7 @@ namespace Maui_sample.RestApi
     }
     public async Task<bool> CheckReceiverConnection()
     {
-      // Checks whether receiver is connected. This function is ran when web socket tries to connect.
+      // Checks whether receiver is connected. This function is ran when WebSocket tries to connect.
       bool receiverConnected = false;
 
       HttpClient client = new HttpClient
@@ -56,8 +56,9 @@ namespace Maui_sample.RestApi
       var response = await client.GetAsync("api/v1/receiver").ConfigureAwait(false);
       var payload = await response.Content.ReadAsStringAsync();
       var JsonPayload = JToken.Parse(payload);
-      var isConnected = JsonPayload["isConnected"]?.ToString(Newtonsoft.Json.Formatting.Indented);
       // Returns isConnected status to whichever button needs it.
+      var isConnected = JsonPayload["isConnected"]?.ToString(Newtonsoft.Json.Formatting.Indented);
+      
 
       if (isConnected == "true")
       {

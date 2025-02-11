@@ -23,7 +23,7 @@ public partial class MainPage : ContentPage
 
   private async void RegisterButton_Clicked(object sender, EventArgs e)
   {
-    //Register button. Should be first thing ran in the app.
+    //Register button. Should be first thing done to utilize the API.
     // Run register URI. Check to see if the application ID is the same as the one stored in environment variables.
     string? appID = _viewModel?.ApplicationID;
 
@@ -56,7 +56,7 @@ public partial class MainPage : ContentPage
 
   private async void GetReceiverButton_Clicked(object sender, EventArgs e)
   {
-    // second button in UI. Retrieves the receiver's name.
+    // second button in UI. Retrieves the connected receiver's name.
     await ReceiverMethods.GetReceiverAsync(this);
   }
 
@@ -65,15 +65,15 @@ public partial class MainPage : ContentPage
 
   private async void StartPositionStreamButton_Clicked(object sender, EventArgs e)
   {
-    //Third button in UI. Will attempt to start position stream.
-    // Checks registration status. Alert user to register app if not. Otherwise will try to get position via web socket.
+    // Third button in UI. Will attempt to start position stream.
+    // Checks registration status. Alert user to register app if not. Otherwise will try to get position data via WebSocket.
     
     if (_viewModel.RegistrationStatus == "OK")
     {
-      //Checks if app is registered
+      // Checks if app is registered.
       if (await _receiverMethods.CheckReceiverConnection())
       {
-        // checks if receiver is connected
+        // checks if receiver is connected.
         _startStop = !_startStop;
         StartPositionStreamButton.Text = _startStop ? "Stop position stream" : "Start position stream";
         if (_startStop)
@@ -83,8 +83,8 @@ public partial class MainPage : ContentPage
         }
         else
         {
-          // If button is pressed when streaming has begun, the stream will stop
-          // UI textboxes will be blanked
+          // If button is pressed when streaming has begun, the stream will stop.
+          // UI textboxes will be blanked.
           _cancellationTokenSource?.Cancel();
           _cancellationTokenSource?.Dispose();
           _cancellationTokenSource = null;
@@ -137,7 +137,7 @@ public partial class MainPage : ContentPage
     Debug.WriteLine(responseJson);
     var parsedJson = JObject.Parse(responseJson);
 
-    // Grabs the status and apiPort from the response Json. This can then be used for other functions in the app.
+    // Gets the status and apiPort from the response Json. This can then be used for other functions in the app.
     string? registrationStatus = parsedJson["status"]?.ToString();
     string? apiPortString = parsedJson["apiPort"]?.ToString();
 
@@ -150,7 +150,7 @@ public partial class MainPage : ContentPage
       {
         PortInfo.APIPort = apiPort;
       }
-      // Task completed. Passes registrationStatus back to the Register Button
+      // Task completed. Passes registrationStatus back to the Register Button.
     }
   }
 }

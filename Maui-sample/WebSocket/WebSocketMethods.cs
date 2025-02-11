@@ -15,14 +15,14 @@ namespace Maui_sample.WebSocket
     private ReceiverMethods _receiverMethods = new ReceiverMethods();
     internal async Task ReadPositionsAsync(MainPage mainPage, CancellationToken cancel)
     {
-      // Called when app tries to connect to the web socket.
-      // Needs the cancellation token used in main page to disconnect web socket when receiver not connected
+      // Called when app tries to connect to the WebSocket.
+      // Needs the cancellation token used in main page to disconnect WebSocket when receiver not connected.
       try
       {
-        // query for the position port
+        // query for the WebSocket position port.
         int port = await GetPositionStreamPortAsync(mainPage);
 
-        // connect to the WebSocket using the aforementioned position port
+        // connect to the WebSocket using the aforementioned WebSocket position port.
         using ClientWebSocket client = new ClientWebSocket();
         await client.ConnectAsync(new Uri($"ws://localhost:{port}"), cancel);
 
@@ -30,7 +30,7 @@ namespace Maui_sample.WebSocket
         {
           mainPage._viewModel.AreLabelsVisible = true;
           mainPage._viewModel.Messages = "Please connect receiver.";
-          // Open the TMM select device window if receiver is not connected
+          // Open the TMM select device window if receiver is not connected.
           try
           {
             string requestId = "tmmOpenToReceiverSelection";
@@ -48,7 +48,7 @@ namespace Maui_sample.WebSocket
             Debug.WriteLine(ex.Message);
           }
 
-          // Cancel task if receiver not connected
+          // Cancel task if receiver not connected.
           mainPage._cancellationTokenSource?.Cancel();
           return;
         }
@@ -59,9 +59,9 @@ namespace Maui_sample.WebSocket
 
         while (!cancel.IsCancellationRequested && _receiverMethods.CheckReceiverConnection().Result)
         {
-          // Will continue to run as long as the web socket and receiver are connected
+          // Will continue to run as long as the WebSocket and receiver are connected.
           mainPage._viewModel.AreLabelsVisible = false;
-          // Attempts to read the next position
+          // Gets the next set of position data.
           var data = new ArraySegment<byte>(new byte[10240]);
           WebSocketReceiveResult result = await client.ReceiveAsync(data, cancel);
           // Stops here if no receiver info
@@ -74,7 +74,7 @@ namespace Maui_sample.WebSocket
 
           if (result.Count > 0 && result.MessageType == WebSocketMessageType.Text)
           {
-            // parse the position data
+            // parse the position data.
             string jsonString = Encoding.UTF8.GetString(data.ToArray(), 0, result.Count);
             JsonNode? jnode = JsonNode.Parse(jsonString);
             if (jnode is not null)
@@ -95,34 +95,34 @@ namespace Maui_sample.WebSocket
       }
       catch (TaskCanceledException)
       {
-        // Catch Task Cancel Exception to stop app crashing when trying to stop the stream
+        // Catch Task Cancel Exception to stop app crashing when trying to stop the stream.
         Debug.WriteLine("Task canceled");
       }
     }
 
     private static async Task<int> GetPositionStreamPortAsync(MainPage mainPage)
     {
-      // This will return the port number to the app so it can connect to the web socket
+      // This will return the port number to the app so it can connect to the WebSocket.
       string? appID = mainPage._viewModel?.ApplicationID;
 
-      // set up the HTTP client
+      // set up the HTTP client for WebSocket.
       HttpClient client = new HttpClient
       {
         BaseAddress = new Uri($"http://localhost:{PortInfo.APIPort}/"),
         Timeout = TimeSpan.FromSeconds(30)
       };
 
-      // generate the access code for authorization header in the API
+      // generate the access code for authorization header in the API.
       string accessCode = AccessCodeGenerator.GenerateAccessCode(appID, DateTime.UtcNow);
       client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", accessCode);
 
-      // send the request to position stream API
+      // send the request to position stream API.
       string url = $"api/v1/positionStream?format=locationV2";
       HttpResponseMessage response = await client.GetAsync(url);
       if (!response.IsSuccessStatusCode)
         throw new Exception("Failed to get position stream port");
 
-      // parse the response if successfullly received
+      // parse the response if successfullly received.
       string jsonString = await response.Content.ReadAsStringAsync();
       JsonNode? jnode = JsonNode.Parse(jsonString);
       if (jnode is null)
