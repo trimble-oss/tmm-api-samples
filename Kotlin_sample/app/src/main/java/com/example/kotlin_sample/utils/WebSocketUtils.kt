@@ -12,7 +12,7 @@ import io.ktor.websocket.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.*
 
-//  Web socket client
+//  WebSocket client
 //  https://ktor.io/docs/client-engines.html#limitations
 class WebSocketManager {
   private val websocketLocationV2 = HttpClient(CIO) {
@@ -33,7 +33,7 @@ class WebSocketManager {
         }
       }
 
-//      Continuously receives the message until button is pressed again.
+//      Continuously receives the message until the start/stop position stream button is pressed again.
       while (socket?.isActive == true) {
         try {
           val frame = socket?.incoming?.receive()
@@ -59,8 +59,8 @@ class WebSocketManager {
             }
           }
         } catch (e: Exception) {
-//          Exception here was causing app to crash because coroutine chanel was closed
-//          While the loop was still running
+//          Exception here was causing app to crash because coroutine chanel was closed,
+//          while the loop was still running.
           println(e.message)
         }
       }

@@ -29,7 +29,7 @@ class ReceiverUtils {
 
         if (registrationResult == "OK") {
 //          Only runs if app is registered.
-//          Displays the receiver name to the text box
+//          Displays the receiver's bluetooth name to the text box.
           var receiverName = response.bodyAsText()
           receiverName = JSONObject(receiverName).getString("bluetoothName")
           withContext(Dispatchers.Main) {
@@ -37,7 +37,7 @@ class ReceiverUtils {
           }
         } else {
           withContext(Dispatchers.Main) {
-//            Asks user to register app, otherwise will show a Http status code
+//            Asks user to register app, otherwise will show a Http error code
             if (response.status != HttpStatusCode.OK) {
               Toast.makeText(context, context.getString(R.string.error_text, response.status), Toast.LENGTH_SHORT).show()
             } else {
@@ -56,11 +56,11 @@ class ReceiverUtils {
   }
 
   suspend fun checkReceiverConnection(appIDInput: TextInputEditText, apiPort: Int): HttpResponse {
-//    Called whenever connection needs to be checked like when opening web socket.
+//    Called whenever connection needs to be checked like when connecting to the WebSocket.
     val utcTime = Date()
+    // Get authorization header with access code through the generator.
     val accessCode = generateAccessCode(appIDInput.text.toString(), utcTime)
     val authorizationHeader = "Basic $accessCode"
-    // Get authorization header with access code through the generator
 
     return client.get("http://localhost:${apiPort}/api/v1/receiver") {
       header("Authorization", authorizationHeader)

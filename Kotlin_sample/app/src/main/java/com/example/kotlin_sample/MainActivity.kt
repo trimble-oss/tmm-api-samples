@@ -21,21 +21,21 @@ import com.example.kotlin_sample.utils.WebSocketManager
 
 class MainActivity : AppCompatActivity() {
 
-//  Initiates variable but assigns it only when used
+//  Initiates variable but assigns it only when used.
   private lateinit var startForResult: ActivityResultLauncher<Intent>
 
 //  AppID textbox
   private lateinit var appIDInput: TextInputEditText
 
-//  Values returned from registration intent
+//  Values returned from registration intent. Each required for different parts of the app.
   private var registrationResult: String? = null
   private var apiPort: Int = -1
   private var positionsV2Port: Int = -1
 
-//  Http client - Can't be reused for web socket as it causes `Parent process has finished` exception
+//  Http client for receiver API - Can't be reused for web socket as it causes `Parent process has finished` exception.
   private val client = ReceiverUtils()
 
-//  Web socket client
+//  WebSocket client - Separate from the receiver's.
   private val webSocket = WebSocketManager()
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,6 +58,7 @@ class MainActivity : AppCompatActivity() {
           apiPort = data.getIntExtra("apiPort", -1)
           positionsV2Port = data.getIntExtra("locationV2Port", -1)
 
+//          Alerts user if registration was OK, No Network or UnAuthorized.
           if (registrationResult != "OK") {
             Toast.makeText(this@MainActivity, "Registration Error: $registrationResult", Toast.LENGTH_SHORT).show()
           } else {
@@ -82,35 +83,36 @@ class MainActivity : AppCompatActivity() {
         println(sendCustomIntent("com.trimble.tmm.REGISTER", true))
     }
 
-//    Get receiver button. Shows the receiver name via receiverselection intent.
+//    Get receiver button. Shows the receiver's bluetooth name via receiver API.
     val getReceiverBut: Button = findViewById(R.id.getReceiverButton)
     getReceiverBut.setOnClickListener {
       client.getReceiverName(this@MainActivity, registrationResult ?: "", appIDInput, apiPort)
     }
 
-    // Start/Stop position stream button button
+    // Start/Stop position stream button.
     val startStopBut: Button = findViewById(R.id.startStopButton)
 
     val startText = getString(R.string.start)
     val stopText = getString(R.string.stop)
 
     startStopBut.setOnClickListener {
-//      Start/stop position stream button.
-//      Will attempt to connect to Web Socket and if it isn't, will tell user to register the app or connect to receiver.
       CoroutineScope(Dispatchers.IO).launch {
         try {
+//          Checks if app is registered. Will ask user to register app if it isn't.
           if (startStopBut.text == startText) {
             if (registrationResult == "OK") {
               val response = client.checkReceiverConnection(appIDInput, apiPort)
               var isConnected = response.bodyAsText()
               isConnected = JSONObject(isConnected).getString("isConnected")
 
+//              Connects to WebSocket if receiver is connected. Otherwise shows a dialog box.
               withContext(Dispatchers.Main) {
                 if (isConnected == "true") {
                   webSocket.startWebSocket(this@MainActivity, positionsV2Port)
                   startStopBut.text = stopText
                 } else {
-//                  Shows dialog box asking if they would like to configure the receiver
+//                  Shows dialog box asking if they would like to configure the receiver.
+//                  Sends them to either receiver selection screen or configuration screen via their respective intents.
                   val alert = AlertDialog.Builder(this@MainActivity)
                   alert.setMessage("Receiver not connected.\n\nWould you like to configure your DA2 receiver?")
                   .setPositiveButton("Yes") { dialog, id ->
@@ -127,6 +129,7 @@ class MainActivity : AppCompatActivity() {
               }
             }
           } else {
+//            If WebSocket already connect, will disconnect the WebSocket and blanks the textboxes.
             webSocket.stopWebSocket(this@MainActivity)
             withContext(Dispatchers.Main) {
               startStopBut.text = startText
@@ -153,7 +156,7 @@ class MainActivity : AppCompatActivity() {
     startForResult.launch(intent)
     }
 
-//  Occurs when app is closed
+//  Cleanup of app resources when it is closed.
   override fun onDestroy() {
     super.onDestroy()
     client.clientClose()

@@ -11,6 +11,7 @@ import java.util.Date
 fun generateAccessCode(appID: String, utcTime: Date): String {
 //  Generates the Access Code from the app id and the current time.
 //   Used when trying to access the receiver API or any API that requires it.
+//  Is valid for 1 second.
   val lowercaseID = appID.lowercase(Locale.getDefault())
 
   val iso8601Format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
