@@ -22,14 +22,14 @@ struct ContentView: View {
   @State private var appID: String = ""
   @State private var receiverName: String = ""
   
-  // Registration - Allows the UI to receive the callback
+  // Registration - Allows the UI to receive the callback URL
   @EnvironmentObject var rViewModel: registrationViewModel
   
-//  Receiver
+//  Receiver variables
   @State private var returnBluetoothName: Bool = true
   @State private var receiverClass = ReceiverClass()
   
-  // Web socket location
+  // WebSocket variables
   @State private var isConnectedInt: Int = 0
   @State private var isReceiverConnected: Bool = false
   @StateObject private var wsManager = WebSocketManager()
@@ -51,6 +51,7 @@ struct ContentView: View {
             .padding()
           
           Button("Register") {
+//            function for handling registration URL
             register(with: appID)
           }
           .buttonStyle(.borderedProminent)
@@ -63,15 +64,15 @@ struct ContentView: View {
             .disabled(true)
             .padding()
           Button("Get Receiver", action: {
-//            Shows the receiver name in the textfield
+//            Shows the receiver's bluetooth name in the textfield
             returnBluetoothName = true
             if returnBluetoothName {
               receiverClass.receiverInfo(appID: appID, apiPort: rViewModel.apiPort, returnReceiverName: returnBluetoothName) { (bluetoothName: String?, isConnectedJson: Int?) in
                 if bluetoothName != nil {
+//                   bluetoothName comes from the completion handler in the function
                   self.receiverName = bluetoothName ?? ""
                 }
               }
-//              bluetoothName comes from the completion handler in the function
             }
           })
         }
@@ -92,38 +93,42 @@ struct ContentView: View {
           .padding()
         
         Button(action: {
-//          Position stream. When pressed, will attempt to start the connection. If receiver is not connected will switch to TMM.
-//          Text will switch over and start showing positions from receiver if it's connected.
-//          If already started, the button's text will switch over again and stop streaming.
           returnBluetoothName = false
-          
+//          WebSocket position stream button.
+//          Checks whether receiver is connected.
           receiverClass.receiverInfo(appID: appID, apiPort: rViewModel.apiPort, returnReceiverName: returnBluetoothName) {(bluetoothName: String?, isConnected: Int?) in
             if isConnected != nil && isConnected == 1 {
               self.isConnectedInt = isConnected ?? 0
-              
               if isReceiverConnected {
+//                Will disconnect from receiver if WebSocket is already connected.
                 wsManager.disconnect()
               } else {
+//                Connects to WebSocket if receiver is connected.
                 wsManager.connect(with: rViewModel.locationV2Port)
               }
+//             Most consistent with text changes. Changes the state of receiver connected status.
               isReceiverConnected.toggle()
-//              Most consistent with text changes. Changes the state of receiver connected status.
             }
             else {
-//              Pop up window asking user whether they want to configure the receiver
-              let alert = UIAlertController(title: "DA2 receiver not connected", message: "Do you want to configure your DA2 receiver?\n\nNo button will take you to connect to receiver.", preferredStyle: .alert)
-              let configureAction = 	UIAlertAction(title: "Yes", style: .default) {_ in
+//              Pop up window asking user whether they want to configure the receiver.
+//              This is triggered if app is registered but receiver is not connected.
+              let alert = UIAlertController(title: "DA2 receiver not connected or app not registered", message: "Press cancel if your app hasn't been registered.\nOtherwise click either connect receiver or configure receiver", preferredStyle: .alert)
+              let configureAction = 	UIAlertAction(title: "Configure receiver", style: .default) {_ in
+//                Opens configuration screen in TMM
                 receiverClass.openTmmScreen(url: "tmmopentoconfiguration://?")
-//               Opens configuration screen in TMM
               }
               
-              let receiverSelectAction = UIAlertAction(title: "No", style: .cancel) {_ in
+              let receiverSelectAction = UIAlertAction(title: "Connect receiver", style: .default) {_ in
+//                Opens receiver selection screen in TMM
                 receiverClass.openTmmScreen(url: "tmmopentoreceiverselection://?")
-//               Opens receiver selection screen in TMM
               }
+              
+//              Cancel button
+              let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
               
               alert.addAction(configureAction)
               alert.addAction(receiverSelectAction)
+              alert.addAction(cancelAction)
               
               if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                  let rootViewController = windowScene.windows.first?.rootViewController {

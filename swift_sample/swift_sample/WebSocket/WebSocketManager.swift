@@ -24,24 +24,24 @@ class WebSocketManager: ObservableObject {
   private var webSocketTask: URLSessionWebSocketTask?
   
   func connect(with locationPortV2: Int) {
-    //    Start the web socket session & connect to it
+    //    Start the WebSocket session & connect to it using the Location Port
     guard let url = URL(string: "ws://localhost:\(locationPortV2)") else { return }
     
     webSocketTask = URLSession.shared.webSocketTask(with: url)
     webSocketTask?.resume()
     
+//    Function that receives the message and assign to the @Published variables
     receiveMSG()
-//    Receive the message and assign to the @Published variables
   }
   
   func disconnect() {
+//    Send cancel token to WebSocket task and blank the @Published variables
     webSocketTask?.cancel(with: .goingAway, reason: "Stop button pressed.".data(using: .utf8))
     DispatchQueue.main.async {
       self.lat = ""
       self.long = ""
       self.alt = ""
     }
-//    Send cancel token to web socket task and blank the @Published variables
   }
   
   func receiveMSG() {
@@ -53,16 +53,16 @@ class WebSocketManager: ObservableObject {
       case .success(let msg):
         switch msg {
         case .string(let txt):
-          self?.handleMsg(text: txt)
 //          Call the handleMsg method on string message.
+          self?.handleMsg(text: txt)
         case .data(_):
-          print("Do something with binary data...")
 //          We are not using binary data but Swift 6 requires us to do this anyways
+          print("Do something with binary data...")
         @unknown default:
           fatalError("Opps, something went wrong")
         }
-        self?.receiveMSG()
 //        Repeats the process. Much like a recursive.
+        self?.receiveMSG()
       }
     }
   }

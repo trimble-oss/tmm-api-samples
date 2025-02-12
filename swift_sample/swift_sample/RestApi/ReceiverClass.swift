@@ -10,8 +10,8 @@ import SwiftUI
 class ReceiverClass {
   
   func openTmmScreen(url: String) {
-//    Opens when receiver needs to be connected.
-//    If no input is needed from the schemas then simply inputting the URL without the params array is fine
+//    Opens whichever URL is required.
+//    If no input is needed from the schemas then simply inputting the URL without the params array is fine.
       if let customUrl = URL(string: "\(url)") {
         UIApplication.shared.open(customUrl, options: [:]) { success in
           if success {
@@ -31,13 +31,13 @@ class ReceiverClass {
     }
     if apiPort == -1 {
       DispatchQueue.main.async {
-//        Updates to UI's must be completed on the main thread
+//        Updates to UI's must be completed on the main thread.
         completion("Invalid api port or App is not registered", nil)
       }
     }
     
     let utcTime = Date()
-  //  Generates the access code. This is for accessing the receiver API
+  //  Generates the access code. This is for accessing the receiver API.
     guard let accessCode = AccessCodeGenerator.generateAccessCode(appID: appID, utcTime: utcTime) else {
       print("Failed to generate access code")
       return
@@ -63,7 +63,7 @@ class ReceiverClass {
           let bluetoothName = json["bluetoothName"] as? String ?? "App is not registered"
           let isConnected = json["isConnected"] as? Int ?? 0
           DispatchQueue.main.async {
-  //          Updates to UI's must be completed on the main thread
+  //          Updates to UI's must be completed on the main thread.
             if returnReceiverName {
 //              returns required property, back to the UI.
               completion(bluetoothName, nil)
@@ -78,7 +78,7 @@ class ReceiverClass {
         print("JSON parsing error: \(error.localizedDescription)")
       }
     }
+//    Starts connection with HTTP client.
     task.resume()
-  //  Starts connection
   }
 }
