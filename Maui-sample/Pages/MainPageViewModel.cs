@@ -58,7 +58,7 @@ namespace Maui_sample
         if (_applicationID != value)
         {
           _applicationID = value;
-          Preferences.Default.Set("ApplicationID", value);
+          Values.AppID = value;
           this.RaisePropertyChanged();
         }
       }
@@ -75,8 +75,9 @@ namespace Maui_sample
     public MainPageViewModel()
     {
       _messages = string.Empty;
-      _applicationID = Preferences.Default.Get("ApplicationID", string.Empty);
-
+      _applicationID = Values.AppID;
+      _receiverName = string.Empty;
+      _registrationStatus = string.Empty;
     }
   }
 }

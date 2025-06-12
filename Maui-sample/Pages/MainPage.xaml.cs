@@ -13,7 +13,7 @@ public partial class MainPage : ContentPage
   private bool _startStop = false;
   internal CancellationTokenSource? _cancellationTokenSource;
   internal MainPageViewModel? _viewModel => BindingContext as MainPageViewModel;
-  private TaskCompletionSource<string> _registrationStatusCompletionSource = new TaskCompletionSource<string>();
+  private TaskCompletionSource<string> _registrationStatusCompletionSource = new();
   public MainPage()
   {
     InitializeComponent();
@@ -25,33 +25,24 @@ public partial class MainPage : ContentPage
   {
     //Register button. Should be first thing done to utilize the API.
     // Run register URI. Check to see if the application ID is the same as the one stored in environment variables.
-    string? appID = _viewModel?.ApplicationID;
+    string appID = Values.AppID;
 
-    if (string.IsNullOrWhiteSpace(appID) && appID == "")
+    if (string.IsNullOrWhiteSpace(appID))
     {
-      Debug.WriteLine("App ID is null or empty.");
+      Debug.WriteLine("Please enter an Application ID");
+      return;
     }
     
     Debug.WriteLine("Starting registration...");
     string requestId = "tmmRegister";
     string callback = Uri.EscapeDataString("tmmapisample://response/tmmRegister");
+
     await UtilMethods.checkRequest(requestId, callback, appID);
     string registrationStatus = await _registrationStatusCompletionSource.Task;
     // Waits until the registration Uri is returned by the UseUri method before continuing.
-
-    if (registrationStatus == "OK")
-    {
-      Debug.WriteLine($"Registration status: {registrationStatus}");
-    }
-    else if (registrationStatus == "NoNetwork")
-    {
-      Debug.WriteLine("No Network");
-    }
-    else
-    {
-      Debug.WriteLine("UnAuthorized");
-    }
-    // One of 3 registration status will be returned. Anything that is not "OK" means registration failed.
+    _registrationStatusCompletionSource = new();
+    Debug.WriteLine($"Registration status: {registrationStatus}");
+    await DisplayAlert("Registration", $"Registration status: {registrationStatus}", "Okay");
   }
 
   private async void GetReceiverButton_Clicked(object sender, EventArgs e)
@@ -98,7 +89,7 @@ public partial class MainPage : ContentPage
       {
         // Pop up window to ask user if they'd like to configure their receiver.
         // Otherwise will take them to connection window.
-        bool userResponse = await DisplayAlert("Receiver not connected to TMM", "Make sure you have connected the receiver to the OS's bluetooth.\n\nWould you like to configure your DA2 Receiver?", "Yes", "No");
+        bool userResponse = await DisplayAlert("Receiver not connected to TMM", "Make sure you have connected the Receiver to the OS's bluetooth.\n\nWould you like to configure your Receiver?", "Yes", "No");
         string requestId;
         string callback = Uri.EscapeDataString("tmmapisample://response/");
         if (userResponse)
