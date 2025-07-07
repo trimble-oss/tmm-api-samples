@@ -1,8 +1,8 @@
 using Android.Content;
 using Android.OS;
+using Maui_sample.Models;
 using AndroidX.Activity.Result;
 using AndroidX.Activity.Result.Contract;
-using Maui_sample.Platforms.Android;
 
 namespace Maui_sample;
 
@@ -36,7 +36,7 @@ internal partial class RegistrationAgent
         new CustomActivityResultCallback((result) => _taskCompletionSource?.SetResult(result)));
   }
 
-  public async Task<RegistrationDetails?> RegisterAsync(string applicationID)
+  public partial async Task<RegistrationDetails?> RegisterAsync(string applicationID)
   {
     try
     {
@@ -76,5 +76,4 @@ internal partial class RegistrationAgent
     _activityResultLauncher?.Launch(intent);
     return await _taskCompletionSource.Task;
   }
-
 }

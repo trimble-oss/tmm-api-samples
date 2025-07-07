@@ -1,10 +1,10 @@
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.Messaging;
-using Newtonsoft.Json.Linq;
-using Maui_sample.RestApi;
-using Maui_sample.WebSocket;
-using Maui_sample.Utills;
 using Maui_sample.Models;
+using Maui_sample.RestApi;
+using Maui_sample.Utills;
+using Maui_sample.WebSocket;
+using Newtonsoft.Json.Linq;
 
 namespace Maui_sample;
 
@@ -14,6 +14,7 @@ public partial class MainPage : ContentPage
   internal CancellationTokenSource? _cancellationTokenSource;
   internal MainPageViewModel? _viewModel => BindingContext as MainPageViewModel;
   private TaskCompletionSource<string> _registrationStatusCompletionSource = new();
+  private readonly RegistrationAgent _registrationAgent = new();
   public MainPage()
   {
     InitializeComponent();
@@ -23,26 +24,42 @@ public partial class MainPage : ContentPage
 
   private async void RegisterButton_Clicked(object sender, EventArgs e)
   {
-    //Register button. Should be first thing done to utilize the API.
-    // Run register URI. Check to see if the application ID is the same as the one stored in environment variables.
     string appID = Values.AppID;
 
     if (string.IsNullOrWhiteSpace(appID))
     {
-      Debug.WriteLine("Please enter an Application ID");
+      await DisplayAlert("Error", "Please enter an Application ID", "OK");
       return;
     }
-    
-    Debug.WriteLine("Starting registration...");
-    string requestId = "tmmRegister";
-    string callback = Uri.EscapeDataString("tmmapisample://response/tmmRegister");
 
-    await UtilMethods.checkRequest(requestId, callback, appID);
-    string registrationStatus = await _registrationStatusCompletionSource.Task;
-    // Waits until the registration Uri is returned by the UseUri method before continuing.
-    _registrationStatusCompletionSource = new();
-    Debug.WriteLine($"Registration status: {registrationStatus}");
-    await DisplayAlert("Registration", $"Registration status: {registrationStatus}", "Okay");
+    Debug.WriteLine("Starting registration with RegistrationAgent...");
+
+    try
+    {
+      RegistrationDetails? registrationDetails = await _registrationAgent.RegisterAsync(appID);
+
+      if (registrationDetails != null && !string.IsNullOrEmpty(registrationDetails.RegistrationResult))
+      {
+        if (_viewModel != null)
+        {
+          _viewModel.RegistrationStatus = registrationDetails.RegistrationResult;
+          PortInfo.APIPort = registrationDetails.ApiPort;
+        }
+
+        Debug.WriteLine($"Registration status: {registrationDetails.RegistrationResult}");
+        await DisplayAlert("Registration", $"Registration status: {registrationDetails.RegistrationResult}", "Okay");
+      }
+      else
+      {
+        Debug.WriteLine("Registration failed or was cancelled.");
+        await DisplayAlert("Registration", "Registration failed or was cancelled.", "Okay");
+      }
+    }
+    catch (Exception ex)
+    {
+      Debug.WriteLine($"An error occurred during registration: {ex.Message}");
+      await DisplayAlert("Error", "An unexpected error occurred during registration.", "OK");
+    }
   }
 
   private async void GetReceiverButton_Clicked(object sender, EventArgs e)
