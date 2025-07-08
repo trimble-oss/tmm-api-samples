@@ -34,6 +34,26 @@ public partial class MainPage : ContentPage
 
     Debug.WriteLine("Starting registration with RegistrationAgent...");
 
+#if WINDOWS
+    try
+    {
+        _registrationStatusCompletionSource = new TaskCompletionSource<string>();
+
+        // Launch the URI.
+        await _registrationAgent.RegisterAsync(appID);
+
+        // Await the result from the TaskCompletionSource that UseUri will complete.
+        string registrationStatus = await _registrationStatusCompletionSource.Task;
+
+        Debug.WriteLine($"Registration completed with status: {registrationStatus}");
+        await DisplayAlert("Registration", $"Registration status: {registrationStatus}", "Okay");
+    }
+    catch (Exception ex)
+    {
+        Debug.WriteLine($"An error occurred during registration: {ex.Message}");
+        await DisplayAlert("Error", "An unexpected error occurred during registration.", "OK");
+    }
+#else
     try
     {
       RegistrationDetails? registrationDetails = await _registrationAgent.RegisterAsync(appID);
@@ -60,7 +80,9 @@ public partial class MainPage : ContentPage
       Debug.WriteLine($"An error occurred during registration: {ex.Message}");
       await DisplayAlert("Error", "An unexpected error occurred during registration.", "OK");
     }
+#endif
   }
+
 
   private async void GetReceiverButton_Clicked(object sender, EventArgs e)
   {
