@@ -1,10 +1,13 @@
 using System.Diagnostics;
+using System.Text;
+using System.Web;
 using CommunityToolkit.Mvvm.Messaging;
-using Newtonsoft.Json.Linq;
-using Maui_sample.RestApi;
-using Maui_sample.WebSocket;
-using Maui_sample.Utills;
 using Maui_sample.Models;
+using Maui_sample.RestApi;
+using Maui_sample.Utills;
+using Maui_sample.WebSocket;
+using Microsoft.Maui.Devices;
+using Newtonsoft.Json.Linq;
 
 namespace Maui_sample;
 
@@ -14,6 +17,10 @@ public partial class MainPage : ContentPage
   internal CancellationTokenSource? _cancellationTokenSource;
   internal MainPageViewModel? _viewModel => BindingContext as MainPageViewModel;
   private TaskCompletionSource<string> _registrationStatusCompletionSource = new();
+  private readonly RegistrationAgent _registrationAgent = new();
+
+  private readonly WebSocketMethods _webSocketMethods = new WebSocketMethods();
+
   public MainPage()
   {
     InitializeComponent();
@@ -23,26 +30,58 @@ public partial class MainPage : ContentPage
 
   private async void RegisterButton_Clicked(object sender, EventArgs e)
   {
-    //Register button. Should be first thing done to utilize the API.
-    // Run register URI. Check to see if the application ID is the same as the one stored in environment variables.
     string appID = Values.AppID;
 
     if (string.IsNullOrWhiteSpace(appID))
     {
-      Debug.WriteLine("Please enter an Application ID");
+      await DisplayAlert("Error", "Please enter an Application ID", "OK");
       return;
     }
-    
-    Debug.WriteLine("Starting registration...");
-    string requestId = "tmmRegister";
-    string callback = Uri.EscapeDataString("tmmapisample://response/tmmRegister");
 
-    await UtilMethods.checkRequest(requestId, callback, appID);
-    string registrationStatus = await _registrationStatusCompletionSource.Task;
-    // Waits until the registration Uri is returned by the UseUri method before continuing.
-    _registrationStatusCompletionSource = new();
-    Debug.WriteLine($"Registration status: {registrationStatus}");
-    await DisplayAlert("Registration", $"Registration status: {registrationStatus}", "Okay");
+    Debug.WriteLine("Starting registration with RegistrationAgent...");
+
+#if WINDOWS || IOS
+    try
+    {
+      _registrationStatusCompletionSource = new TaskCompletionSource<string>();
+      await _registrationAgent.RegisterAsync(appID);
+      string registrationStatus = await _registrationStatusCompletionSource.Task;
+
+      Debug.WriteLine($"Registration completed with status: {registrationStatus}");
+      await DisplayAlert("Registration", $"Registration status: {registrationStatus}", "Okay");
+    }
+    catch (Exception ex)
+    {
+      Debug.WriteLine($"An error occurred during registration: {ex.Message}");
+      await DisplayAlert("Error", "An unexpected error occurred during registration.", "OK");
+    }
+#else
+        try
+        {
+            RegistrationDetails? registrationDetails = await _registrationAgent.RegisterAsync(appID);
+
+            if (registrationDetails != null && !string.IsNullOrEmpty(registrationDetails.RegistrationResult))
+            {
+                if (_viewModel != null)
+                {
+                  _viewModel.RegistrationStatus = registrationDetails.RegistrationResult;
+                  PortInfo.APIPort = registrationDetails.ApiPort;
+                }
+                Debug.WriteLine($"Registration status: {registrationDetails.RegistrationResult}");
+                await DisplayAlert("Registration", $"Registration status: {registrationDetails.RegistrationResult}", "Okay");
+            }
+            else
+            {
+              Debug.WriteLine("Registration failed or was cancelled.");
+              await DisplayAlert("Registration", "Registration failed or was cancelled.", "Okay");
+            }
+        }
+        catch (Exception)
+        {
+          Debug.WriteLine("Registration failed or was cancelled.");
+          await DisplayAlert("Error", "An unexpected error occurred during registration.", "OK");
+        }
+#endif
   }
 
   private async void GetReceiverButton_Clicked(object sender, EventArgs e)
@@ -51,18 +90,14 @@ public partial class MainPage : ContentPage
     await ReceiverMethods.GetReceiverAsync(this);
   }
 
-  private readonly WebSocketMethods _webSocketMethods = new WebSocketMethods();
-  private readonly ReceiverMethods _receiverMethods = new ReceiverMethods();
-
   private async void StartPositionStreamButton_Clicked(object sender, EventArgs e)
   {
     // Third button in UI. Will attempt to start position stream.
     // Checks registration status. Alert user to register app if not. Otherwise will try to get position data via WebSocket.
-    
-    if (_viewModel.RegistrationStatus == "OK")
+    if (_viewModel?.RegistrationStatus == "OK")
     {
       // Checks if app is registered.
-      if (await _receiverMethods.CheckReceiverConnection())
+      if (await ReceiverMethods.CheckReceiverConnection())
       {
         // checks if receiver is connected.
         _startStop = !_startStop;
@@ -80,9 +115,12 @@ public partial class MainPage : ContentPage
           _cancellationTokenSource?.Dispose();
           _cancellationTokenSource = null;
 
-          _viewModel.Latitude = null;
-          _viewModel.Longitude = null;
-          _viewModel.Altitude = null;
+          if (_viewModel != null)
+          {
+            _viewModel.Latitude = null;
+            _viewModel.Longitude = null;
+            _viewModel.Altitude = null;
+          }
         }
       }
       else
@@ -90,58 +128,63 @@ public partial class MainPage : ContentPage
         // Pop up window to ask user if they'd like to configure their receiver.
         // Otherwise will take them to connection window.
         bool userResponse = await DisplayAlert("Receiver not connected to TMM", "Make sure you have connected the Receiver to the OS's bluetooth.\n\nWould you like to configure your Receiver?", "Yes", "No");
-        string requestId;
+        string requestId = userResponse ? "tmmOpenToConfiguration" : "tmmOpenToReceiverSelection";
         string callback = Uri.EscapeDataString("tmmapisample://response/");
-        if (userResponse)
-        {
-          requestId = "tmmOpenToConfiguration";
-        }
-        else
-        {
-          requestId = "tmmOpenToReceiverSelection";
-        }
         await UtilMethods.checkRequest(requestId, callback);
       }
     }
     else
     {
-      _viewModel.AreLabelsVisible = true;
-      _viewModel.Messages = "Please register your app first or connect receiver";
+      if (_viewModel != null)
+      {
+        _viewModel.AreLabelsVisible = true;
+        _viewModel.Messages = "Please register your app first or connect receiver";
+      }
     }
   }
 
   public void UseUri(Uri uri)
   {
-    // Retrieves the callback URI and processes it.
-    var queryParameters = uri.Query.TrimStart('?')
-        .Split('&', StringSplitOptions.RemoveEmptyEntries)
-        .Select(param => param.Split('='))
-        .ToDictionary(pair => pair[0], pair => Uri.UnescapeDataString(pair[1]));
-
-    var jsonObject = new JObject();
-    foreach (var param in queryParameters)
+    try
     {
-      jsonObject[param.Key] = param.Value;
-    }
+      string? registrationStatus = null;
+      string? apiPortString = null;
 
-    string responseJson = jsonObject.ToString();
-    Debug.WriteLine(responseJson);
-    var parsedJson = JObject.Parse(responseJson);
-
-    // Gets the status and apiPort from the response Json. This can then be used for other functions in the app.
-    string? registrationStatus = parsedJson["status"]?.ToString();
-    string? apiPortString = parsedJson["apiPort"]?.ToString();
-
-    if (_viewModel != null && !string.IsNullOrEmpty(registrationStatus))
-    {
-      _viewModel.RegistrationStatus = registrationStatus;
-      _registrationStatusCompletionSource.SetResult(registrationStatus);
-      // Sets the completion source. This is then passed to the Register button method when task is completed.
-      if (int.TryParse(apiPortString, out int apiPort))
+      if (DeviceInfo.Current.Platform == DevicePlatform.iOS)
       {
-        PortInfo.APIPort = apiPort;
+        string base64Json = uri.Query.TrimStart('?');
+        byte[] jsonBytes = Convert.FromBase64String(base64Json);
+        string responseJson = Encoding.UTF8.GetString(jsonBytes);
+        var parsedJson = JObject.Parse(responseJson);
+        registrationStatus = parsedJson["registrationResult"]?.ToString();
+        apiPortString = parsedJson["apiPort"]?.ToString();
       }
-      // Task completed. Passes registrationStatus back to the Register Button.
+      else
+      {
+        var queryParameters = HttpUtility.ParseQueryString(uri.Query);
+        registrationStatus = queryParameters["status"];
+        apiPortString = queryParameters["apiPort"];
+      }
+
+      if (_viewModel != null && !string.IsNullOrEmpty(registrationStatus))
+      {
+        _viewModel.RegistrationStatus = registrationStatus;
+        _registrationStatusCompletionSource.TrySetResult(registrationStatus);
+
+        if (int.TryParse(apiPortString, out int apiPort))
+        {
+          PortInfo.APIPort = apiPort;
+        }
+      }
+      else
+      {
+        _registrationStatusCompletionSource.TrySetResult("Failed: No status in response");
+      }
+    }
+    catch (Exception ex)
+    {
+      Debug.WriteLine($"Error processing callback URI: {ex.Message}");
+      _registrationStatusCompletionSource.TrySetException(ex);
     }
   }
 }

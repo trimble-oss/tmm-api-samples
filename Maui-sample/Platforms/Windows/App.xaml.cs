@@ -52,23 +52,11 @@ namespace Maui_sample.WinUI
 
     private void HandleProtocolActivation(AppActivationArguments args)
     {
-      if (args.Kind == ExtendedActivationKind.Protocol && args.Data is ProtocolActivatedEventArgs protocolArgs)
+      if (args.Kind == ExtendedActivationKind.Protocol && args.Data is IProtocolActivatedEventArgs protocolArgs)
       {
-        Uri uri = protocolArgs.Uri;
+        System.Uri uri = protocolArgs.Uri;
         Debug.WriteLine($"Received URI: {uri}");
-        if (uri.AbsolutePath.StartsWith("/tmmRegister"))
-        // the AbsolutePath value seems to be /tmmRegister at this point
-        {
-          // this is the callbackUri sent to TMM earlier
-          NameValueCollection queryDictionary = HttpUtility.ParseQueryString(uri.Query);
-          string id = queryDictionary["id"]; // "tmmRegister"
-          string status = queryDictionary["status"]; // “success” or “error”
-          string message = queryDictionary["message "]; // Additional information
-          string registrationResult = queryDictionary["registrationResult"]; // “OK”, “NoNetwork”, or “Unauthorized”
-          int.TryParse(queryDictionary["apiPort"], out var apiPort); // The REST API is at $"WS://localhost:{apiPort}"
-
-          WeakReferenceMessenger.Default.Send(new UriMessage(uri));
-        }
+        WeakReferenceMessenger.Default.Send(new UriMessage(uri));
       }
     }
 
