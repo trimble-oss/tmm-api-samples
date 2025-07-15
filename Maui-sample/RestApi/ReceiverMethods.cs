@@ -26,8 +26,7 @@ namespace Maui_sample.RestApi
     public static async Task GetReceiverAsync(MainPage mainPage)
     {
       // Ran after Receiver button is clicked. Will attempt to retrieve the connected receiver's name.
-      string registrationStatus = mainPage._viewModel?.RegistrationStatus;
-      if (registrationStatus != "OK")
+      if (mainPage._viewModel?.IsRegistered == false)
       {
         mainPage._viewModel.ReceiverName = "Please register your app and try again.";
         return;

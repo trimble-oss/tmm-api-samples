@@ -6,7 +6,7 @@ using AndroidX.Activity.Result.Contract;
 
 namespace Maui_sample;
 
-internal partial class RegistrationAgent
+public partial class RegistrationAgent
 {
   internal class CustomActivityResultCallback : Java.Lang.Object, IActivityResultCallback
   {
@@ -28,7 +28,7 @@ internal partial class RegistrationAgent
   private readonly MainActivity? _mainActivity;
   private TaskCompletionSource<ActivityResult>? _taskCompletionSource;
 
-  public RegistrationAgent()
+  private RegistrationAgent()
   {
     _mainActivity = Platform.CurrentActivity as MainActivity;
     _activityResultLauncher = _mainActivity?.RegisterForActivityResult(

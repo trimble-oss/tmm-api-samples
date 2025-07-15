@@ -8,8 +8,14 @@ using UIKit;
 
 namespace Maui_sample;
 
-internal partial class RegistrationAgent
+public partial class RegistrationAgent
 {
+  private TaskCompletionSource<System.Uri>? _registrationResult;
+
+  private RegistrationAgent()
+  {
+  }
+
   public partial async Task<RegistrationDetails?> RegisterAsync(string applicationID)
   {
     try
@@ -31,9 +37,15 @@ internal partial class RegistrationAgent
 
       Debug.WriteLine($"Launching corrected URI for iOS registration: {uriString}");
 
-      bool success = await Launcher.Default.TryOpenAsync(uriString);
+      _registrationResult = new();
 
-      if (!success)
+      bool success = await Launcher.Default.TryOpenAsync(uriString);
+      if (success)
+      {
+        Uri uri = await _registrationResult.Task;
+        return GetRegistrationDetails(uri);
+      }
+      else
       {
         Debug.WriteLine("Failed to launch the registration URI. Is Trimble Mobile Manager installed and is 'tmmregister' in LSApplicationQueriesSchemes in Info.plist?");
 
@@ -62,5 +74,31 @@ internal partial class RegistrationAgent
     }
 
     return null;
+  }
+
+  private RegistrationDetails GetRegistrationDetails(System.Uri uri)
+  {
+    RegistrationDetails registrationDetails = new();
+
+    string json = Encoding.UTF8.GetString(Convert.FromBase64String(uri.Query.Substring(1)));
+    JObject data = JObject.Parse(json);
+    if (data is not null)
+    {
+      if (data.ContainsKey("registrationResult"))
+      {
+        registrationDetails.RegistrationResult = data["registrationResult"].ToString();
+      }
+      if (data.ContainsKey("apiPort"))
+      {
+        registrationDetails.ApiPort = int.Parse(data["apiPort"].ToString());
+      }
+    }
+
+    return registrationDetails;
+  }
+
+  public void HandleUri(Uri uri)
+  {
+    _registrationResult?.TrySetResult(uri);
   }
 }

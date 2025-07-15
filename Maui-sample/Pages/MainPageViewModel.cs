@@ -71,6 +71,7 @@ namespace Maui_sample
       set => this.RaiseAndSetIfChanged(ref _registrationStatus, value);
     }
 
+    public bool IsRegistered => RegistrationStatus == "OK" || RegistrationStatus == "success";
 
     public MainPageViewModel()
     {

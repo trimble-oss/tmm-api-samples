@@ -56,7 +56,7 @@ namespace Maui_sample.WinUI
       {
         System.Uri uri = protocolArgs.Uri;
         Debug.WriteLine($"Received URI: {uri}");
-        WeakReferenceMessenger.Default.Send(new UriMessage(uri));
+        RegistrationAgent.Instance.HandleUri(uri);
       }
     }
 

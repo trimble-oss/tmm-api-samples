@@ -17,15 +17,13 @@ public partial class MainPage : ContentPage
   internal CancellationTokenSource? _cancellationTokenSource;
   internal MainPageViewModel? _viewModel => BindingContext as MainPageViewModel;
   private TaskCompletionSource<string> _registrationStatusCompletionSource = new();
-  private readonly RegistrationAgent _registrationAgent = new();
 
   private readonly WebSocketMethods _webSocketMethods = new WebSocketMethods();
 
   public MainPage()
   {
+    RegistrationAgent.Instance.Initialize();
     InitializeComponent();
-    WeakReferenceMessenger.Default.Register<UriMessage>(this, (r, m) => UseUri(m.Value));
-    // Messenger allows App.xaml.cs to pass the callback uri to MainPage
   }
 
   private async void RegisterButton_Clicked(object sender, EventArgs e)
@@ -40,48 +38,31 @@ public partial class MainPage : ContentPage
 
     Debug.WriteLine("Starting registration with RegistrationAgent...");
 
-#if WINDOWS || IOS
     try
     {
-      _registrationStatusCompletionSource = new TaskCompletionSource<string>();
-      await _registrationAgent.RegisterAsync(appID);
-      string registrationStatus = await _registrationStatusCompletionSource.Task;
+      RegistrationDetails? registrationDetails = await RegistrationAgent.Instance.RegisterAsync(appID);
 
-      Debug.WriteLine($"Registration completed with status: {registrationStatus}");
-      await DisplayAlert("Registration", $"Registration status: {registrationStatus}", "Okay");
+      if (registrationDetails != null && !string.IsNullOrEmpty(registrationDetails.RegistrationResult))
+      {
+        if (_viewModel != null)
+        {
+          _viewModel.RegistrationStatus = registrationDetails.RegistrationResult;
+          PortInfo.APIPort = registrationDetails.ApiPort;
+        }
+        Debug.WriteLine($"Registration status: {registrationDetails.RegistrationResult}");
+        await DisplayAlert("Registration", $"Registration status: {registrationDetails.RegistrationResult}", "Okay");
+      }
+      else
+      {
+        Debug.WriteLine("Registration failed or was cancelled.");
+        await DisplayAlert("Registration", "Registration failed or was cancelled.", "Okay");
+      }
     }
-    catch (Exception ex)
+    catch (Exception)
     {
-      Debug.WriteLine($"An error occurred during registration: {ex.Message}");
+      Debug.WriteLine("Registration failed or was cancelled.");
       await DisplayAlert("Error", "An unexpected error occurred during registration.", "OK");
     }
-#else
-        try
-        {
-            RegistrationDetails? registrationDetails = await _registrationAgent.RegisterAsync(appID);
-
-            if (registrationDetails != null && !string.IsNullOrEmpty(registrationDetails.RegistrationResult))
-            {
-                if (_viewModel != null)
-                {
-                  _viewModel.RegistrationStatus = registrationDetails.RegistrationResult;
-                  PortInfo.APIPort = registrationDetails.ApiPort;
-                }
-                Debug.WriteLine($"Registration status: {registrationDetails.RegistrationResult}");
-                await DisplayAlert("Registration", $"Registration status: {registrationDetails.RegistrationResult}", "Okay");
-            }
-            else
-            {
-              Debug.WriteLine("Registration failed or was cancelled.");
-              await DisplayAlert("Registration", "Registration failed or was cancelled.", "Okay");
-            }
-        }
-        catch (Exception)
-        {
-          Debug.WriteLine("Registration failed or was cancelled.");
-          await DisplayAlert("Error", "An unexpected error occurred during registration.", "OK");
-        }
-#endif
   }
 
   private async void GetReceiverButton_Clicked(object sender, EventArgs e)
@@ -94,7 +75,7 @@ public partial class MainPage : ContentPage
   {
     // Third button in UI. Will attempt to start position stream.
     // Checks registration status. Alert user to register app if not. Otherwise will try to get position data via WebSocket.
-    if (_viewModel?.RegistrationStatus == "OK")
+    if (_viewModel?.IsRegistered == true)
     {
       // Checks if app is registered.
       if (await ReceiverMethods.CheckReceiverConnection())
