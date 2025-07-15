@@ -17,18 +17,18 @@ namespace Maui_sample.RestApi
       return new HttpClient
       {
         BaseAddress = new Uri(baseAddress),
-        Timeout = TimeSpan.FromSeconds(15) 
+        Timeout = TimeSpan.FromSeconds(15)
       };
     });
 
     private static HttpClient Client => _lazyClient.Value;
 
-    public static async Task GetReceiverAsync(MainPage mainPage)
+    public static async Task GetReceiverAsync(MainPageViewModel vm)
     {
       // Ran after Receiver button is clicked. Will attempt to retrieve the connected receiver's name.
-      if (mainPage._viewModel?.IsRegistered == false)
+      if (vm.IsRegistered == false)
       {
-        mainPage._viewModel.ReceiverName = "Please register your app and try again.";
+        vm.ReceiverName = "Please register your app and try again.";
         return;
       }
 
@@ -40,19 +40,13 @@ namespace Maui_sample.RestApi
         var JsonPayload = JToken.Parse(payload);
         // Gets the receiver's bluetooth name from the returned json.
         string? receiverName = JsonPayload["bluetoothName"]?.ToString();
-        if (mainPage._viewModel != null)
-        {
-          mainPage._viewModel.ReceiverName = receiverName;
-        }
+        vm.ReceiverName = receiverName ?? string.Empty;
       }
       else
       {
         Debug.WriteLine($"[GetReceiverAsync] Failed to get receiver. Status: {response?.StatusCode}");
-        if (mainPage._viewModel != null)
-        {
-          // If app isn't registered, will ask user to register app.
-          mainPage._viewModel.ReceiverName = "Failed to get receiver.";
-        }
+        // If app isn't registered, will ask user to register app.
+        vm.ReceiverName = "Failed to get receiver.";
       }
     }
 

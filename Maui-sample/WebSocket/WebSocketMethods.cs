@@ -13,14 +13,14 @@ namespace Maui_sample.WebSocket
 {
   public class WebSocketMethods
   {
-    internal async Task ReadPositionsAsync(MainPage mainPage, CancellationToken cancel)
+    internal async Task ReadPositionsAsync(MainPageViewModel vm, CancellationTokenSource cancel)
     {
       // Called when app tries to connect to the WebSocket.
       // Needs the cancellation token used in main page to disconnect WebSocket when receiver not connected.
       try
       {
         // query for the WebSocket position port.
-        int port = await GetPositionStreamPortAsync(mainPage);
+        int port = await GetPositionStreamPortAsync(vm);
         if (port == 0)
         {
           Debug.WriteLine("Failed to get a valid position stream port.");
@@ -29,46 +29,15 @@ namespace Maui_sample.WebSocket
 
         // connect to the WebSocket using the aforementioned WebSocket position port.
         using ClientWebSocket client = new ClientWebSocket();
-        await client.ConnectAsync(new Uri($"ws://localhost:{port}"), cancel);
+        await client.ConnectAsync(new Uri($"ws://localhost:{port}"), cancel.Token);
 
-        if (!await ReceiverMethods.CheckReceiverConnection())
-        {
-          mainPage._viewModel.AreLabelsVisible = true;
-          mainPage._viewModel.Messages = "Please connect receiver.";
-          // Open the TMM select device window if receiver is not connected.
-          try
-          {
-            string requestId = "tmmOpenToReceiverSelection";
-            string callback = Uri.EscapeDataString("tmmapisample://response/");
-
-            if (!await UtilMethods.checkRequest(requestId, callback))
-            {
-              mainPage._viewModel.Messages = "Failed to connect to receiver...";
-              // Cancel task if receiver didn't connect after opening TMM.
-              mainPage._cancellationTokenSource?.Cancel();
-            }
-          }
-          catch (Exception ex)
-          {
-            Debug.WriteLine(ex.Message);
-          }
-
-          // Cancel task if receiver not connected.
-          mainPage._cancellationTokenSource?.Cancel();
-          return;
-        }
-        else
-        {
-          mainPage._viewModel.AreLabelsVisible = false;
-        }
-
-        while (!cancel.IsCancellationRequested && await ReceiverMethods.CheckReceiverConnection())
+        while (!cancel.IsCancellationRequested)
         {
           // Will continue to run as long as the WebSocket and receiver are connected.
-          mainPage._viewModel.AreLabelsVisible = false;
+          vm.AreLabelsVisible = false;
           // Gets the next set of position data.
           var data = new ArraySegment<byte>(new byte[10240]);
-          WebSocketReceiveResult result = await client.ReceiveAsync(data, cancel);
+          WebSocketReceiveResult result = await client.ReceiveAsync(data, cancel.Token);
           // Stops here if no receiver info
 
           if (result.MessageType == WebSocketMessageType.Close)
@@ -87,12 +56,12 @@ namespace Maui_sample.WebSocket
               double? latitude = jnode["latitude"]?.GetValue<double>();
               double? longitude = jnode["longitude"]?.GetValue<double>();
               double? altitude = jnode["altitude"]?.GetValue<double>();
-              if (mainPage._viewModel != null)
+              if (vm != null)
               {
                 // Updates the UI to show the lat, long and alt data.
-                mainPage._viewModel.Latitude = latitude;
-                mainPage._viewModel.Longitude = longitude;
-                mainPage._viewModel.Altitude = altitude;
+                vm.Latitude = latitude;
+                vm.Longitude = longitude;
+                vm.Altitude = altitude;
               }
             }
           }
@@ -109,12 +78,12 @@ namespace Maui_sample.WebSocket
       }
     }
 
-    private static async Task<int> GetPositionStreamPortAsync(MainPage mainPage)
+    private static async Task<int> GetPositionStreamPortAsync(MainPageViewModel vm)
     {
       try
       {
         // This will return the port number to the app so it can connect to the WebSocket.
-        string? appID = mainPage._viewModel?.ApplicationID;
+        string? appID = vm.ApplicationID;
 
         string baseAddress = $"http://localhost:{PortInfo.APIPort}/";
 

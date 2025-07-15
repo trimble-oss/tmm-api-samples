@@ -15,7 +15,7 @@ public partial class MainPage : ContentPage
 {
   private bool _startStop = false;
   internal CancellationTokenSource? _cancellationTokenSource;
-  internal MainPageViewModel? _viewModel => BindingContext as MainPageViewModel;
+  internal MainPageViewModel? ViewModel => BindingContext as MainPageViewModel;
   private TaskCompletionSource<string> _registrationStatusCompletionSource = new();
 
   private readonly WebSocketMethods _webSocketMethods = new WebSocketMethods();
@@ -44,9 +44,9 @@ public partial class MainPage : ContentPage
 
       if (registrationDetails != null && !string.IsNullOrEmpty(registrationDetails.RegistrationResult))
       {
-        if (_viewModel != null)
+        if (ViewModel != null)
         {
-          _viewModel.RegistrationStatus = registrationDetails.RegistrationResult;
+          ViewModel.RegistrationStatus = registrationDetails.RegistrationResult;
           PortInfo.APIPort = registrationDetails.ApiPort;
         }
         Debug.WriteLine($"Registration status: {registrationDetails.RegistrationResult}");
@@ -68,14 +68,17 @@ public partial class MainPage : ContentPage
   private async void GetReceiverButton_Clicked(object sender, EventArgs e)
   {
     // second button in UI. Retrieves the connected receiver's name.
-    await ReceiverMethods.GetReceiverAsync(this);
+    if (ViewModel is not null)
+    {
+      await ReceiverMethods.GetReceiverAsync(ViewModel);
+    }
   }
 
   private async void StartPositionStreamButton_Clicked(object sender, EventArgs e)
   {
     // Third button in UI. Will attempt to start position stream.
     // Checks registration status. Alert user to register app if not. Otherwise will try to get position data via WebSocket.
-    if (_viewModel?.IsRegistered == true)
+    if (ViewModel?.IsRegistered == true)
     {
       // Checks if app is registered.
       if (await ReceiverMethods.CheckReceiverConnection())
@@ -86,7 +89,7 @@ public partial class MainPage : ContentPage
         if (_startStop)
         {
           _cancellationTokenSource = new CancellationTokenSource();
-          await _webSocketMethods.ReadPositionsAsync(this, _cancellationTokenSource.Token);
+          await _webSocketMethods.ReadPositionsAsync(ViewModel, _cancellationTokenSource);
         }
         else
         {
@@ -96,11 +99,11 @@ public partial class MainPage : ContentPage
           _cancellationTokenSource?.Dispose();
           _cancellationTokenSource = null;
 
-          if (_viewModel != null)
+          if (ViewModel != null)
           {
-            _viewModel.Latitude = null;
-            _viewModel.Longitude = null;
-            _viewModel.Altitude = null;
+            ViewModel.Latitude = null;
+            ViewModel.Longitude = null;
+            ViewModel.Altitude = null;
           }
         }
       }
@@ -108,64 +111,18 @@ public partial class MainPage : ContentPage
       {
         // Pop up window to ask user if they'd like to configure their receiver.
         // Otherwise will take them to connection window.
-        bool userResponse = await DisplayAlert("Receiver not connected to TMM", "Make sure you have connected the Receiver to the OS's bluetooth.\n\nWould you like to configure your Receiver?", "Yes", "No");
-        string requestId = userResponse ? "tmmOpenToConfiguration" : "tmmOpenToReceiverSelection";
-        string callback = Uri.EscapeDataString("tmmapisample://response/");
-        await UtilMethods.checkRequest(requestId, callback);
+        await DisplayAlert("Receiver Not Connected",
+          "Connect to a receiver in TMM to start streaming positions.",
+          "Okay");
       }
     }
     else
     {
-      if (_viewModel != null)
+      if (ViewModel != null)
       {
-        _viewModel.AreLabelsVisible = true;
-        _viewModel.Messages = "Please register your app first or connect receiver";
+        ViewModel.AreLabelsVisible = true;
+        ViewModel.Messages = "Please register your app first or connect receiver";
       }
-    }
-  }
-
-  public void UseUri(Uri uri)
-  {
-    try
-    {
-      string? registrationStatus = null;
-      string? apiPortString = null;
-
-      if (DeviceInfo.Current.Platform == DevicePlatform.iOS)
-      {
-        string base64Json = uri.Query.TrimStart('?');
-        byte[] jsonBytes = Convert.FromBase64String(base64Json);
-        string responseJson = Encoding.UTF8.GetString(jsonBytes);
-        var parsedJson = JObject.Parse(responseJson);
-        registrationStatus = parsedJson["registrationResult"]?.ToString();
-        apiPortString = parsedJson["apiPort"]?.ToString();
-      }
-      else
-      {
-        var queryParameters = HttpUtility.ParseQueryString(uri.Query);
-        registrationStatus = queryParameters["status"];
-        apiPortString = queryParameters["apiPort"];
-      }
-
-      if (_viewModel != null && !string.IsNullOrEmpty(registrationStatus))
-      {
-        _viewModel.RegistrationStatus = registrationStatus;
-        _registrationStatusCompletionSource.TrySetResult(registrationStatus);
-
-        if (int.TryParse(apiPortString, out int apiPort))
-        {
-          PortInfo.APIPort = apiPort;
-        }
-      }
-      else
-      {
-        _registrationStatusCompletionSource.TrySetResult("Failed: No status in response");
-      }
-    }
-    catch (Exception ex)
-    {
-      Debug.WriteLine($"Error processing callback URI: {ex.Message}");
-      _registrationStatusCompletionSource.TrySetException(ex);
     }
   }
 }
