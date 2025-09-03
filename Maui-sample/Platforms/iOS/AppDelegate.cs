@@ -15,9 +15,8 @@ public class AppDelegate : MauiUIApplicationDelegate
   {
     if (url?.AbsoluteString is not null)
     {
-      var uri = new System.Uri(url.AbsoluteString);
+      var uri = new Uri(url.AbsoluteString);
       RegistrationAgent.Instance.HandleUri(uri);
-      WeakReferenceMessenger.Default.Send(new UriMessage(uri));
       return true;
     }
 

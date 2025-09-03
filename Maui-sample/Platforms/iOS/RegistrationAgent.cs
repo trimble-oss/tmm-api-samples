@@ -20,12 +20,14 @@ public partial class RegistrationAgent
   {
     try
     {
-      string callbackUrl = "tmmapisample://response";
+      // TMM will open this URL to pass back the registration result.
+      // Ensure this matches the scheme registered in Info.plist under CFBundleURLTypes.
+      string returnURL = "tmmapisample://response";
 
       var payload = new JObject
       {
         ["application_id"] = applicationID,
-        ["returl"] = callbackUrl
+        ["returl"] = returnURL
       };
 
       string jsonPayload = payload.ToString(Newtonsoft.Json.Formatting.None);
