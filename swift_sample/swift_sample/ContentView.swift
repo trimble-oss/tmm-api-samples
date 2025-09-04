@@ -19,7 +19,7 @@ struct ContentView: View {
     "Swift Sample: Version \(versionNumber)"
   }
   
-  @State private var appID: String = ""
+  @State private var appID: String = UserDefaults.standard.string(forKey: "appID") ?? ""
   @State private var receiverName: String = ""
   
   // Registration - Allows the UI to receive the callback URL
@@ -159,6 +159,9 @@ private func register(with appID: String) {
   ]
   
   do {
+    // save the appID for later
+    UserDefaults.standard.set(appID, forKey: "appID")
+    
     let jsonData = try JSONSerialization.data(withJSONObject: params, options: [])
     let jsonString = String(data: jsonData, encoding: .utf8)
     let base64Encoded = jsonString?.data(using: .utf8)?.base64EncodedString() ?? ""
