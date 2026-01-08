@@ -60,13 +60,19 @@ class ReceiverClass {
       
       do {
         if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-          let bluetoothName = json["bluetoothName"] as? String ?? "App is not registered"
           let isConnected = json["isConnected"] as? Int ?? 0
+          var receiverModel = json["receiverModel"] as? String
+          let receiverSerialNumber = json["receiverSerialNumber"] as? String
+          if receiverModel == nil || receiverSerialNumber == nil{
+            receiverModel = "No receiver configured"
+          } else {
+            receiverModel = receiverModel! + " " + receiverSerialNumber!
+          }
           DispatchQueue.main.async {
   //          Updates to UI's must be completed on the main thread.
             if returnReceiverName {
 //              returns required property, back to the UI.
-              completion(bluetoothName, nil)
+              completion(receiverModel, nil)
             } else {
               completion(nil, isConnected)
             }
