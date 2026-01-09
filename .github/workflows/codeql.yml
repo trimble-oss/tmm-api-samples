@@ -90,7 +90,7 @@ jobs:
       if: matrix.build-mode == 'manual' && matrix.language == 'csharp'
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '8.0.x'
+        dotnet-version: '9.0.x'
 
     - name: Run manual build steps
       if: matrix.build-mode == 'manual'
@@ -111,7 +111,7 @@ jobs:
           # Build Android target (works on ubuntu-latest)
           # Building one target is sufficient for CodeQL analysis
           dotnet build Maui-sample.csproj \
-            -f net8.0-android \
+            -f net9.0-android \
             -c Release
         else
           echo 'If you are using a "manual" build mode for one or more of the' \
