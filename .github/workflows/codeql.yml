@@ -44,7 +44,7 @@ jobs:
       matrix:
         include:
         - language: csharp
-          build-mode: none
+          build-mode: manual
         - language: java-kotlin
           build-mode: autobuild
         - language: swift
@@ -86,6 +86,12 @@ jobs:
     # to build your code.
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
+    - name: Setup .NET
+      if: matrix.build-mode == 'manual' && matrix.language == 'csharp'
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
     - name: Run manual build steps
       if: matrix.build-mode == 'manual'
       shell: bash
@@ -100,6 +106,13 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO
+        elif [ "${{ matrix.language }}" == "csharp" ]; then
+          cd Maui-sample
+          # Build Android target (works on ubuntu-latest)
+          # Building one target is sufficient for CodeQL analysis
+          dotnet build Maui-sample.csproj \
+            -f net8.0-android \
+            -c Release
         else
           echo 'If you are using a "manual" build mode for one or more of the' \
             'languages you are analyzing, replace this with the commands to build' \
