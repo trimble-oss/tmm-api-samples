@@ -115,9 +115,11 @@ jobs:
           cd Maui-sample
           # Build Android target (works on ubuntu-latest)
           # Building one target is sufficient for CodeQL analysis
+          # Override TargetFrameworks to only build Android and avoid iOS/Windows evaluation
           dotnet build Maui-sample.csproj \
             -f net9.0-android \
-            -c Release
+            -c Release \
+            /p:TargetFrameworks=net9.0-android
         else
           echo 'If you are using a "manual" build mode for one or more of the' \
             'languages you are analyzing, replace this with the commands to build' \
