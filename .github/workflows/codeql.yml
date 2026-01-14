@@ -106,7 +106,7 @@ jobs:
           xcodebuild -project swift_sample.xcodeproj \
             -scheme swift_sample \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=Any iOS Device' \
+            -destination "platform=iOS Simulator,name=Any iOS Simulator Device" \
             clean build \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
