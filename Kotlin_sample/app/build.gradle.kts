@@ -52,3 +52,11 @@ dependencies {
     implementation (libs.okhttp)
   implementation(libs.kotlinx.serialization.json)
 }
+
+configurations.all {
+    resolutionStrategy {
+        force("io.netty:netty-codec-http2:4.1.125.Final")
+        force("commons-io:commons-io:2.21.0")
+        force("com.google.protobuf:protobuf-java:4.33.1")
+    }
+}
