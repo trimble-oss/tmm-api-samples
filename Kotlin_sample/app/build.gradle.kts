@@ -59,6 +59,6 @@ configurations.all {
         force("io.netty:netty-codec-http:4.1.129.Final")
         force("commons-io:commons-io:2.21.0")
         force("com.google.protobuf:protobuf-java:4.33.1")
-        force("com.google.protobuf:protobuf-kotlin:4.28.2")
+        force("com.google.protobuf:protobuf-kotlin:4.33.1")
     }
 }
