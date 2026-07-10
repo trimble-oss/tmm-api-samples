@@ -35,21 +35,40 @@ namespace Maui_sample.WebSocket
         {
           // Will continue to run as long as the WebSocket and receiver are connected.
           vm.AreLabelsVisible = false;
-          // Gets the next set of position data.
-          var data = new ArraySegment<byte>(new byte[10240]);
-          WebSocketReceiveResult result = await client.ReceiveAsync(data, cancel.Token);
-          // Stops here if no receiver info
 
-          if (result.MessageType == WebSocketMessageType.Close)
+          using MemoryStream messageBuffer = new();
+          var buffer = new ArraySegment<byte>(new byte[1024]);
+          WebSocketReceiveResult result;
+          bool closed = false;
+
+          // A single message may arrive across multiple WebSocket frames.
+          do
           {
-            await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+            result = await client.ReceiveAsync(buffer, cancel.Token);
+
+            if (result.MessageType == WebSocketMessageType.Close)
+            {
+              await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+              closed = true;
+              break;
+            }
+
+            if (result.Count > 0)
+            {
+              messageBuffer.Write(buffer.Array!, buffer.Offset, result.Count);
+            }
+          }
+          while (!result.EndOfMessage);
+
+          if (closed)
+          {
             break;
           }
 
-          if (result.Count > 0 && result.MessageType == WebSocketMessageType.Text)
+          if (result.MessageType == WebSocketMessageType.Text && messageBuffer.Length > 0)
           {
             // parse the position data.
-            string jsonString = Encoding.UTF8.GetString(data.ToArray(), 0, result.Count);
+            string jsonString = Encoding.UTF8.GetString(messageBuffer.ToArray());
             JsonNode? jnode = JsonNode.Parse(jsonString);
             if (jnode is not null)
             {
