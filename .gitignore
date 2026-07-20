@@ -204,8 +204,11 @@ Scripts/Jira/.venv/
 *.externalNativeBuild
 *.cxx
 *local.properties
-<<<<<<< HEAD
 # Custom file to use as storage for AppID
 *sensitiveData.properties
-=======
->>>>>>> main
+
+# Node.js / pnpm
+node_modules/
+dist/
+.env
+.env.local

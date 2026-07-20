@@ -1,0 +1,7 @@
+{
+  "name": "tmm-api-samples",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --parallel --filter \"./web-sample/*\" dev"
+  }
+}
