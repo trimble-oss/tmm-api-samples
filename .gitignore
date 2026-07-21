@@ -213,3 +213,4 @@ dist/
 .env
 .env.local
 .vscode/
+web-sample/frontend/.vite/
