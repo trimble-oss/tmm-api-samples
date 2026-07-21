@@ -30,4 +30,5 @@ export interface LocationV2DataMessage {
 export interface GnssPosition {
   latitude: number;
   longitude: number;
+  hrms: number | null;
 }

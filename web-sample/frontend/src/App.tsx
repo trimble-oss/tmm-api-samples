@@ -21,6 +21,7 @@ function parsePosition(message: LocationV2DataMessage): GnssPosition | null {
   return {
     latitude: message.latitude,
     longitude: message.longitude,
+    hrms: message.hrms,
   };
 }
 
@@ -189,8 +190,16 @@ export default function App() {
         <MapView position={position} />
         {position && (
           <div className="position-overlay" aria-live="polite">
-            <span>Latitude: {position.latitude.toFixed(8)}</span>
-            <span>Longitude: {position.longitude.toFixed(8)}</span>
+            <span className="position-label">Latitude</span>
+            <span className="position-value">{position.latitude.toFixed(8)}</span>
+            <span className="position-label">Longitude</span>
+            <span className="position-value">{position.longitude.toFixed(8)}</span>
+            {position.hrms != null && (
+              <>
+                <span className="position-label">Accuracy</span>
+                <span className="position-value">{position.hrms.toFixed(3)} m</span>
+              </>
+            )}
           </div>
         )}
       </section>

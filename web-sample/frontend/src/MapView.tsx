@@ -82,8 +82,6 @@ export default function MapView({ position }: MapViewProps) {
     if (!hasCenteredRef.current) {
       map.setView(latLng, 18);
       hasCenteredRef.current = true;
-    } else {
-      map.panTo(latLng);
     }
   }, [position]);
 
