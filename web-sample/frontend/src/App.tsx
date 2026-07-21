@@ -1,131 +1,200 @@
-import { FormEvent, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import MapView from "./MapView";
+import { TMM_WEBSOCKET_URL } from "./constants";
+import {
+  connectReceiver,
+  fetchAccessCodeV2FromBackend,
+  fetchReceiverInfo,
+  fetchTmmPublicKey,
+  submitPublicKeyToBackend,
+} from "./tmmApi";
+import type { GnssPosition, LocationV2DataMessage } from "./types";
 import "./App.css";
 
+type ConnectionState = "disconnected" | "connecting" | "connected";
+
+function parsePosition(message: LocationV2DataMessage): GnssPosition | null {
+  if (message.latitude == null || message.longitude == null) {
+    return null;
+  }
+
+  return {
+    latitude: message.latitude,
+    longitude: message.longitude,
+  };
+}
+
 export default function App() {
-  const [publicKeyJson, setPublicKeyJson] = useState(
-    '{\n  "kty": "RSA",\n  "n": "",\n  "e": "AQAB"\n}',
-  );
-  const [healthStatus, setHealthStatus] = useState("");
-  const [publicKeyStatus, setPublicKeyStatus] = useState("");
-  const [accessCodeV2, setAccessCodeV2] = useState("");
+  const [connectionState, setConnectionState] = useState<ConnectionState>("disconnected");
+  const [position, setPosition] = useState<GnssPosition | null>(null);
+  const [statusMessage, setStatusMessage] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const webSocketRef = useRef<WebSocket | null>(null);
+  const disconnectingRef = useRef(false);
 
-  async function checkHealth() {
-    setError("");
-    setHealthStatus("");
-
-    try {
-      const response = await fetch("/api/health");
-      const data = await response.json();
-      setHealthStatus(JSON.stringify(data, null, 2));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Health check failed.");
+  const closeWebSocket = useCallback(() => {
+    const socket = webSocketRef.current;
+    if (!socket) {
+      return;
     }
-  }
 
-  async function submitPublicKey(event: FormEvent) {
-    event.preventDefault();
+    disconnectingRef.current = true;
+    socket.onopen = null;
+    socket.onmessage = null;
+    socket.onerror = null;
+    socket.onclose = null;
+
+    if (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING) {
+      socket.close();
+    }
+
+    webSocketRef.current = null;
+  }, []);
+
+  const disconnect = useCallback(() => {
+    closeWebSocket();
+    disconnectingRef.current = false;
+    setPosition(null);
+    setConnectionState("disconnected");
+    setStatusMessage("");
     setError("");
-    setPublicKeyStatus("");
-    setLoading(true);
+  }, [closeWebSocket]);
+
+  const openPositionStream = useCallback(() => {
+    return new Promise<void>((resolve, reject) => {
+      disconnectingRef.current = false;
+      const socket = new WebSocket(TMM_WEBSOCKET_URL);
+      webSocketRef.current = socket;
+
+      socket.onopen = () => {
+        setConnectionState("connected");
+        setStatusMessage("Receiving GNSS positions from TMM.");
+        resolve();
+      };
+
+      socket.onmessage = (event) => {
+        try {
+          const message = JSON.parse(String(event.data)) as LocationV2DataMessage;
+          const nextPosition = parsePosition(message);
+          if (nextPosition) {
+            setPosition(nextPosition);
+          }
+        } catch {
+          // Ignore malformed messages.
+        }
+      };
+
+      socket.onerror = () => {
+        reject(new Error("WebSocket connection failed."));
+      };
+
+      socket.onclose = () => {
+        if (webSocketRef.current === socket) {
+          webSocketRef.current = null;
+        }
+
+        if (!disconnectingRef.current) {
+          setError("Position stream disconnected unexpectedly.");
+          setConnectionState("disconnected");
+          setPosition(null);
+          setStatusMessage("");
+        }
+      };
+    });
+  }, []);
+
+  const connect = useCallback(async () => {
+    setError("");
+    setStatusMessage("");
+    setConnectionState("connecting");
 
     try {
-      const jwk = JSON.parse(publicKeyJson) as unknown;
-      const response = await fetch("/api/tmmPublicKey", {
-        method: "PUT",
-        headers: { "Content-Type": "application/jwk+json" },
-        body: JSON.stringify(jwk),
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error ?? `Failed to set public key (${response.status})`);
+      setStatusMessage("Checking Trimble Mobile Manager...");
+      let publicKey;
+      try {
+        publicKey = await fetchTmmPublicKey();
+      } catch {
+        throw new Error("Trimble Mobile Manager is not running. Please launch Trimble Mobile Manager.");
       }
 
-      setPublicKeyStatus(JSON.stringify(data, null, 2));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to set public key.");
-    } finally {
-      setLoading(false);
-    }
-  }
+      setStatusMessage("Registering public key with backend...");
+      await submitPublicKeyToBackend(publicKey);
 
-  async function fetchAccessCodeV2() {
-    setError("");
-    setAccessCodeV2("");
-    setLoading(true);
+      setStatusMessage("Generating access code...");
+      const accessCodeV2 = await fetchAccessCodeV2FromBackend();
 
-    try {
-      const response = await fetch("/api/tmmAccessCodeV2");
-      const data = await response.json();
+      setStatusMessage("Checking GNSS receiver status...");
+      let receiverInfo = await fetchReceiverInfo(accessCodeV2);
 
-      if (!response.ok) {
-        throw new Error(data.error ?? `Failed to get access code (${response.status})`);
+      if (!receiverInfo.isReceiverConfigured) {
+        throw new Error(
+          "No GNSS receiver is configured. Open Trimble Mobile Manager and connect to a GNSS receiver.",
+        );
       }
 
-      setAccessCodeV2(JSON.stringify(data, null, 2));
+      if (!receiverInfo.isConnected) {
+        setStatusMessage("Connecting to GNSS receiver...");
+        receiverInfo = await connectReceiver(accessCodeV2);
+      }
+
+      if (!receiverInfo.isConnected) {
+        throw new Error(
+          "GNSS receiver is not connected. Open Trimble Mobile Manager and connect to a GNSS receiver.",
+        );
+      }
+
+      setStatusMessage("Opening position stream...");
+      await openPositionStream();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to get access code.");
-    } finally {
-      setLoading(false);
+      closeWebSocket();
+      setPosition(null);
+      setConnectionState("disconnected");
+      setError(err instanceof Error ? err.message : "Failed to connect to TMM.");
     }
-  }
+  }, [closeWebSocket, openPositionStream]);
+
+  useEffect(() => {
+    return () => {
+      closeWebSocket();
+    };
+  }, [closeWebSocket]);
+
+  const isConnecting = connectionState === "connecting";
+  const isConnected = connectionState === "connected";
 
   return (
     <main className="app">
-      <header>
-        <h1>TMM API Web Sample</h1>
-        <p>
-          React frontend with an Express REST API backend for version 2 access code generation.
-        </p>
+      <header className="toolbar">
+        <div className="toolbar-title">
+          <h1>TMM API Web Sample</h1>
+          <p>Live GNSS position from Trimble Mobile Manager</p>
+        </div>
+        <div className="toolbar-actions">
+          <button type="button" onClick={() => void connect()} disabled={isConnecting || isConnected}>
+            Connect
+          </button>
+          <button type="button" onClick={disconnect} disabled={!isConnecting && !isConnected}>
+            Disconnect
+          </button>
+        </div>
       </header>
 
-      <section className="card">
-        <h2>Backend Health</h2>
-        <div className="actions">
-          <button type="button" onClick={() => void checkHealth()}>
-            Check /api/health
-          </button>
-        </div>
-        {healthStatus && <pre className="status success">{healthStatus}</pre>}
-      </section>
-
-      <section className="card">
-        <h2>Public Key</h2>
-        <p>Submit the TMM RSA public key in JWK+JSON format.</p>
-        <form onSubmit={(event) => void submitPublicKey(event)}>
-          <div className="field">
-            <label htmlFor="publicKeyJson">JWK+JSON</label>
-            <textarea
-              id="publicKeyJson"
-              value={publicKeyJson}
-              onChange={(event) => setPublicKeyJson(event.target.value)}
-              rows={8}
-              required
-            />
+      <section className="map-panel">
+        <MapView position={position} />
+        {position && (
+          <div className="position-overlay" aria-live="polite">
+            <span>Latitude: {position.latitude.toFixed(8)}</span>
+            <span>Longitude: {position.longitude.toFixed(8)}</span>
           </div>
-          <div className="actions">
-            <button type="submit" disabled={loading}>
-              PUT /api/tmmPublicKey
-            </button>
-          </div>
-        </form>
-        {publicKeyStatus && <pre className="status success">{publicKeyStatus}</pre>}
+        )}
       </section>
 
-      <section className="card">
-        <h2>Access Code V2</h2>
-        <p>Generate a version 2 access code using the configured public key and APP_ID.</p>
-        <div className="actions">
-          <button type="button" onClick={() => void fetchAccessCodeV2()} disabled={loading}>
-            GET /api/tmmAccessCodeV2
-          </button>
-        </div>
-        {accessCodeV2 && <pre className="status success">{accessCodeV2}</pre>}
-      </section>
-
-      {error && <pre className="status error">{error}</pre>}
+      {(statusMessage || error) && (
+        <footer className="status-bar">
+          {statusMessage && <p className="status-message">{statusMessage}</p>}
+          {error && <p className="status-error">{error}</p>}
+        </footer>
+      )}
     </main>
   );
 }
