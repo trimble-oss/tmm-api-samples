@@ -121,7 +121,13 @@ export default function App() {
       await submitPublicKeyToBackend(publicKey);
 
       setStatusMessage("Generating access code...");
-      const accessCodeV2 = await fetchAccessCodeV2FromBackend();
+      let accessCodeV2;
+      try {
+        accessCodeV2 = await fetchAccessCodeV2FromBackend();
+      } catch (error) {
+        setStatusMessage(error instanceof Error ? error.message : "Failed to generate access code.");
+        throw error;
+      }
 
       setStatusMessage("Checking GNSS receiver status...");
       let receiverInfo = await fetchReceiverInfo(accessCodeV2);

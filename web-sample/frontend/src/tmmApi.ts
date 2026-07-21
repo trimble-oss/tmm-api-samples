@@ -41,11 +41,12 @@ export async function submitPublicKeyToBackend(jwk: RsaPublicJwk): Promise<void>
 
 export async function fetchAccessCodeV2FromBackend(): Promise<string> {
   const response = await fetch("/api/tmmAccessCodeV2");
-  const data = (await response.json()) as { accessCodeV2?: string; error?: string };
 
   if (!response.ok) {
-    throw new Error(data.error ?? `Failed to get access code (${response.status})`);
+    throw new Error(await readErrorMessage(response));
   }
+
+  const data = (await response.json()) as { accessCodeV2?: string };
 
   if (!data.accessCodeV2) {
     throw new Error("Backend did not return an access code.");

@@ -165,7 +165,6 @@ $RECYCLE.BIN/
 Output
 
 # Webstorm
-.idea/*
 
 *.playlist
 
@@ -199,6 +198,7 @@ Scripts/Jira/.venv/
 */.idea/workspace.xml
 */.idea/navEditor.xml
 */.idea/assetWizardSettings.xml
+*/.idea/deploymentTargetSelector.xml
 */build
 */captures
 *.externalNativeBuild
@@ -212,3 +212,4 @@ node_modules/
 dist/
 .env
 .env.local
+.vscode/
