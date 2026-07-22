@@ -113,11 +113,11 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO
         elif [ "${{ matrix.language }}" == "csharp" ]; then
-          cd Maui-sample
+          cd maui-sample
           # Build Android target (works on ubuntu-latest)
           # Building one target is sufficient for CodeQL analysis
           # Override TargetFrameworks to only build Android and avoid iOS/Windows evaluation
-          dotnet build Maui-sample.csproj \
+          dotnet build MauiSample.csproj \
             -f net9.0-android \
             -c Release \
             /p:TargetFrameworks=net9.0-android

@@ -1,0 +1,24 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.VisualBasic;
+
+namespace MauiSample
+{
+    public static class Values
+    {
+    public static string AppID
+    {
+      get
+      {
+        return Preferences.Get("SampleAppID", "");
+      }
+      set
+      {
+        Preferences.Set("SampleAppID", value);
+      }
+    }
+  }
+}
