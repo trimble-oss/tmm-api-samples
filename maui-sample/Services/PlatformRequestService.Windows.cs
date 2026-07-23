@@ -3,16 +3,17 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Web;
-using ABI.System;
 using MauiSample.Models;
 
 namespace MauiSample;
 
-public partial class RegistrationAgent
+public partial class PlatformRequestService
 {
-  private TaskCompletionSource<System.Uri>? _registrationResult;
+  private const string RegisterCallbackUri = "tmmapimauisample://response/tmmRegister";
 
-  private RegistrationAgent()
+  private TaskCompletionSource<Uri>? _registrationResult;
+
+  partial void InitializePlatform()
   {
   }
 
@@ -20,7 +21,7 @@ public partial class RegistrationAgent
   {
     try
     {
-      string callback = "tmmapimauisample://response";
+      string callback = RegisterCallbackUri;
       string uriString = $"trimbleMobileManager://request/tmmRegister?callback={callback}&applicationId={applicationID}";
 
       Debug.WriteLine($"Launching URI for Windows registration: {uriString}");
@@ -61,6 +62,9 @@ public partial class RegistrationAgent
 
   public void HandleUri(System.Uri uri)
   {
-    _registrationResult?.TrySetResult(uri);
+    if (uri.AbsoluteUri.StartsWith(RegisterCallbackUri))
+    {
+      _registrationResult?.TrySetResult(uri);
+    }
   }
 }

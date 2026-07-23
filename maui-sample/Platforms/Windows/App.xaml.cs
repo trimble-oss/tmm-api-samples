@@ -56,7 +56,7 @@ namespace MauiSample.WinUI
       {
         System.Uri uri = protocolArgs.Uri;
         Debug.WriteLine($"Received URI: {uri}");
-        RegistrationAgent.Instance.HandleUri(uri);
+        PlatformRequestService.Instance.HandleUri(uri);
       }
     }
 

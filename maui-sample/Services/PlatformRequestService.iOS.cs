@@ -8,11 +8,13 @@ using UIKit;
 
 namespace MauiSample;
 
-public partial class RegistrationAgent
+public partial class PlatformRequestService
 {
-  private TaskCompletionSource<System.Uri>? _registrationResult;
+  private const string RegisterReturnUrl = "tmmapimauisample://response/register";
 
-  private RegistrationAgent()
+  private TaskCompletionSource<Uri>? _registrationResult;
+
+  partial void InitializePlatform()
   {
   }
 
@@ -22,12 +24,10 @@ public partial class RegistrationAgent
     {
       // TMM will open this URL to pass back the registration result.
       // Ensure this matches the scheme registered in Info.plist under CFBundleURLTypes.
-      string returnURL = "tmmapimauisample://response";
-
       var payload = new JObject
       {
         ["application_id"] = applicationID,
-        ["returl"] = returnURL
+        ["returl"] = RegisterReturnUrl
       };
 
       string jsonPayload = payload.ToString(Newtonsoft.Json.Formatting.None);
@@ -37,7 +37,7 @@ public partial class RegistrationAgent
 
       string uriString = $"tmmregister://?{base64Payload}";
 
-      Debug.WriteLine($"Launching corrected URI for iOS registration: {uriString}");
+      Debug.WriteLine($"Launching URI for iOS registration: {uriString}");
 
       _registrationResult = new();
 
@@ -101,6 +101,9 @@ public partial class RegistrationAgent
 
   public void HandleUri(Uri uri)
   {
-    _registrationResult?.TrySetResult(uri);
+    if (uri.AbsoluteUri.StartsWith(RegisterReturnUrl))
+    {
+      _registrationResult?.TrySetResult(uri);
+    }
   }
 }

@@ -6,7 +6,7 @@ using AndroidX.Activity.Result.Contract;
 
 namespace MauiSample;
 
-public partial class RegistrationAgent
+public partial class PlatformRequestService
 {
   internal class CustomActivityResultCallback : Java.Lang.Object, IActivityResultCallback
   {
@@ -25,10 +25,10 @@ public partial class RegistrationAgent
   }
 
   private ActivityResultLauncher? _activityResultLauncher;
-  private readonly MainActivity? _mainActivity;
+  private MainActivity? _mainActivity;
   private TaskCompletionSource<ActivityResult>? _taskCompletionSource;
 
-  private RegistrationAgent()
+  partial void InitializePlatform()
   {
     _mainActivity = Platform.CurrentActivity as MainActivity;
     _activityResultLauncher = _mainActivity?.RegisterForActivityResult(
@@ -55,7 +55,7 @@ public partial class RegistrationAgent
     }
   }
 
-  private RegistrationDetails GetResultFromBundle(Bundle? bundle)
+  private static RegistrationDetails GetResultFromBundle(Bundle? bundle)
   {
     var keyset = bundle?.KeySet();
     if (keyset is null)

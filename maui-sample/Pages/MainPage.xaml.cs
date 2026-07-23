@@ -22,7 +22,7 @@ public partial class MainPage : ContentPage
 
   public MainPage()
   {
-    RegistrationAgent.Instance.Initialize();
+    PlatformRequestService.Instance.Initialize();
     InitializeComponent();
   }
 
@@ -40,7 +40,7 @@ public partial class MainPage : ContentPage
 
     try
     {
-      RegistrationDetails? registrationDetails = await RegistrationAgent.Instance.RegisterAsync(appID);
+      RegistrationDetails? registrationDetails = await PlatformRequestService.Instance.RegisterAsync(appID);
 
       if (registrationDetails != null && !string.IsNullOrEmpty(registrationDetails.RegistrationResult))
       {

@@ -15,8 +15,7 @@ public class AppDelegate : MauiUIApplicationDelegate
   {
     if (url?.AbsoluteString is not null)
     {
-      var uri = new Uri(url.AbsoluteString);
-      RegistrationAgent.Instance.HandleUri(uri);
+      PlatformRequestService.Instance.HandleUri(new Uri(url.AbsoluteString));
       return true;
     }
 
