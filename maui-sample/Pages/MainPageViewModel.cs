@@ -1,10 +1,11 @@
 ﻿using System.Reactive;
+using MauiSample.Models;
 using ReactiveUI;
 
 namespace MauiSample
 {
-    class MainPageViewModel : ReactiveObject
-    {
+  class MainPageViewModel : ReactiveObject
+  {
 
     private bool _areLabelsVisible;
     public bool AreLabelsVisible
@@ -90,11 +91,11 @@ namespace MauiSample
         return;
       }
 
-      string? receiverName = await RestApiService.GetReceiverNameAsync();
+      var receiver = await RestApiService.GetReceiverAsync();
 
-      if (receiverName is not null)
+      if (receiver is not null)
       {
-        ReceiverName = receiverName;
+        ReceiverName = receiver.BluetoothName ?? string.Empty;
       }
       else
       {
@@ -102,10 +103,16 @@ namespace MauiSample
       }
     }
 
-    public Task<bool> CheckReceiverConnection()
+    public async Task<bool> CheckReceiverConnection()
     {
       // Checks whether receiver is connected when WebSocket tries to connect.
-      return RestApiService.CheckReceiverConnectionAsync();
+      if (IsRegistered == false)
+      {
+        return false;
+      }
+
+      ReceiverInfo? receiver = await RestApiService.GetReceiverAsync();
+      return receiver?.IsConnected ?? false;
     }
   }
 }

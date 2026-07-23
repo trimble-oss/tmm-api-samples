@@ -4,89 +4,77 @@ using MauiSample.AccessCode;
 using MauiSample.Models;
 using Newtonsoft.Json.Linq;
 
-namespace MauiSample
+namespace MauiSample;
+
+internal static class RestApiService
 {
-  internal static class RestApiService
+  private static readonly Lazy<HttpClient> _lazyClient = new(() =>
   {
-    private static readonly Lazy<HttpClient> _lazyClient = new(() =>
+    var baseAddress = $"http://localhost:{PortInfo.APIPort}/";
+
+    return new HttpClient
     {
-      var baseAddress = $"http://localhost:{PortInfo.APIPort}/";
+      BaseAddress = new Uri(baseAddress),
+      Timeout = DefaultTimeout
+    };
+  });
 
-      return new HttpClient
-      {
-        BaseAddress = new Uri(baseAddress),
-        Timeout = TimeSpan.FromSeconds(15)
-      };
-    });
+  private static TimeSpan DefaultTimeout = TimeSpan.FromSeconds(15);
 
-    private static HttpClient Client => _lazyClient.Value;
+  private static HttpClient Client => _lazyClient.Value;
 
-    public static async Task<string?> GetReceiverNameAsync()
+  public static async Task<string?> GetPublicKeyAsync()
+  {
+    using HttpResponseMessage? response = await Client.GetAsync("api/v1/publicKey").ConfigureAwait(false);
+    if (response is null || response.IsSuccessStatusCode == false)
     {
-      using var response = await SendRequestWithRetryAsync("api/v1/receiver");
+      Debug.WriteLine($"[GetPublicKeyAsync] Failed to get public key. Status: {response?.StatusCode}");
+      return null;
+    }
+    return await response.Content.ReadAsStringAsync();
+  }
 
-      if (response?.IsSuccessStatusCode == true)
-      {
-        string payload = await response.Content.ReadAsStringAsync();
-        var jsonPayload = JToken.Parse(payload);
-        return jsonPayload["bluetoothName"]?.ToString() ?? string.Empty;
-      }
+  public static async Task<ReceiverInfo?> GetReceiverAsync()
+  {
+    SetAuthorizationHeader();
+    using HttpResponseMessage? response = await Client.GetAsync("api/v1/receiver").ConfigureAwait(false);
 
-      Debug.WriteLine($"[GetReceiverNameAsync] Failed to get receiver. Status: {response?.StatusCode}");
+    if (response is null || response.IsSuccessStatusCode == false)
+    {
+      Debug.WriteLine($"[GetReceiverAsync] Failed to get receiver. Status: {response?.StatusCode}");
       return null;
     }
 
-    public static async Task<bool> CheckReceiverConnectionAsync()
+    string payload = await response.Content.ReadAsStringAsync();
+    return JToken.Parse(payload).ToObject<ReceiverInfo>();
+  }
+
+  public static async Task PutReceiverAsync(bool isConnected)
+  {
+    try
     {
-      using var response = await SendRequestWithRetryAsync("api/v1/receiver");
-
-      if (response?.IsSuccessStatusCode == true)
+      SetAuthorizationHeader();
+      Client.Timeout = TimeSpan.FromSeconds(30);
+      var payload = new JObject
       {
-        string payload = await response.Content.ReadAsStringAsync();
-        var jsonPayload = JToken.Parse(payload);
-        return jsonPayload["isConnected"]?.Value<bool>() ?? false;
+        ["isConnected"] = isConnected
+      };
+      using StringContent content = new(payload.ToString(), System.Text.Encoding.UTF8, "application/json");
+      using HttpResponseMessage? response = await Client.PutAsync("api/v1/receiver", content).ConfigureAwait(false);
+      if (response is null || response.IsSuccessStatusCode == false)
+      {
+        Debug.WriteLine($"[PutReceiverAsync] Failed to update receiver. Status: {response?.StatusCode}");
       }
-
-      Debug.WriteLine($"[CheckReceiverConnectionAsync] Failed to check connection. Status: {response?.StatusCode}");
-      return false;
     }
-
-    private static async Task<HttpResponseMessage?> SendRequestWithRetryAsync(string url)
+    finally
     {
-      HttpResponseMessage? response = null;
-
-      try
-      {
-        string accessCode = AccessCodeManager.Instance.GetNextAccessCode();
-        Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", accessCode);
-
-        Debug.WriteLine($"[SendRequestWithRetryAsync] First attempt for {url} with code for {DateTime.UtcNow:O}");
-        response = await Client.GetAsync(url).ConfigureAwait(false);
-
-        if (!response.IsSuccessStatusCode)
-        {
-          Debug.WriteLine($"[SendRequestWithRetryAsync] First attempt failed with status {response.StatusCode}. Retrying...");
-
-          response.Dispose();
-
-          var pastTime = DateTime.UtcNow.AddSeconds(-1);
-          var accessCodeGenerator = new AccessCodeGenerator(Values.AppID, pastTime);
-          string previousAccessCode = accessCodeGenerator.AccessCode;
-
-          Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", previousAccessCode);
-
-          Debug.WriteLine($"[SendRequestWithRetryAsync] Second attempt for {url} with code for {pastTime:O}");
-          response = await Client.GetAsync(url).ConfigureAwait(false);
-        }
-      }
-      catch (Exception ex)
-      {
-        response?.Dispose();
-        Debug.WriteLine($"[SendRequestWithRetryAsync] Exception caught: {ex.Message}");
-        return null;
-      }
-
-      return response;
+      Client.Timeout = DefaultTimeout;
     }
+  }
+
+  private static void SetAuthorizationHeader()
+  {
+    string accessCode = AccessCodeManager.Instance.GetNextAccessCode();
+    Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", accessCode);
   }
 }
