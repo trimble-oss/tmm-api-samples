@@ -1,17 +1,15 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Net.Http.Headers;
 using MauiSample.AccessCode;
 using MauiSample.Models;
-using Microsoft.Maui.Devices;
 using Newtonsoft.Json.Linq;
 
-namespace MauiSample.RestApi
+namespace MauiSample
 {
-  internal class ReceiverMethods
+  internal static class RestApiService
   {
     private static readonly Lazy<HttpClient> _lazyClient = new(() =>
     {
-      // Creates HttpClient for the receiver.
       var baseAddress = $"http://localhost:{PortInfo.APIPort}/";
 
       return new HttpClient
@@ -23,55 +21,42 @@ namespace MauiSample.RestApi
 
     private static HttpClient Client => _lazyClient.Value;
 
-    public static async Task GetReceiverAsync(MainPageViewModel vm)
+    public static async Task<string?> GetReceiverNameAsync()
     {
-      // Ran after Receiver button is clicked. Will attempt to retrieve the connected receiver's name.
-      if (vm.IsRegistered == false)
-      {
-        vm.ReceiverName = "Please register your app and try again.";
-        return;
-      }
-
-      var response = await SendRequestWithRetryAsync("api/v1/receiver");
+      using var response = await SendRequestWithRetryAsync("api/v1/receiver");
 
       if (response?.IsSuccessStatusCode == true)
       {
         string payload = await response.Content.ReadAsStringAsync();
-        var JsonPayload = JToken.Parse(payload);
-        // Gets the receiver's bluetooth name from the returned json.
-        string? receiverName = JsonPayload["bluetoothName"]?.ToString();
-        vm.ReceiverName = receiverName ?? string.Empty;
+        var jsonPayload = JToken.Parse(payload);
+        return jsonPayload["bluetoothName"]?.ToString() ?? string.Empty;
       }
-      else
-      {
-        Debug.WriteLine($"[GetReceiverAsync] Failed to get receiver. Status: {response?.StatusCode}");
-        // If app isn't registered, will ask user to register app.
-        vm.ReceiverName = "Failed to get receiver.";
-      }
+
+      Debug.WriteLine($"[GetReceiverNameAsync] Failed to get receiver. Status: {response?.StatusCode}");
+      return null;
     }
 
-    public static async Task<bool> CheckReceiverConnection()
+    public static async Task<bool> CheckReceiverConnectionAsync()
     {
-      var response = await SendRequestWithRetryAsync("api/v1/receiver");
+      using var response = await SendRequestWithRetryAsync("api/v1/receiver");
 
       if (response?.IsSuccessStatusCode == true)
       {
-        var payload = await response.Content.ReadAsStringAsync();
-        var JsonPayload = JToken.Parse(payload);
-        // Checks whether receiver is connected. This function is ran when WebSocket tries to connect.
-        return JsonPayload["isConnected"]?.Value<bool>() ?? false;
+        string payload = await response.Content.ReadAsStringAsync();
+        var jsonPayload = JToken.Parse(payload);
+        return jsonPayload["isConnected"]?.Value<bool>() ?? false;
       }
 
-      Debug.WriteLine($"[CheckReceiverConnection] Failed to check connection. Status: {response?.StatusCode}");
+      Debug.WriteLine($"[CheckReceiverConnectionAsync] Failed to check connection. Status: {response?.StatusCode}");
       return false;
     }
 
     private static async Task<HttpResponseMessage?> SendRequestWithRetryAsync(string url)
     {
       HttpResponseMessage? response = null;
+
       try
       {
-        // Generates Access Code for the authorization header in the API call. Only valid for 1 second.
         string accessCode = AccessCodeManager.Instance.GetNextAccessCode();
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", accessCode);
 
@@ -82,9 +67,11 @@ namespace MauiSample.RestApi
         {
           Debug.WriteLine($"[SendRequestWithRetryAsync] First attempt failed with status {response.StatusCode}. Retrying...");
 
+          response.Dispose();
+
           var pastTime = DateTime.UtcNow.AddSeconds(-1);
-          var acg = new AccessCodeGenerator(Values.AppID, pastTime);
-          string previousAccessCode = acg.AccessCode;
+          var accessCodeGenerator = new AccessCodeGenerator(Values.AppID, pastTime);
+          string previousAccessCode = accessCodeGenerator.AccessCode;
 
           Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", previousAccessCode);
 
@@ -94,6 +81,7 @@ namespace MauiSample.RestApi
       }
       catch (Exception ex)
       {
+        response?.Dispose();
         Debug.WriteLine($"[SendRequestWithRetryAsync] Exception caught: {ex.Message}");
         return null;
       }

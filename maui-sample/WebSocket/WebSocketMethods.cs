@@ -6,7 +6,6 @@ using MauiSample.AccessCode;
 using System.Net.Http.Headers;
 using MauiSample.Utills;
 using MauiSample.Models;
-using MauiSample.RestApi;
 using Microsoft.Maui.Devices;
 
 namespace MauiSample.WebSocket

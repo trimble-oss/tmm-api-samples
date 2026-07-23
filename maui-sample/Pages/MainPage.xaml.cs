@@ -3,7 +3,6 @@ using System.Text;
 using System.Web;
 using CommunityToolkit.Mvvm.Messaging;
 using MauiSample.Models;
-using MauiSample.RestApi;
 using MauiSample.Utills;
 using MauiSample.WebSocket;
 using Microsoft.Maui.Devices;
@@ -70,7 +69,7 @@ public partial class MainPage : ContentPage
     // second button in UI. Retrieves the connected receiver's name.
     if (ViewModel is not null)
     {
-      await ReceiverMethods.GetReceiverAsync(ViewModel);
+      await ViewModel.GetReceiverAsync();
     }
   }
 
@@ -81,7 +80,7 @@ public partial class MainPage : ContentPage
     if (ViewModel?.IsRegistered == true)
     {
       // Checks if app is registered.
-      if (await ReceiverMethods.CheckReceiverConnection())
+      if (await ViewModel.CheckReceiverConnection())
       {
         // checks if receiver is connected.
         _startStop = !_startStop;

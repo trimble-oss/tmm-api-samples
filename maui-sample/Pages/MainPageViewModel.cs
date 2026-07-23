@@ -80,5 +80,32 @@ namespace MauiSample
       _receiverName = string.Empty;
       _registrationStatus = string.Empty;
     }
+
+    public async Task GetReceiverAsync()
+    {
+      // Ran after Receiver button is clicked. Will attempt to retrieve the connected receiver's name.
+      if (IsRegistered == false)
+      {
+        ReceiverName = "Please register your app and try again.";
+        return;
+      }
+
+      string? receiverName = await RestApiService.GetReceiverNameAsync();
+
+      if (receiverName is not null)
+      {
+        ReceiverName = receiverName;
+      }
+      else
+      {
+        ReceiverName = "Failed to get receiver.";
+      }
+    }
+
+    public Task<bool> CheckReceiverConnection()
+    {
+      // Checks whether receiver is connected when WebSocket tries to connect.
+      return RestApiService.CheckReceiverConnectionAsync();
+    }
   }
 }
