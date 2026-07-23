@@ -88,15 +88,26 @@ public partial class PlatformRequestService
     {
       if (data.ContainsKey("registrationResult"))
       {
-        registrationDetails.RegistrationResult = data["registrationResult"].ToString();
+        registrationDetails.RegistrationResult = data["registrationResult"]?.ToString() ?? string.Empty;
       }
-      if (data.ContainsKey("apiPort"))
-      {
-        registrationDetails.ApiPort = int.Parse(data["apiPort"].ToString());
-      }
+      registrationDetails.LocationPort = ParsePort(data, "locationPort");
+      registrationDetails.LocationSecurePort = ParsePort(data, "locationSecurePort");
+      registrationDetails.ApiPort = ParsePort(data, "apiPort");
+      registrationDetails.ApiSecurePort = ParsePort(data, "apiSecurePort");
+      registrationDetails.LocationV2Port = ParsePort(data, "locationV2Port");
+      registrationDetails.LocationV2SecurePort = ParsePort(data, "locationV2SecurePort");
     }
 
     return registrationDetails;
+  }
+
+  private static int ParsePort(JObject data, string key)
+  {
+    if (data.ContainsKey(key) && int.TryParse(data[key]?.ToString(), out int port))
+    {
+      return port;
+    }
+    return 0;
   }
 
   public void HandleUri(Uri uri)

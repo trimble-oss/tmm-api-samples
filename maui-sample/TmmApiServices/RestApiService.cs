@@ -10,7 +10,7 @@ internal static class RestApiService
 {
   private static readonly Lazy<HttpClient> _lazyClient = new(() =>
   {
-    var baseAddress = $"http://localhost:{PortInfo.APIPort}/";
+    var baseAddress = $"http://localhost:{PortInfo.ApiPort}/";
 
     return new HttpClient
     {

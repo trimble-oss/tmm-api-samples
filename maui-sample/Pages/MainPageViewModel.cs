@@ -6,6 +6,7 @@ namespace MauiSample
 {
   class MainPageViewModel : ReactiveObject
   {
+    private readonly WebSocketService _webSocketService = new();
 
     private bool _areLabelsVisible;
     public bool AreLabelsVisible
@@ -80,6 +81,23 @@ namespace MauiSample
       _applicationID = Values.AppID;
       _receiverName = string.Empty;
       _registrationStatus = string.Empty;
+      _webSocketService.PositionReceived += OnPositionReceived;
+    }
+
+    public Task ReadPositionsAsync(CancellationToken cancellationToken)
+    {
+      return _webSocketService.ReadPositionsAsync(cancellationToken);
+    }
+
+    private void OnPositionReceived(object? sender, LocationV2DataMessage position)
+    {
+      MainThread.BeginInvokeOnMainThread(() =>
+      {
+        AreLabelsVisible = false;
+        Latitude = position.Latitude;
+        Longitude = position.Longitude;
+        Altitude = position.Altitude;
+      });
     }
 
     public async Task GetReceiverAsync()

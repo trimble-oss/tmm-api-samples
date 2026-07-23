@@ -65,7 +65,12 @@ public partial class PlatformRequestService
     RegistrationDetails result = new RegistrationDetails
     {
       RegistrationResult = bundle?.GetString("registrationResult") ?? string.Empty,
+      LocationPort = bundle?.GetInt("locationPort", 0) ?? 0,
+      LocationSecurePort = bundle?.GetInt("locationSecurePort", 0) ?? 0,
       ApiPort = bundle?.GetInt("apiPort", 0) ?? 0,
+      ApiSecurePort = bundle?.GetInt("apiSecurePort", 0) ?? 0,
+      LocationV2Port = bundle?.GetInt("locationV2Port", 0) ?? 0,
+      LocationV2SecurePort = bundle?.GetInt("locationV2SecurePort", 0) ?? 0,
     };
     return result;
   }

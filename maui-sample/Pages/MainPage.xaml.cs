@@ -4,7 +4,6 @@ using System.Web;
 using CommunityToolkit.Mvvm.Messaging;
 using MauiSample.Models;
 using MauiSample.Utills;
-using MauiSample.WebSocket;
 using Microsoft.Maui.Devices;
 using Newtonsoft.Json.Linq;
 
@@ -16,8 +15,6 @@ public partial class MainPage : ContentPage
   internal CancellationTokenSource? _cancellationTokenSource;
   internal MainPageViewModel? ViewModel => BindingContext as MainPageViewModel;
   private TaskCompletionSource<string> _registrationStatusCompletionSource = new();
-
-  private readonly WebSocketMethods _webSocketMethods = new WebSocketMethods();
 
   public MainPage()
   {
@@ -46,7 +43,19 @@ public partial class MainPage : ContentPage
         if (ViewModel != null)
         {
           ViewModel.RegistrationStatus = registrationDetails.RegistrationResult;
-          PortInfo.APIPort = registrationDetails.ApiPort;
+        }
+
+        if (string.Equals(registrationDetails.RegistrationResult, "OK", StringComparison.OrdinalIgnoreCase))
+        {
+          // Update the PortInfo class with the port information received from the registration process.
+          // If TMM is unable to assign a server to its default port,
+          // it will assign a new port starting incrementally at 9650.
+          PortInfo.LocationPort = registrationDetails.LocationPort;
+          PortInfo.LocationSecurePort = registrationDetails.LocationSecurePort;
+          PortInfo.ApiPort = registrationDetails.ApiPort;
+          PortInfo.ApiSecurePort = registrationDetails.ApiSecurePort;
+          PortInfo.LocationV2Port = registrationDetails.LocationV2Port;
+          PortInfo.LocationV2SecurePort = registrationDetails.LocationV2SecurePort;
         }
         Debug.WriteLine($"Registration status: {registrationDetails.RegistrationResult}");
         await DisplayAlert("Registration", $"Registration status: {registrationDetails.RegistrationResult}", "Okay");
@@ -88,7 +97,7 @@ public partial class MainPage : ContentPage
         if (_startStop)
         {
           _cancellationTokenSource = new CancellationTokenSource();
-          await _webSocketMethods.ReadPositionsAsync(ViewModel, _cancellationTokenSource);
+          await ViewModel.ReadPositionsAsync(_cancellationTokenSource.Token);
         }
         else
         {

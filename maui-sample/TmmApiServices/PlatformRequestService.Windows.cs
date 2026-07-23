@@ -50,14 +50,22 @@ public partial class PlatformRequestService
   {
     NameValueCollection queryDictionary = HttpUtility.ParseQueryString(uri.Query);
 
-    string result = queryDictionary["registrationResult"] ?? string.Empty;
-    string portString = queryDictionary["apiPort"] ?? string.Empty;
-    int.TryParse(portString, out int portNumber);
     return new RegistrationDetails
     {
-      RegistrationResult = result,
-      ApiPort = portNumber
+      RegistrationResult = queryDictionary["registrationResult"] ?? string.Empty,
+      LocationPort = ParsePort(queryDictionary, "locationPort"),
+      LocationSecurePort = ParsePort(queryDictionary, "locationSecurePort"),
+      ApiPort = ParsePort(queryDictionary, "apiPort"),
+      ApiSecurePort = ParsePort(queryDictionary, "apiSecurePort"),
+      LocationV2Port = ParsePort(queryDictionary, "locationV2Port"),
+      LocationV2SecurePort = ParsePort(queryDictionary, "locationV2SecurePort"),
     };
+  }
+
+  private static int ParsePort(NameValueCollection queryDictionary, string key)
+  {
+    int.TryParse(queryDictionary[key], out int port);
+    return port;
   }
 
   public void HandleUri(System.Uri uri)
