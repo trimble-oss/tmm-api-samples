@@ -20,8 +20,9 @@ internal static class RestApiService
   });
 
   private static TimeSpan DefaultTimeout = TimeSpan.FromSeconds(15);
-
   private static HttpClient Client => _lazyClient.Value;
+
+  public static AccessCodeVersion AccessCodeVersion { get; set; } = AccessCodeVersion.V1;
 
   public static async Task<string?> GetPublicKeyAsync()
   {
@@ -31,7 +32,9 @@ internal static class RestApiService
       Debug.WriteLine($"[GetPublicKeyAsync] Failed to get public key. Status: {response?.StatusCode}");
       return null;
     }
-    return await response.Content.ReadAsStringAsync();
+    string jwk = await response.Content.ReadAsStringAsync();
+    AccessCodeV2.SetPublicKey(jwk);
+    return jwk;
   }
 
   public static async Task<ReceiverInfo?> GetReceiverAsync()
@@ -74,7 +77,27 @@ internal static class RestApiService
 
   private static void SetAuthorizationHeader()
   {
-    string accessCode = AccessCodeManager.Instance.GetNextAccessCode();
-    Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", accessCode);
+    if (!Guid.TryParse(Values.AppID, out Guid appID))
+    {
+      throw new InvalidOperationException($"Invalid App ID \"{Values.AppID}\"");
+    }
+
+    string scheme;
+    string accessCode;
+    switch (AccessCodeVersion)
+    {
+      case AccessCodeVersion.V1:
+        scheme = "Basic";
+        accessCode = AccessCodeV1.Generate(appID, DateTime.UtcNow);
+        break;
+      case AccessCodeVersion.V2:
+        scheme = "AccessCodeV2";
+        accessCode = AccessCodeV2.Generate(appID, DateTime.UtcNow);
+        break;
+      default:
+        throw new InvalidOperationException($"Unsupported Access Code Version {AccessCodeVersion}");
+    }
+
+    Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(scheme, accessCode);
   }
 }
