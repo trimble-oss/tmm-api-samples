@@ -32,7 +32,7 @@
           <Button
             x:Name="RegisterButton"
             Text="Register"
-            Clicked="RegisterButton_Clicked"
+            Command="{Binding RegisterCommand}"
             VerticalOptions="End"
             WidthRequest="100"/>
         </HorizontalStackLayout>
@@ -56,7 +56,7 @@
           <Button
             x:Name="GetReceiverButton"
             Text="Get receiver"
-            Clicked="GetReceiverButton_Clicked"
+            Command="{Binding GetReceiverCommand}"
             VerticalOptions="End"
             WidthRequest="120"/>
         </HorizontalStackLayout>
@@ -96,8 +96,8 @@
             Margin="0,0,0,10"/>
           <Button
             x:Name="StartPositionStreamButton"
-            Text="Start position stream"
-            Clicked="StartPositionStreamButton_Clicked"/>
+            Text="{Binding PositionStreamButtonText}"
+            Command="{Binding TogglePositionStreamCommand}"/>
         </VerticalStackLayout>
       </VerticalStackLayout>
     </Grid>

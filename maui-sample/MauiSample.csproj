@@ -21,7 +21,7 @@
     <Nullable>enable</Nullable>
         
     <!-- Display name -->
-    <ApplicationTitle>MAUI Sample</ApplicationTitle>
+    <ApplicationTitle>TMM API MAUI Sample</ApplicationTitle>
 
     <!-- App Identifier -->
     <ApplicationId>com.companyname.mauisample</ApplicationId>
