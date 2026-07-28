@@ -78,6 +78,18 @@ public partial class PlatformRequestService
     return null;
   }
 
+  public partial async Task ShowReceiverSelectionAsync()
+  {
+    try
+    {
+      await Launcher.Default.TryOpenAsync("tmmopentoreceiverselection://?");
+    }
+    catch (Exception ex)
+    {
+      Debug.WriteLine($"Error launching receiver selection URI on iOS: {ex.Message}");
+    }
+  }
+
   private RegistrationDetails GetRegistrationDetails(System.Uri uri)
   {
     RegistrationDetails registrationDetails = new();

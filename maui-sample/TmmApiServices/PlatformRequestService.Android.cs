@@ -75,6 +75,20 @@ public partial class PlatformRequestService
     return result;
   }
 
+  public partial Task ShowReceiverSelectionAsync()
+  {
+    try
+    {
+      Intent intent = new("com.trimble.tmm.RECEIVERSELECTION");
+      _mainActivity?.StartActivity(intent);
+    }
+    catch
+    {
+    }
+
+    return Task.CompletedTask;
+  }
+
   private async Task<ActivityResult?> LaunchActivityForResultAsync(Intent intent)
   {
     _taskCompletionSource = new();

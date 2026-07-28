@@ -10,8 +10,10 @@ namespace MauiSample;
 public partial class PlatformRequestService
 {
   private const string RegisterCallbackUri = "tmmapimauisample://response/tmmRegister";
+  private const string ReceiverSelectionCallbackUri = "tmmapimauisample://response/tmmOpenToReceiverSelection";
 
   private TaskCompletionSource<Uri>? _registrationResult;
+  private TaskCompletionSource<Uri>? _receiverSelectionResult;
 
   partial void InitializePlatform()
   {
@@ -46,6 +48,30 @@ public partial class PlatformRequestService
     return null;
   }
 
+  public partial async Task ShowReceiverSelectionAsync()
+  {
+    try
+    {
+      string uriString = $"trimbleMobileManager://request/tmmOpenToReceiverSelection?callback={ReceiverSelectionCallbackUri}";
+
+      Debug.WriteLine($"Launching URI for Windows receiver selection: {uriString}");
+
+      _receiverSelectionResult = new();
+
+      bool success = await Launcher.Default.TryOpenAsync(uriString);
+      if (!success)
+      {
+        Debug.WriteLine("Failed to launch the receiver selection URI. Is the target application installed?");
+      }
+
+      await _receiverSelectionResult.Task;
+    }
+    catch (System.Exception ex)
+    {
+      Debug.WriteLine($"Error launching receiver selection URI: {ex.Message}");
+    }
+  }
+
   private RegistrationDetails GetRegistrationDetails(System.Uri uri)
   {
     NameValueCollection queryDictionary = HttpUtility.ParseQueryString(uri.Query);
@@ -73,6 +99,10 @@ public partial class PlatformRequestService
     if (uri.AbsoluteUri.StartsWith(RegisterCallbackUri))
     {
       _registrationResult?.TrySetResult(uri);
+    }
+    else if (uri.AbsoluteUri.StartsWith(ReceiverSelectionCallbackUri))
+    {
+      _receiverSelectionResult?.TrySetResult(uri);
     }
   }
 }

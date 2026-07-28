@@ -130,10 +130,15 @@ namespace MauiSample
         if (!receiver.IsReceiverConfigured)
         {
           StatusMessage = "Receiver not configured. Select a receiver in TMM.";
-          await DisplayAlertAsync(
+          bool openTmm = await DisplayConfirmAsync(
             "Receiver Not Configured",
             "Connect to a receiver in TMM to start streaming positions.",
-            "OK");
+            "Open TMM",
+            "Cancel");
+          if (openTmm)
+          {
+            await PlatformRequestService.Instance.ShowReceiverSelectionAsync();
+          }
           return;
         }
 
@@ -297,6 +302,18 @@ namespace MauiSample
       }
 
       await page.DisplayAlert(title, message, cancel);
+    }
+
+    private static async Task<bool> DisplayConfirmAsync(string title, string message, string accept, string cancel)
+    {
+      Page? page = Application.Current?.MainPage;
+      if (page is null)
+      {
+        Debug.WriteLine("Application.Current.MainPage is null. Cannot display alert.");
+        return false;
+      }
+
+      return await page.DisplayAlert(title, message, accept, cancel);
     }
   }
 }

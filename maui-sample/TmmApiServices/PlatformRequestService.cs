@@ -16,6 +16,7 @@ namespace MauiSample
     partial void InitializePlatform();
 
     public partial Task<RegistrationDetails?> RegisterAsync(string applicationID);
+    public partial Task ShowReceiverSelectionAsync();
     public void Initialize() { }
   }
 }

@@ -31,6 +31,7 @@
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>tmmregister</string>
+		<string>tmmopentoreceiverselection</string>
 	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
