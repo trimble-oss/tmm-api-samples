@@ -1,0 +1,26 @@
+---
+description: Repository purpose and related TMM API documentation
+alwaysApply: true
+---
+
+# TMM API Samples
+
+This repository provides sample applications that demonstrate how to use the Trimble Mobile Manager API (TMM API).
+
+## Related documentation
+
+The TMM API documentation lives in a sibling repository named **td-mobile-manager**, located in the same parent directory as this repository:
+
+- This repo: `tmm-api-samples-internal`
+- API docs repo: `../td-mobile-manager`
+
+When answering questions about API behavior, endpoints, or specifications, prefer the `td-mobile-manager` repository as the source of truth over guessing from sample code alone.
+
+## Sample applications in this repo
+
+- `maui-sample/` — Cross-platform .NET MAUI (Android, iOS, Windows)
+- `Kotlin_sample/` — Native Android (Kotlin)
+- `swift_sample/` — Native iOS (Swift)
+- `web-sample/` — Web (React + Express)
+
+Public API documentation is also published at https://developer.trimble.com/docs/mobile-manager
