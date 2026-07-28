@@ -15,32 +15,34 @@ internal static class RestApiService
     return new HttpClient
     {
       BaseAddress = new Uri(baseAddress),
-      Timeout = DefaultTimeout
+      Timeout = TimeSpan.FromSeconds(60)
     };
   });
 
   private static TimeSpan DefaultTimeout = TimeSpan.FromSeconds(15);
   private static HttpClient Client => _lazyClient.Value;
 
-  public static AccessCodeVersion AccessCodeVersion { get; set; } = AccessCodeVersion.V1;
+  public static AccessCodeVersion AccessCodeVersion { get; set; } = AccessCodeVersion.V2;
 
   public static async Task<string?> GetPublicKeyAsync()
   {
-    using HttpResponseMessage? response = await Client.GetAsync("api/v1/publicKey").ConfigureAwait(false);
+    using CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(1));
+    using HttpResponseMessage? response = await Client.GetAsync("api/v1/publicKey", cts.Token).ConfigureAwait(false);
     if (response is null || response.IsSuccessStatusCode == false)
     {
       Debug.WriteLine($"[GetPublicKeyAsync] Failed to get public key. Status: {response?.StatusCode}");
       return null;
     }
     string jwk = await response.Content.ReadAsStringAsync();
-    AccessCodeV2.SetPublicKey(jwk);
+    Debug.WriteLine($"public key: {jwk}");
     return jwk;
   }
 
   public static async Task<ReceiverInfo?> GetReceiverAsync()
   {
     SetAuthorizationHeader();
-    using HttpResponseMessage? response = await Client.GetAsync("api/v1/receiver").ConfigureAwait(false);
+    using CancellationTokenSource cts = new CancellationTokenSource(DefaultTimeout);
+    using HttpResponseMessage? response = await Client.GetAsync("api/v1/receiver", cts.Token).ConfigureAwait(false);
 
     if (response is null || response.IsSuccessStatusCode == false)
     {
@@ -54,24 +56,17 @@ internal static class RestApiService
 
   public static async Task PutReceiverAsync(bool isConnected)
   {
-    try
+    SetAuthorizationHeader();
+    var payload = new JObject
     {
-      SetAuthorizationHeader();
-      Client.Timeout = TimeSpan.FromSeconds(30);
-      var payload = new JObject
-      {
-        ["isConnected"] = isConnected
-      };
-      using StringContent content = new(payload.ToString(), System.Text.Encoding.UTF8, "application/json");
-      using HttpResponseMessage? response = await Client.PutAsync("api/v1/receiver", content).ConfigureAwait(false);
-      if (response is null || response.IsSuccessStatusCode == false)
-      {
-        Debug.WriteLine($"[PutReceiverAsync] Failed to update receiver. Status: {response?.StatusCode}");
-      }
-    }
-    finally
+      ["isConnected"] = isConnected
+    };
+    using StringContent content = new(payload.ToString(), System.Text.Encoding.UTF8, "application/json");
+    using CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+    using HttpResponseMessage? response = await Client.PutAsync("api/v1/receiver", content, cts.Token).ConfigureAwait(false);
+    if (response is null || response.IsSuccessStatusCode == false)
     {
-      Client.Timeout = DefaultTimeout;
+      Debug.WriteLine($"[PutReceiverAsync] Failed to update receiver. Status: {response?.StatusCode}");
     }
   }
 

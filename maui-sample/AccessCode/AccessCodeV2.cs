@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace MauiSample.AccessCode;
 
-static public class AccessCodeV2
+public static class AccessCodeV2
 {
   private static RSA? _publicKey;
 
@@ -21,12 +21,12 @@ static public class AccessCodeV2
       throw new ArgumentException("Only RSA JWK keys are supported.", nameof(jwkJson));
     }
 
-    if(!root.TryGetProperty("n", out JsonElement n) || !root.TryGetProperty("e", out JsonElement e))
+    if (!root.TryGetProperty("n", out JsonElement n) || !root.TryGetProperty("e", out JsonElement e))
     {
       throw new ArgumentException("n and e properties are required.", nameof(jwkJson));
     }
-    
-    if(n.GetString() is not string modulusString || e.GetString() is not string exponentString)
+
+    if (n.GetString() is not string modulusString || e.GetString() is not string exponentString)
     {
       throw new ArgumentException("n and e properties must be strings.", nameof(jwkJson));
     }
@@ -35,11 +35,7 @@ static public class AccessCodeV2
     byte[] exponent = Base64UrlDecode(exponentString);
 
     var rsa = RSA.Create();
-    rsa.ImportParameters(new RSAParameters
-    {
-      Modulus = modulus,
-      Exponent = exponent,
-    });
+    rsa.ImportParameters(new RSAParameters { Modulus = modulus, Exponent = exponent });
 
     _publicKey?.Dispose();
     _publicKey = rsa;
@@ -54,7 +50,7 @@ static public class AccessCodeV2
 
   public static string Generate(Guid appID, DateTime utcTime)
   {
-    if(_publicKey is null)
+    if (_publicKey is null)
     {
       throw new InvalidOperationException("public key not set");
     }

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
+using MauiSample.AccessCode;
 using MauiSample.Models;
 using ReactiveUI;
 
@@ -9,48 +10,46 @@ namespace MauiSample
   {
     private readonly WebSocketService _webSocketService = new();
     private CancellationTokenSource? _cancellationTokenSource;
-    private bool _isStreaming;
 
-    private bool _areLabelsVisible;
-    public bool AreLabelsVisible
+    private bool _isConnecting;
+    public bool IsConnecting => _isConnecting;
+
+    private bool _isConnected;
+    public bool IsConnected => _isConnected;
+
+    private string _statusMessage = string.Empty;
+    public string StatusMessage
     {
-      get => _areLabelsVisible;
-      set => this.RaiseAndSetIfChanged(ref _areLabelsVisible, value);
+      get => _statusMessage;
+      set => this.RaiseAndSetIfChanged(ref _statusMessage, value);
     }
 
-    private string _messages;
-    public string Messages
+    private string _latitudeText = string.Empty;
+    public string LatitudeText
     {
-      get => _messages;
-      set => this.RaiseAndSetIfChanged(ref _messages, value);
+      get => _latitudeText;
+      set => this.RaiseAndSetIfChanged(ref _latitudeText, value);
     }
 
-    private string _receiverName;
-    public string ReceiverName
+    private string _longitudeText = string.Empty;
+    public string LongitudeText
     {
-      get => _receiverName;
-      set => this.RaiseAndSetIfChanged(ref _receiverName, value);
+      get => _longitudeText;
+      set => this.RaiseAndSetIfChanged(ref _longitudeText, value);
     }
 
-    private double? _latitude;
-    public double? Latitude
+    private string _altitudeText = string.Empty;
+    public string AltitudeText
     {
-      get => _latitude;
-      set => this.RaiseAndSetIfChanged(ref _latitude, value);
+      get => _altitudeText;
+      set => this.RaiseAndSetIfChanged(ref _altitudeText, value);
     }
 
-    private double? _longitude;
-    public double? Longitude
+    private string _accuracyText = string.Empty;
+    public string AccuracyText
     {
-      get => _longitude;
-      set => this.RaiseAndSetIfChanged(ref _longitude, value);
-    }
-
-    private double? _altitude;
-    public double? Altitude
-    {
-      get => _altitude;
-      set => this.RaiseAndSetIfChanged(ref _altitude, value);
+      get => _accuracyText;
+      set => this.RaiseAndSetIfChanged(ref _accuracyText, value);
     }
 
     private string _applicationID = string.Empty;
@@ -69,133 +68,175 @@ namespace MauiSample
       }
     }
 
-    private string _registrationStatus;
-    public string RegistrationStatus
-    {
-      get => _registrationStatus;
-      set => this.RaiseAndSetIfChanged(ref _registrationStatus, value);
-    }
-
-    private string _positionStreamButtonText = "Start position stream";
-    public string PositionStreamButtonText
-    {
-      get => _positionStreamButtonText;
-      set => this.RaiseAndSetIfChanged(ref _positionStreamButtonText, value);
-    }
-
-    public bool IsRegistered => RegistrationStatus == "OK" || RegistrationStatus == "success";
-
-    public IAsyncRelayCommand RegisterCommand { get; }
-    public IAsyncRelayCommand GetReceiverCommand { get; }
-    public IAsyncRelayCommand TogglePositionStreamCommand { get; }
+    public IAsyncRelayCommand ConnectCommand { get; }
+    public IAsyncRelayCommand DisconnectCommand { get; }
 
     public MainPageViewModel()
     {
-      _messages = string.Empty;
       _applicationID = Values.AppID;
-      _receiverName = string.Empty;
-      _registrationStatus = string.Empty;
       _webSocketService.PositionReceived += OnPositionReceived;
 
       // AsyncRelayCommand (vs ReactiveCommand) keeps CanExecuteChanged on the UI thread,
       // which avoids WinUI COMExceptions when the button's disabled visual state updates.
-      RegisterCommand = new AsyncRelayCommand(RegisterAsync);
-      GetReceiverCommand = new AsyncRelayCommand(GetReceiverAsync);
-      TogglePositionStreamCommand = new AsyncRelayCommand(TogglePositionStreamAsync);
+      ConnectCommand = new AsyncRelayCommand(ConnectAsync, () => !IsConnecting && !IsConnected);
+      DisconnectCommand = new AsyncRelayCommand(DisconnectAsync, () => !IsConnecting && IsConnected);
     }
 
-    private async Task RegisterAsync()
+    private async Task ConnectAsync()
     {
-      string appID = Values.AppID;
-
-      if (string.IsNullOrWhiteSpace(appID))
+      if (string.IsNullOrWhiteSpace(Values.AppID))
       {
+        StatusMessage = "Please enter an Application ID.";
         await DisplayAlertAsync("Error", "Please enter an Application ID", "OK");
         return;
       }
 
+      SetConnectionState(isConnecting: true, isConnected: false);
+      StatusMessage = "Connecting...";
+
+      try
+      {
+        StatusMessage = "Getting public key...";
+        string? publicKey = await TryGetPublicKeyAsync();
+        if (publicKey is null)
+        {
+          // Failing to get the public key means TMM is not running, or the
+          // REST API port is not on the default port.
+          // Use Register to start TMM and query the current TMM server ports.
+          StatusMessage = "Registering...";
+          if (!await TryRegisterAsync())
+          {
+            StatusMessage = "Registration failed.";
+            return;
+          }
+
+          StatusMessage = "Getting public key again...";
+          publicKey = await TryGetPublicKeyAsync();
+          if (publicKey is null)
+          {
+            StatusMessage = "Failed to get public key.";
+            return;
+          }
+        }
+
+        StatusMessage = "Getting receiver info...";
+        ReceiverInfo? receiver = await RestApiService.GetReceiverAsync();
+        if (receiver is null)
+        {
+          StatusMessage = "Failed to get receiver info.";
+          return;
+        }
+
+        if (!receiver.IsReceiverConfigured)
+        {
+          StatusMessage = "Receiver not configured. Select a receiver in TMM.";
+          await DisplayAlertAsync(
+            "Receiver Not Configured",
+            "Connect to a receiver in TMM to start streaming positions.",
+            "OK");
+          return;
+        }
+
+        if (!receiver.IsConnected)
+        {
+          StatusMessage = "Connecting to GNSS receiver...";
+          await RestApiService.PutReceiverAsync(true);
+
+          receiver = await RestApiService.GetReceiverAsync();
+          if (receiver is null || !receiver.IsConnected)
+          {
+            StatusMessage = "Failed to connect to GNSS receiver.";
+            return;
+          }
+        }
+
+        StatusMessage = "Starting position stream...";
+        _cancellationTokenSource = new CancellationTokenSource();
+        _ = ReadPositionsAsync(_cancellationTokenSource.Token);
+
+        StatusMessage = "Connected.";
+        SetConnectionState(isConnecting: false, isConnected: true);
+      }
+      catch (Exception ex)
+      {
+        Debug.WriteLine($"[ConnectAsync] Error: {ex.Message}");
+        StatusMessage = "Connection failed.";
+        await DisplayAlertAsync("Error", "An unexpected error occurred while connecting.", "OK");
+        SetConnectionState(isConnecting: false, isConnected: false);
+      }
+      finally
+      {
+        if (_isConnecting)
+        {
+          SetConnectionState(isConnecting: false, isConnected: false);
+        }
+      }
+    }
+
+    private Task DisconnectAsync()
+    {
+      SetConnectionState(isConnecting: true, isConnected: false);
+      StatusMessage = "Disconnecting...";
+
+      _cancellationTokenSource?.Cancel();
+      _cancellationTokenSource?.Dispose();
+      _cancellationTokenSource = null;
+
+      ClearLocationData();
+      StatusMessage = "Disconnected.";
+      SetConnectionState(isConnecting: false, isConnected: false);
+      return Task.CompletedTask;
+    }
+
+    private async Task<string?> TryGetPublicKeyAsync()
+    {
+      try
+      {
+        string? publicKey = await RestApiService.GetPublicKeyAsync();
+        if (publicKey is not null)
+        {
+          AccessCodeV2.SetPublicKey(publicKey);
+        }
+        return publicKey;
+      }
+      catch
+      {
+        return null;
+      }
+    }
+
+    private async Task<bool> TryRegisterAsync()
+    {
       Debug.WriteLine("Starting registration with RegistrationAgent...");
 
       try
       {
-        RegistrationDetails? registrationDetails = await PlatformRequestService.Instance.RegisterAsync(appID);
+        RegistrationDetails? registrationDetails = await PlatformRequestService.Instance.RegisterAsync(Values.AppID);
 
-        if (registrationDetails != null && !string.IsNullOrEmpty(registrationDetails.RegistrationResult))
-        {
-          RegistrationStatus = registrationDetails.RegistrationResult;
-
-          if (string.Equals(registrationDetails.RegistrationResult, "OK", StringComparison.OrdinalIgnoreCase))
-          {
-            // Update the PortInfo class with the port information received from the registration process.
-            // If TMM is unable to assign a server to its default port,
-            // it will assign a new port starting incrementally at 9650.
-            PortInfo.LocationPort = registrationDetails.LocationPort;
-            PortInfo.LocationSecurePort = registrationDetails.LocationSecurePort;
-            PortInfo.ApiPort = registrationDetails.ApiPort;
-            PortInfo.ApiSecurePort = registrationDetails.ApiSecurePort;
-            PortInfo.LocationV2Port = registrationDetails.LocationV2Port;
-            PortInfo.LocationV2SecurePort = registrationDetails.LocationV2SecurePort;
-          }
-          Debug.WriteLine($"Registration status: {registrationDetails.RegistrationResult}");
-          await DisplayAlertAsync("Registration", $"Registration status: {registrationDetails.RegistrationResult}", "Okay");
-        }
-        else
+        if (registrationDetails is null || string.IsNullOrEmpty(registrationDetails.RegistrationResult))
         {
           Debug.WriteLine("Registration failed or was cancelled.");
-          await DisplayAlertAsync("Registration", "Registration failed or was cancelled.", "Okay");
+          return false;
         }
-      }
-      catch (Exception)
-      {
-        Debug.WriteLine("Registration failed or was cancelled.");
-        await DisplayAlertAsync("Error", "An unexpected error occurred during registration.", "OK");
-      }
-    }
 
-    private async Task TogglePositionStreamAsync()
-    {
-      // Will attempt to start position stream.
-      // Checks registration status. Alert user to register app if not. Otherwise will try to get position data via WebSocket.
-      if (IsRegistered)
-      {
-        // Checks if app is registered.
-        if (await CheckReceiverConnection())
+        if (string.Equals(registrationDetails.RegistrationResult, "OK", StringComparison.OrdinalIgnoreCase))
         {
-          // checks if receiver is connected.
-          _isStreaming = !_isStreaming;
-          PositionStreamButtonText = _isStreaming ? "Stop position stream" : "Start position stream";
-          if (_isStreaming)
-          {
-            // Do not await: keeping the command free lets the user tap again to stop.
-            _cancellationTokenSource = new CancellationTokenSource();
-            _ = ReadPositionsAsync(_cancellationTokenSource.Token);
-          }
-          else
-          {
-            // If button is pressed when streaming has begun, the stream will stop.
-            // UI textboxes will be blanked.
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource?.Dispose();
-            _cancellationTokenSource = null;
+          PortInfo.LocationPort = registrationDetails.LocationPort;
+          PortInfo.LocationSecurePort = registrationDetails.LocationSecurePort;
+          PortInfo.ApiPort = registrationDetails.ApiPort;
+          PortInfo.ApiSecurePort = registrationDetails.ApiSecurePort;
+          PortInfo.LocationV2Port = registrationDetails.LocationV2Port;
+          PortInfo.LocationV2SecurePort = registrationDetails.LocationV2SecurePort;
+        }
 
-            Latitude = null;
-            Longitude = null;
-            Altitude = null;
-          }
-        }
-        else
-        {
-          // Pop up window to ask user if they'd like to configure their receiver.
-          // Otherwise will take them to connection window.
-          await DisplayAlertAsync("Receiver Not Connected",
-            "Connect to a receiver in TMM to start streaming positions.",
-            "Okay");
-        }
+        Debug.WriteLine($"Registration status: {registrationDetails.RegistrationResult}");
+        return string.Equals(registrationDetails.RegistrationResult, "OK", StringComparison.OrdinalIgnoreCase)
+          || string.Equals(registrationDetails.RegistrationResult, "success", StringComparison.OrdinalIgnoreCase);
       }
-      else
+      catch (Exception ex)
       {
-        AreLabelsVisible = true;
-        Messages = "Please register your app first or connect receiver";
+        Debug.WriteLine($"[TryRegisterAsync] Error: {ex.Message}");
+        return false;
       }
     }
 
@@ -208,44 +249,42 @@ namespace MauiSample
     {
       MainThread.BeginInvokeOnMainThread(() =>
       {
-        AreLabelsVisible = false;
-        Latitude = position.Latitude;
-        Longitude = position.Longitude;
-        Altitude = position.Altitude;
+        LatitudeText = FormatCoordinate(position.Latitude);
+        LongitudeText = FormatCoordinate(position.Longitude);
+        AltitudeText = FormatDistance(position.Altitude);
+        AccuracyText = FormatDistance(position.Hrms);
       });
     }
 
-    public async Task GetReceiverAsync()
+    private static string FormatCoordinate(double? value)
     {
-      // Ran after Receiver button is clicked. Will attempt to retrieve the connected receiver's name.
-      if (IsRegistered == false)
-      {
-        ReceiverName = "Please register your app and try again.";
-        return;
-      }
-
-      var receiver = await RestApiService.GetReceiverAsync();
-
-      if (receiver is not null)
-      {
-        ReceiverName = receiver.BluetoothName ?? string.Empty;
-      }
-      else
-      {
-        ReceiverName = "Failed to get receiver.";
-      }
+      return value.HasValue ? value.Value.ToString("F8") + "°" : string.Empty;
     }
 
-    public async Task<bool> CheckReceiverConnection()
+    private static string FormatDistance(double? value)
     {
-      // Checks whether receiver is connected when WebSocket tries to connect.
-      if (IsRegistered == false)
-      {
-        return false;
-      }
+      return value.HasValue ? value.Value.ToString("F3") + " m" : string.Empty;
+    }
 
-      ReceiverInfo? receiver = await RestApiService.GetReceiverAsync();
-      return receiver?.IsConnected ?? false;
+    private void ClearLocationData()
+    {
+      LatitudeText = string.Empty;
+      LongitudeText = string.Empty;
+      AltitudeText = string.Empty;
+      AccuracyText = string.Empty;
+    }
+
+    private void SetConnectionState(bool isConnecting, bool isConnected)
+    {
+      MainThread.BeginInvokeOnMainThread(() =>
+      {
+        _isConnecting = isConnecting;
+        _isConnected = isConnected;
+        this.RaisePropertyChanged(nameof(IsConnecting));
+        this.RaisePropertyChanged(nameof(IsConnected));
+        ConnectCommand.NotifyCanExecuteChanged();
+        DisconnectCommand.NotifyCanExecuteChanged();
+      });
     }
 
     private static async Task DisplayAlertAsync(string title, string message, string cancel)

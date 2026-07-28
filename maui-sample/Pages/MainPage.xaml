@@ -11,94 +11,56 @@
   </ContentPage.BindingContext>
 
   <ScrollView>
-    <Grid
-      HorizontalOptions="Center">
+    <Grid HorizontalOptions="Center">
       <VerticalStackLayout>
 
-        <HorizontalStackLayout>
-          <VerticalStackLayout>
-            <Label
-              Text="Enter App ID"
-              Margin="0,0,0,10"/>
-            <Editor
-              x:Name="AppIDEntry"
-              Text="{Binding ApplicationID}"
-              AutoSize="TextChanges"
-              BackgroundColor="White"
-              TextColor="Black" 
-              Margin="0,0,20,0"
-              WidthRequest="200"/>
-          </VerticalStackLayout>
-          <Button
-            x:Name="RegisterButton"
-            Text="Register"
-            Command="{Binding RegisterCommand}"
-            VerticalOptions="End"
-            WidthRequest="100"/>
-        </HorizontalStackLayout>
+        <VerticalStackLayout>
+          <Label
+            Text="Application ID"
+            Margin="0,0,0,10"/>
+          <Entry
+            x:Name="AppIDEntry"
+            Placeholder="Enter your Application ID"
+            Text="{Binding ApplicationID}"
+            BackgroundColor="White"
+            TextColor="Black"
+            WidthRequest="320"/>
+        </VerticalStackLayout>
 
-        <HorizontalStackLayout
-          Margin="0,20,0,0">
-          <VerticalStackLayout>
-            <Label
-              Text="Receiver name"
-              Margin="0,10,0,10"/>
-            <Editor
-              x:Name="ReceiverDisplayName"
-              Text="{Binding ReceiverName}"
-              IsReadOnly="True"
-              AutoSize="TextChanges"
-              BackgroundColor="WhiteSmoke"
-              TextColor="Black"
-              Margin="0,0,20,0"
-              WidthRequest="200"/>
-          </VerticalStackLayout>
+        <HorizontalStackLayout Margin="0,20,0,0" Spacing="12">
           <Button
-            x:Name="GetReceiverButton"
-            Text="Get receiver"
-            Command="{Binding GetReceiverCommand}"
-            VerticalOptions="End"
+            x:Name="ConnectButton"
+            Text="Connect"
+            Command="{Binding ConnectCommand}"
+            WidthRequest="120"/>
+          <Button
+            x:Name="DisconnectButton"
+            Text="Disconnect"
+            Command="{Binding DisconnectCommand}"
             WidthRequest="120"/>
         </HorizontalStackLayout>
 
-        <VerticalStackLayout
-          Margin="0,20,0,0">
-          <Label
-            Text="{Binding Messages}"
-            IsVisible="{Binding AreLabelsVisible}"/>
-          <Label
-            Text="Latitude"
-            Margin="0,20,0,0"/>
-          <Editor
-            Text="{Binding Latitude}"
-            IsReadOnly="True"
-            AutoSize="TextChanges"
-            BackgroundColor="WhiteSmoke"
-            TextColor="Black"/>
-          <Label
-            Text="Longitude"
-            Margin="0,20,0,0"/>
-          <Editor
-            Text="{Binding Longitude}"
-            IsReadOnly="True"
-            AutoSize="TextChanges"
-            BackgroundColor="WhiteSmoke"
-            TextColor="Black"/>
-          <Label
-            Text="Altitude"
-            Margin="0,20,0,0"/>
-          <Editor
-            Text="{Binding Altitude}"
-            IsReadOnly="True"
-            AutoSize="TextChanges"
-            BackgroundColor="WhiteSmoke"
-            TextColor="Black"
-            Margin="0,0,0,10"/>
-          <Button
-            x:Name="StartPositionStreamButton"
-            Text="{Binding PositionStreamButtonText}"
-            Command="{Binding TogglePositionStreamCommand}"/>
-        </VerticalStackLayout>
+        <Label
+          Text="{Binding StatusMessage}"
+          Margin="0,20,0,0"/>
+
+        <Grid
+          Margin="0,20,0,0"
+          ColumnDefinitions="Auto,*"
+          RowDefinitions="Auto,Auto,Auto,Auto"
+          RowSpacing="12"
+          ColumnSpacing="16"
+          WidthRequest="320">
+          <Label Text="Latitude" Grid.Row="0" Grid.Column="0"/>
+          <Label Text="{Binding LatitudeText}" Grid.Row="0" Grid.Column="1"/>
+          <Label Text="Longitude" Grid.Row="1" Grid.Column="0"/>
+          <Label Text="{Binding LongitudeText}" Grid.Row="1" Grid.Column="1"/>
+          <Label Text="Altitude" Grid.Row="2" Grid.Column="0"/>
+          <Label Text="{Binding AltitudeText}" Grid.Row="2" Grid.Column="1"/>
+          <Label Text="Accuracy" Grid.Row="3" Grid.Column="0"/>
+          <Label Text="{Binding AccuracyText}" Grid.Row="3" Grid.Column="1"/>
+        </Grid>
+
       </VerticalStackLayout>
     </Grid>
   </ScrollView>
