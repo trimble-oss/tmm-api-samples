@@ -11,55 +11,62 @@
   </ContentPage.BindingContext>
 
   <ScrollView>
-    <Grid HorizontalOptions="Center">
-      <VerticalStackLayout>
+    <Grid HorizontalOptions="Center" WidthRequest="320">
+      <VerticalStackLayout Spacing="20">
 
-        <VerticalStackLayout>
+        <VerticalStackLayout Spacing="8">
           <Label
             Text="Application ID"
-            Margin="0,0,0,10"/>
+            TextColor="Gray"/>
           <Entry
             x:Name="AppIDEntry"
             Placeholder="Enter your Application ID"
             Text="{Binding ApplicationID}"
             BackgroundColor="White"
-            TextColor="Black"
-            WidthRequest="320"/>
+            TextColor="Black"/>
         </VerticalStackLayout>
 
-        <HorizontalStackLayout Margin="0,20,0,0" Spacing="12">
+        <HorizontalStackLayout Spacing="12">
           <Button
             x:Name="ConnectButton"
             Text="Connect"
-            Command="{Binding ConnectCommand}"
-            WidthRequest="120"/>
+            Command="{Binding ConnectCommand}"/>
           <Button
             x:Name="DisconnectButton"
             Text="Disconnect"
-            Command="{Binding DisconnectCommand}"
-            WidthRequest="120"/>
+            Command="{Binding DisconnectCommand}"/>
         </HorizontalStackLayout>
 
-        <Label
-          Text="{Binding StatusMessage}"
-          Margin="0,20,0,0"/>
+        <VerticalStackLayout Spacing="8">
+          <Label
+            Text="Status"
+            TextColor="Gray"/>
+          <Label
+            Text="{Binding StatusMessage}"/>
+        </VerticalStackLayout>
 
-        <Grid
-          Margin="0,20,0,0"
-          ColumnDefinitions="Auto,*"
-          RowDefinitions="Auto,Auto,Auto,Auto"
-          RowSpacing="12"
-          ColumnSpacing="16"
-          WidthRequest="320">
-          <Label Text="Latitude" Grid.Row="0" Grid.Column="0"/>
-          <Label Text="{Binding LatitudeText}" Grid.Row="0" Grid.Column="1"/>
-          <Label Text="Longitude" Grid.Row="1" Grid.Column="0"/>
-          <Label Text="{Binding LongitudeText}" Grid.Row="1" Grid.Column="1"/>
-          <Label Text="Altitude" Grid.Row="2" Grid.Column="0"/>
-          <Label Text="{Binding AltitudeText}" Grid.Row="2" Grid.Column="1"/>
-          <Label Text="Accuracy" Grid.Row="3" Grid.Column="0"/>
-          <Label Text="{Binding AccuracyText}" Grid.Row="3" Grid.Column="1"/>
-        </Grid>
+        <Border
+          BackgroundColor="DimGray"
+          StrokeThickness="0"
+          Padding="20">
+          <Border.StrokeShape>
+            <RoundRectangle CornerRadius="8"/>
+          </Border.StrokeShape>
+          <Grid
+            ColumnDefinitions="Auto,*"
+            RowDefinitions="Auto,Auto,Auto,Auto"
+            RowSpacing="12"
+            ColumnSpacing="16">
+            <Label Text="Latitude" Grid.Row="0" Grid.Column="0" TextColor="LightGray" FontAttributes="Bold"/>
+            <Label Text="{Binding LatitudeText}" Grid.Row="0" Grid.Column="1" TextColor="White" FontAttributes="Bold"/>
+            <Label Text="Longitude" Grid.Row="1" Grid.Column="0" TextColor="LightGray" FontAttributes="Bold"/>
+            <Label Text="{Binding LongitudeText}" Grid.Row="1" Grid.Column="1" TextColor="White" FontAttributes="Bold"/>
+            <Label Text="Altitude" Grid.Row="2" Grid.Column="0" TextColor="LightGray" FontAttributes="Bold"/>
+            <Label Text="{Binding AltitudeText}" Grid.Row="2" Grid.Column="1" TextColor="White" FontAttributes="Bold"/>
+            <Label Text="Accuracy" Grid.Row="3" Grid.Column="0" TextColor="LightGray" FontAttributes="Bold"/>
+            <Label Text="{Binding AccuracyText}" Grid.Row="3" Grid.Column="1" TextColor="White" FontAttributes="Bold"/>
+          </Grid>
+        </Border>
 
       </VerticalStackLayout>
     </Grid>
