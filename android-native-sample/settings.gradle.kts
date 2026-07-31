@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "kotlin_sample"
+rootProject.name = "android-native-sample"
 include(":app")

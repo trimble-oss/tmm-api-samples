@@ -19,7 +19,7 @@ When answering questions about API behavior, endpoints, or specifications, prefe
 ## Sample applications in this repo
 
 - `maui-sample/` — Cross-platform .NET MAUI (Android, iOS, Windows)
-- `Kotlin_sample/` — Native Android (Kotlin)
+- `android-native-sample/` — Native Android (Kotlin)
 - `swift_sample/` — Native iOS (Swift)
 - `web-sample/` — Web (React + Express)
 

@@ -1,6 +1,6 @@
 <resources>
 <!--  Title -->
-  <string name="app_name">Kotlin Sample</string>
+  <string name="app_name">Android Native Sample</string>
   <string name="version">Version %1$s</string>
 
 <!--  App ID field -->

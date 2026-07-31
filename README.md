@@ -3,7 +3,7 @@ A collection of sample applications that demonstrate basic use of Trimble Mobile
 
 This repository contains the following sample applications:
 - Cross platform Android, iOS, and Windows (.NET MAUI)
-- Native Android (Kotlin)
+- Native Android (Kotlin) — [`android-native-sample/`](android-native-sample/)
 - Native iOS (Swift)
 - Web (React + Express)
 
