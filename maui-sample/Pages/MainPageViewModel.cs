@@ -162,6 +162,12 @@ namespace MauiSample
         StatusMessage = "Connected.";
         SetConnectionState(isConnecting: false, isConnected: true);
       }
+      catch (InvalidApplicationIdException)
+      {
+        StatusMessage = "Invalid Application ID.";
+        await DisplayAlertAsync("Error", "The provided Application ID is invalid.", "OK");
+        SetConnectionState(isConnecting: false, isConnected: false);
+      }
       catch (Exception ex)
       {
         Debug.WriteLine($"[ConnectAsync] Error: {ex.Message}");
