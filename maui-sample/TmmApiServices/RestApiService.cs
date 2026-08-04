@@ -9,15 +9,16 @@ namespace MauiSample;
 
 internal static class RestApiService
 {
-  private static readonly string BaseAddress = $"https://tmm-api-local.fieldsystems.trimble.com:{PortInfo.ApiSecurePort}/";
-  //private static readonly string BaseAddress = $"http://localhost:{PortInfo.ApiPort}/";
-  private static readonly HashSet<string> LocalServerHosts = new(StringComparer.OrdinalIgnoreCase)
+#if ANDROID
+  private static readonly HashSet<string> s_localServerHosts = new(StringComparer.OrdinalIgnoreCase)
   {
     "localhost",
     "127.0.0.1",
     "tmm-api-local.fieldsystems.trimble.com"
   };
+#endif
 
+  private static readonly string BaseAddress = $"https://tmm-api-local.fieldsystems.trimble.com:{PortInfo.ApiSecurePort}/";
   private static readonly Lazy<HttpClient> _lazyClient = new(CreateHttpClient);
   private static TimeSpan DefaultTimeout = TimeSpan.FromSeconds(15);
   private static HttpClient Client => _lazyClient.Value;
@@ -27,29 +28,30 @@ internal static class RestApiService
   private static HttpClient CreateHttpClient()
   {
 #if ANDROID
-    var handler = new HttpClientHandler();
-    handler.ServerCertificateCustomValidationCallback = (request, cert, chain, sslPolicyErrors) =>
+    var handler = new HttpClientHandler
     {
-      if (sslPolicyErrors == SslPolicyErrors.None)
+      ServerCertificateCustomValidationCallback = (request, cert, chain, sslPolicyErrors) =>
       {
-        return true;
-      }
+        if (sslPolicyErrors == SslPolicyErrors.None)
+        {
+          return true;
+        }
 
-      if (request?.RequestUri is null)
-      {
-        return false;
-      }
+        if (request?.RequestUri is null)
+        {
+          return false;
+        }
 
-      // Android does not trust our cert chain by default because, even though it has a
-      // valid certificate, tmm-api-local.fieldsystems.trimble.com resolves to 127.0.0.1.
-      if (LocalServerHosts?.Contains(request.RequestUri.Host) == false)
-      {
-        return false;
-      }
+        // The local TMM API certificate chain is not in Android's system trust store.
+        // Allow chain-only failures for known local hosts; hostname checks remain enforced.
+        if (s_localServerHosts?.Contains(request.RequestUri.Host) == false)
+        {
+          return false;
+        }
 
-      // Allow chain-only failures for known local hosts, but keep hostname checks enforced.
-      var hasOnlyChainErrors = (sslPolicyErrors & ~SslPolicyErrors.RemoteCertificateChainErrors) == 0;
-      return hasOnlyChainErrors;
+        var hasOnlyChainErrors = (sslPolicyErrors & ~SslPolicyErrors.RemoteCertificateChainErrors) == 0;
+        return hasOnlyChainErrors;
+      }
     };
 
     return new HttpClient(handler)

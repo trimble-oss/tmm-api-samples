@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Net.Security;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
@@ -8,6 +9,15 @@ namespace MauiSample;
 
 internal sealed class WebSocketService
 {
+#if ANDROID
+  private static readonly HashSet<string> s_localServerHosts = new(StringComparer.OrdinalIgnoreCase)
+  {
+    "localhost",
+    "127.0.0.1",
+    "tmm-api-local.fieldsystems.trimble.com"
+  };
+#endif
+
   private static readonly JsonSerializerOptions _serializerOptions = new()
   {
     PropertyNameCaseInsensitive = true
@@ -20,7 +30,9 @@ internal sealed class WebSocketService
     try
     {
       using ClientWebSocket client = new();
-      await client.ConnectAsync(new Uri($"ws://localhost:{PortInfo.LocationV2Port}"), cancellationToken);
+      Uri uri = new($"wss://tmm-api-local.fieldsystems.trimble.com:{PortInfo.LocationV2SecurePort}/locationV2");
+      ConfigureLocalTlsValidation(client, uri);
+      await client.ConnectAsync(uri, cancellationToken);
 
       while (!cancellationToken.IsCancellationRequested)
       {
@@ -72,5 +84,29 @@ internal sealed class WebSocketService
     {
       Debug.WriteLine($"[ReadPositionsAsync] Error: {ex.Message}");
     }
+  }
+
+  private static void ConfigureLocalTlsValidation(ClientWebSocket socket, Uri uri)
+  {
+#if ANDROID
+    // The local TMM API certificate chain is not in Android's system trust store.
+    // Allow chain-only failures for known local hosts; hostname checks remain enforced.
+    if (!string.Equals(uri.Scheme, "wss", StringComparison.OrdinalIgnoreCase)
+        || !s_localServerHosts.Contains(uri.Host))
+    {
+      return;
+    }
+
+    socket.Options.RemoteCertificateValidationCallback = (_, _, _, sslPolicyErrors) =>
+    {
+      if (sslPolicyErrors == SslPolicyErrors.None)
+      {
+        return true;
+      }
+
+      // Allow only chain trust failures for known local test hosts.
+      return (sslPolicyErrors & ~SslPolicyErrors.RemoteCertificateChainErrors) == 0;
+    };
+#endif
   }
 }
