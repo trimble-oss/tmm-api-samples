@@ -214,3 +214,4 @@ dist/
 .env.local
 .vscode/
 web-sample/frontend/.vite/
+android-native-sample/.idea/
