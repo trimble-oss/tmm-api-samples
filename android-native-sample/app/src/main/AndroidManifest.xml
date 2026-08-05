@@ -3,7 +3,7 @@
   xmlns:tools="http://schemas.android.com/tools">
 
   <uses-permission android:name="android.permission.INTERNET" />
-<!--  Need this permission to use HTTP clients -->
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
   <application
     android:allowBackup="true"
@@ -16,13 +16,12 @@
     android:theme="@style/Theme.AndroidNativeSample"
     tools:targetApi="31">
 
-    <!-- The name is the class name in the associated activity -->
     <activity
       android:name=".MainActivity"
-      android:exported="true">
+      android:exported="true"
+      android:windowSoftInputMode="adjustResize">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
-
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
