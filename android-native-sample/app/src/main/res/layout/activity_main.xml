@@ -3,226 +3,169 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent">
-<androidx.constraintlayout.widget.ConstraintLayout
   android:id="@+id/main"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:fillViewport="true"
+  tools:context=".MainActivity">
+
+  <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".MainActivity">
+    android:orientation="vertical"
+    android:padding="24dp">
 
-<!-- There are various layouts that can be used.
-Constraint is the simplest to organize using the built in previewer -->
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/application_id_label"
+      android:textColor="?android:attr/textColorSecondary" />
 
-  <TextView
-    android:id="@+id/titleText"
-    android:layout_width="163dp"
-    android:layout_height="46dp"
-    android:layout_marginStart="36dp"
-    android:layout_marginTop="2dp"
-    android:layout_marginEnd="212dp"
-    android:text="@string/app_name"
-    android:textSize="24sp"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent" />
-
-  <!-- Each item in the Constraint layout requires at least
-  1 vertical and horizontal constraint specified -->
-
-  <TextView
-    android:id="@+id/versionText"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="2dp"
-    android:layout_marginEnd="84dp"
-    android:text="Placeholder text"
-    android:textSize="24sp"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintTop_toTopOf="parent" />
-
-<!-- It is preferred to reference text through a separate xml file.
-  I am using hard-coded text above because version text is never seen and makes previewer easier to use -->
-
-  <!-- The referenced text is stored in the "values" directory, where the format is @xmlFileName/resourceName -->
-
-  <Button
-    android:id="@+id/startStopButton"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="160dp"
-    android:layout_marginTop="16dp"
-    android:layout_marginEnd="160dp"
-    android:text="@string/start"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.505"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/textInputLayout3" />
-
-  <Button
-    android:id="@+id/registerButton"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="39dp"
-    android:layout_marginTop="44dp"
-    android:layout_marginEnd="32dp"
-    android:text="@string/register_button"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.4"
-    app:layout_constraintStart_toEndOf="@+id/textInputLayout4"
-    app:layout_constraintTop_toBottomOf="@+id/versionText" />
-
-  <TextView
-    android:id="@+id/receiverNameTextView"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="58dp"
-    android:layout_marginTop="28dp"
-    android:layout_marginEnd="252dp"
-    android:text="@string/receiver_name_label"
-    android:textSize="15sp"
-    android:textStyle="bold"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/registerButton" />
-
-  <com.google.android.material.textfield.TextInputLayout
-    android:id="@+id/receiverNameTextLayout"
-    android:layout_width="203dp"
-    android:layout_height="70dp"
-    android:layout_marginStart="16dp"
-    android:layout_marginTop="4dp"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/receiverNameTextView">
-
-    <com.google.android.material.textfield.TextInputEditText
-      android:id="@+id/receiverNameText"
-      android:layout_width="match_parent"
-      android:layout_height="59dp"
-      android:focusableInTouchMode="false"
-      android:hint="@string/receiver_name_label" />
-  </com.google.android.material.textfield.TextInputLayout>
-
-  <Button
-    android:id="@+id/getReceiverButton"
-    android:layout_width="117dp"
-    android:layout_height="63dp"
-    android:layout_marginStart="44dp"
-    android:layout_marginTop="56dp"
-    android:layout_marginEnd="17dp"
-    android:text="@string/receiver_name_button"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.972"
-    app:layout_constraintStart_toEndOf="@+id/receiverNameTextLayout"
-    app:layout_constraintTop_toBottomOf="@+id/registerButton" />
-
-  <TextView
-    android:id="@+id/latitudeTextView"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="20dp"
-    android:layout_marginEnd="150dp"
-    android:text="@string/latitude"
-    android:textSize="20sp"
-    android:textStyle="bold"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/receiverNameTextLayout" />
-
-  <TextView
-    android:id="@+id/longitudeTextView"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:layout_marginEnd="145dp"
-    android:text="@string/longitude"
-    android:textSize="20sp"
-    android:textStyle="bold"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
-
-  <TextView
-    android:id="@+id/altitudeTextView"
-    android:layout_width="72dp"
-    android:layout_height="29dp"
-    android:layout_marginTop="15dp"
-    android:layout_marginEnd="150dp"
-    android:text="@string/altitude"
-    android:textSize="20sp"
-    android:textStyle="bold"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/textInputLayout2" />
-
-  <com.google.android.material.textfield.TextInputLayout
-    android:id="@+id/textInputLayout"
-    android:layout_width="303dp"
-    android:layout_height="65dp"
-    android:layout_marginStart="58dp"
-    android:layout_marginTop="7dp"
-    android:layout_marginEnd="59dp"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/latitudeTextView">
-
-    <com.google.android.material.textfield.TextInputEditText
-      android:id="@+id/latitudeTextField"
+    <com.google.android.material.textfield.TextInputLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:focusableInTouchMode="false"
-      android:hint="@string/latitude" />
-  </com.google.android.material.textfield.TextInputLayout>
+      android:layout_marginTop="8dp">
 
-  <com.google.android.material.textfield.TextInputLayout
-    android:id="@+id/textInputLayout2"
-    android:layout_width="303dp"
-    android:layout_height="65dp"
-    android:layout_marginStart="53dp"
-    android:layout_marginTop="6dp"
-    android:layout_marginEnd="58dp"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/longitudeTextView">
+      <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/appIdEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/enter_app_id"
+        android:inputType="text"
+        android:maxLines="1" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputEditText
-      android:id="@+id/longitudeTextField"
+    <LinearLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:focusableInTouchMode="false"
-      android:hint="@string/longitude" />
-  </com.google.android.material.textfield.TextInputLayout>
+      android:layout_marginTop="20dp"
+      android:gravity="center_vertical"
+      android:orientation="horizontal">
 
-  <com.google.android.material.textfield.TextInputLayout
-    android:id="@+id/textInputLayout3"
-    android:layout_width="303dp"
-    android:layout_height="65dp"
-    android:layout_marginStart="57dp"
-    android:layout_marginEnd="57dp"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/altitudeTextView">
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/connectButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_weight="1"
+        android:text="@string/connect" />
 
-    <com.google.android.material.textfield.TextInputEditText
-      android:id="@+id/altitudeTextField"
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/disconnectButton"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_weight="1"
+        android:enabled="false"
+        android:text="@string/disconnect" />
+    </LinearLayout>
+
+    <ProgressBar
+      android:id="@+id/progressBar"
+      style="?android:attr/progressBarStyleHorizontal"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:focusableInTouchMode="false"
-      android:hint="@string/altitude" />
-  </com.google.android.material.textfield.TextInputLayout>
+      android:layout_marginTop="12dp"
+      android:indeterminate="true"
+      android:visibility="gone" />
 
-  <com.google.android.material.textfield.TextInputLayout
-    android:id="@+id/textInputLayout4"
-    android:layout_width="203dp"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="16dp"
-    android:layout_marginTop="20dp"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/titleText">
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="20dp"
+      android:text="@string/status_label"
+      android:textColor="?android:attr/textColorSecondary" />
 
-    <com.google.android.material.textfield.TextInputEditText
-      android:id="@+id/registerEditField"
+    <TextView
+      android:id="@+id/statusText"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:hint="@string/enter_app_id" />
-  </com.google.android.material.textfield.TextInputLayout>
+      android:layout_marginTop="8dp"
+      android:minHeight="24dp"
+      android:textAppearance="?attr/textAppearanceBodyLarge"
+      tools:text="Connected." />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <com.google.android.material.card.MaterialCardView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="24dp"
+      app:cardBackgroundColor="#696969"
+      app:cardCornerRadius="8dp"
+      app:cardElevation="0dp">
+
+      <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="2"
+        android:padding="20dp"
+        android:useDefaultMargins="true">
+
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/latitude"
+          android:textColor="#D3D3D3"
+          android:textStyle="bold" />
+
+        <TextView
+          android:id="@+id/latitudeValue"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_columnWeight="1"
+          android:textColor="@android:color/white"
+          android:textStyle="bold"
+          tools:text="37.12345678°" />
+
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/longitude"
+          android:textColor="#D3D3D3"
+          android:textStyle="bold" />
+
+        <TextView
+          android:id="@+id/longitudeValue"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_columnWeight="1"
+          android:textColor="@android:color/white"
+          android:textStyle="bold"
+          tools:text="-122.12345678°" />
+
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/altitude"
+          android:textColor="#D3D3D3"
+          android:textStyle="bold" />
+
+        <TextView
+          android:id="@+id/altitudeValue"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_columnWeight="1"
+          android:textColor="@android:color/white"
+          android:textStyle="bold"
+          tools:text="12.345 m" />
+
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/accuracy"
+          android:textColor="#D3D3D3"
+          android:textStyle="bold" />
+
+        <TextView
+          android:id="@+id/accuracyValue"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_columnWeight="1"
+          android:textColor="@android:color/white"
+          android:textStyle="bold"
+          tools:text="0.020 m" />
+      </GridLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+  </LinearLayout>
 </ScrollView>

@@ -1,165 +1,110 @@
 package com.example.kotlin_sample
 
-import android.content.Intent
 import android.os.Bundle
-import android.widget.*
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.google.android.material.textfield.TextInputEditText
-import kotlinx.coroutines.*
-import io.ktor.client.statement.bodyAsText
-import org.json.JSONObject
-
-
-import com.example.kotlin_sample.utils.ReceiverUtils
-import com.example.kotlin_sample.utils.WebSocketManager
+import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.example.kotlin_sample.databinding.ActivityMainBinding
+import com.example.kotlin_sample.tmmapiservices.PlatformRequestService
+import com.example.kotlin_sample.ui.MainUiEvent
+import com.example.kotlin_sample.ui.MainViewModel
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
+  private lateinit var binding: ActivityMainBinding
 
-//  Initiates variable but assigns it only when used.
-  private lateinit var startForResult: ActivityResultLauncher<Intent>
+  private val platformRequestService by lazy { PlatformRequestService(this) }
+  private val appPreferences by lazy { AppPreferences(this) }
 
-//  AppID textbox
-  private lateinit var appIDInput: TextInputEditText
+  private val viewModel: MainViewModel by viewModels {
+    MainViewModel.Factory(appPreferences, platformRequestService)
+  }
 
-//  Values returned from registration intent. Each required for different parts of the app.
-  private var registrationResult: String? = null
-  private var apiPort: Int = -1
-  private var positionsV2Port: Int = -1
-
-//  Http client for receiver API - Can't be reused for web socket as it causes `Parent process has finished` exception.
-  private val client = ReceiverUtils()
-
-//  WebSocket client - Separate from the receiver's.
-  private val webSocket = WebSocketManager()
+  private var suppressAppIdWatcher = false
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
-    setContentView(R.layout.activity_main)
-    ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+    binding = ActivityMainBinding.inflate(layoutInflater)
+    setContentView(binding.root)
+
+    ViewCompat.setOnApplyWindowInsetsListener(binding.main) { view, insets ->
       val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-      v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+      view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
       insets
     }
 
-    startForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-      // Result from the StartActivityForResult(). This receives the information from the callback URL.
-      if (result.resultCode == RESULT_OK) {
-        val data: Intent? = result.data
-
-        if (data != null) {
-          registrationResult = data.getStringExtra("registrationResult")
-          apiPort = data.getIntExtra("apiPort", -1)
-          positionsV2Port = data.getIntExtra("locationV2Port", -1)
-
-//          Alerts user if registration was OK, No Network or UnAuthorized.
-          if (registrationResult != "OK") {
-            Toast.makeText(this@MainActivity, "Registration Error: $registrationResult", Toast.LENGTH_SHORT).show()
-          } else {
-            Toast.makeText(this@MainActivity, "Registration successful", Toast.LENGTH_SHORT).show()
-          }
+    binding.appIdEditText.setText(viewModel.uiState.value.applicationId)
+    binding.appIdEditText.addTextChangedListener(object : TextWatcher {
+      override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+      override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+      override fun afterTextChanged(s: Editable?) {
+        if (!suppressAppIdWatcher) {
+          viewModel.onApplicationIdChanged(s?.toString().orEmpty())
         }
       }
-    }
+    })
 
-//      Version - Shows the version as text
-    val versionText: TextView = findViewById(R.id.versionText)
-    val versionNumber = applicationContext.packageManager.getPackageInfo(
-      applicationContext.packageName,
-      0
-    ).versionName
-    versionText.text = getString(R.string.version, versionNumber)
+    binding.connectButton.setOnClickListener { viewModel.connect() }
+    binding.disconnectButton.setOnClickListener { viewModel.disconnect() }
 
-//  register button. Sends the register intent.
-    appIDInput = findViewById(R.id.registerEditField)
-    val buttonRegister: Button = findViewById(R.id.registerButton)
-    buttonRegister.setOnClickListener {
-        println(sendCustomIntent("com.trimble.tmm.REGISTER", true))
-    }
+    lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launch {
+          viewModel.uiState.collect { state ->
+            if (binding.appIdEditText.text?.toString() != state.applicationId) {
+              suppressAppIdWatcher = true
+              binding.appIdEditText.setText(state.applicationId)
+              binding.appIdEditText.setSelection(state.applicationId.length)
+              suppressAppIdWatcher = false
+            }
 
-//    Get receiver button. Shows the receiver's bluetooth name via receiver API.
-    val getReceiverBut: Button = findViewById(R.id.getReceiverButton)
-    getReceiverBut.setOnClickListener {
-      client.getReceiverName(this@MainActivity, registrationResult ?: "", appIDInput, apiPort)
-    }
+            binding.statusText.text = state.statusMessage
+            binding.latitudeValue.text = state.latitude
+            binding.longitudeValue.text = state.longitude
+            binding.altitudeValue.text = state.altitude
+            binding.accuracyValue.text = state.accuracy
 
-    // Start/Stop position stream button.
-    val startStopBut: Button = findViewById(R.id.startStopButton)
+            binding.connectButton.isEnabled = state.canConnect
+            binding.disconnectButton.isEnabled = state.canDisconnect
+            binding.progressBar.isVisible = state.isConnecting
+          }
+        }
 
-    val startText = getString(R.string.start)
-    val stopText = getString(R.string.stop)
+        launch {
+          viewModel.events.collect { event ->
+            when (event) {
+              is MainUiEvent.Alert -> {
+                AlertDialog.Builder(this@MainActivity)
+                  .setTitle(event.title)
+                  .setMessage(event.message)
+                  .setPositiveButton(android.R.string.ok, null)
+                  .show()
+              }
 
-    startStopBut.setOnClickListener {
-      CoroutineScope(Dispatchers.IO).launch {
-        try {
-//          Checks if app is registered. Will ask user to register app if it isn't.
-          if (startStopBut.text == startText) {
-            if (registrationResult == "OK") {
-              val response = client.checkReceiverConnection(appIDInput, apiPort)
-              var isConnected = response.bodyAsText()
-              isConnected = JSONObject(isConnected).getString("isConnected")
-
-//              Connects to WebSocket if receiver is connected. Otherwise shows a dialog box.
-              withContext(Dispatchers.Main) {
-                if (isConnected == "true") {
-                  webSocket.startWebSocket(this@MainActivity, positionsV2Port)
-                  startStopBut.text = stopText
-                } else {
-//                  Shows dialog box asking if they would like to configure the receiver.
-//                  Sends them to either receiver selection screen or configuration screen via their respective intents.
-                  val alert = AlertDialog.Builder(this@MainActivity)
-                  alert.setMessage("Receiver not connected.\n\nWould you like to configure your DA2 receiver?")
-                  .setPositiveButton("Yes") { dialog, id ->
-                    sendCustomIntent("com.trimble.tmm.OPEN_TO_CONFIGURATION", false)
-                  }.setNegativeButton("No") {dialog, id ->
-                    sendCustomIntent("com.trimble.tmm.RECEIVERSELECTION", false)
+              is MainUiEvent.ConfirmReceiverNotConfigured -> {
+                AlertDialog.Builder(this@MainActivity)
+                  .setTitle(R.string.receiver_not_configured_title)
+                  .setMessage(event.message)
+                  .setPositiveButton(R.string.open_tmm) { _, _ ->
+                    viewModel.openReceiverSelection()
                   }
-                    .create().show()
-                }
-              }
-            } else {
-              withContext(Dispatchers.Main) {
-                Toast.makeText(this@MainActivity, getString(R.string.register_error_text), Toast.LENGTH_SHORT).show()
+                  .setNegativeButton(android.R.string.cancel, null)
+                  .show()
               }
             }
-          } else {
-//            If WebSocket already connect, will disconnect the WebSocket and blanks the textboxes.
-            webSocket.stopWebSocket(this@MainActivity)
-            withContext(Dispatchers.Main) {
-              startStopBut.text = startText
-            }
-          }
-        } catch (e: Exception) {
-          withContext(Dispatchers.Main) {
-            println("Error: ${e.message}")
           }
         }
       }
     }
-  }
-
-  private fun sendCustomIntent(action: String, includeAppID: Boolean) {
-    // Launching the intent and passing the AppID to the intent
-    // Most intents will either need or not need AppID, which the function can handle
-    val intent = Intent(action)
-
-    if (includeAppID) {
-//      Gets app id from the textbox
-      intent.putExtra("applicationID", appIDInput.text.toString())
-    }
-    startForResult.launch(intent)
-    }
-
-//  Cleanup of app resources when it is closed.
-  override fun onDestroy() {
-    super.onDestroy()
-    client.clientClose()
-    webSocket.sessionClose()
   }
 }
