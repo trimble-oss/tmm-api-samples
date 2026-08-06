@@ -16,10 +16,12 @@ import okhttp3.OkHttpClient
  * Allow chain trust failures for known local hosts; hostname checks remain enforced.
  */
 internal object LocalTmmSsl {
+  private const val LOCAL_TMM_CERT_CN = "tmm-api-local.fieldsystems.trimble.com"
+
   private val localServerHosts = setOf(
     "localhost",
     "127.0.0.1",
-    "tmm-api-local.fieldsystems.trimble.com",
+    LOCAL_TMM_CERT_CN,
   )
 
   fun applyTo(builder: OkHttpClient.Builder): OkHttpClient.Builder {
@@ -50,8 +52,11 @@ internal object LocalTmmSsl {
       override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
         try {
           defaultTrustManager.checkServerTrusted(chain, authType)
-        } catch (_: CertificateException) {
-          // Allow untrusted / incomplete chains used by the local TMM API.
+        } catch (ex: CertificateException) {
+          if (!chainContainsLocalTmmCertificate(chain)) {
+            throw ex
+          }
+          // Allow untrusted / incomplete chains for the local TMM API certificate.
           // Hostname verification is still performed by OkHttp.
         }
       }
@@ -60,4 +65,16 @@ internal object LocalTmmSsl {
         defaultTrustManager.acceptedIssuers
     }
   }
+
+  private fun chainContainsLocalTmmCertificate(chain: Array<X509Certificate>): Boolean =
+    chain.any { certificate -> getCommonName(certificate) == LOCAL_TMM_CERT_CN }
+
+  private val commonNamePattern = Regex("""(?:^|,)CN=([^,]+)""", RegexOption.IGNORE_CASE)
+
+  private fun getCommonName(certificate: X509Certificate): String? =
+    commonNamePattern
+      .find(certificate.subjectX500Principal.name)
+      ?.groupValues
+      ?.get(1)
+      ?.trim()
 }
