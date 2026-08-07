@@ -1,13 +1,13 @@
 //
-//  swift_sampleUITestsLaunchTests.swift
-//  swift_sampleUITests
+//  ios_native_sampleUITestsLaunchTests.swift
+//  ios-native-sampleUITests
 //
 //  Created by kea-build on 14/01/2025.
 //
 
 import XCTest
 
-final class swift_sampleUITestsLaunchTests: XCTestCase {
+final class ios_native_sampleUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

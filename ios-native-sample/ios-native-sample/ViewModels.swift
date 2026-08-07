@@ -1,6 +1,6 @@
 //
 //  registrationViewModel.swift
-//  swift_sample
+//  ios-native-sample
 //
 //  Created by kea-build on 16/01/2025.
 //

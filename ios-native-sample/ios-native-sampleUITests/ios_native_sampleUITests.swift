@@ -1,13 +1,13 @@
 //
-//  swift_sampleUITests.swift
-//  swift_sampleUITests
+//  ios_native_sampleUITests.swift
+//  ios-native-sampleUITests
 //
 //  Created by kea-build on 14/01/2025.
 //
 
 import XCTest
 
-final class swift_sampleUITests: XCTestCase {
+final class ios_native_sampleUITests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.

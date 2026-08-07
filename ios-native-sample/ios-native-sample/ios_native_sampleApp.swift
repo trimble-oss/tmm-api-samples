@@ -1,6 +1,6 @@
 //
-//  swift_sampleApp.swift
-//  swift_sample
+//  ios_native_sampleApp.swift
+//  ios-native-sample
 //
 //  Created by kea-build on 14/01/2025.
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct swift_sampleApp: App {
+struct ios_native_sampleApp: App {
   @State private var rViewModel = registrationViewModel()
   @State private var wsViewModel = webSocketViewModel()
   

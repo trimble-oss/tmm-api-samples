@@ -103,9 +103,9 @@ jobs:
       shell: bash
       run: |
         if [ "${{ matrix.language }}" == "swift" ]; then
-          cd swift_sample
-          xcodebuild -project swift_sample.xcodeproj \
-            -scheme swift_sample \
+          cd ios-native-sample
+          xcodebuild -project ios-native-sample.xcodeproj \
+            -scheme ios-native-sample \
             -sdk iphonesimulator \
             -destination 'platform=iOS Simulator,name=iPhone 17' \
             clean build \

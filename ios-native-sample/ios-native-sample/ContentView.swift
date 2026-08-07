@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  swift_sample
+//  ios-native-sample
 //
 //  Created by Terence Chen on 14/01/2025.
 //
@@ -16,7 +16,7 @@ struct ContentView: View {
   }
 //  Gets version number from properties and assign to headerText
   private var headerText: String {
-    "Swift Sample: Version \(versionNumber)"
+    "iOS Native Sample: Version \(versionNumber)"
   }
   
   @State private var appID: String = UserDefaults.standard.string(forKey: "appID") ?? ""

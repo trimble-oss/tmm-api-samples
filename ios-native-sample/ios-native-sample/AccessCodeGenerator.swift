@@ -1,6 +1,6 @@
 //
 //  AccessCodeGenerator.swift
-//  swift_sample
+//  ios-native-sample
 //
 //  Created by kea-build on 15/01/2025.
 //

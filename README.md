@@ -4,7 +4,7 @@ A collection of sample applications that demonstrate basic use of Trimble Mobile
 This repository contains the following sample applications:
 - Cross platform Android, iOS, and Windows (.NET MAUI)
 - Native Android (Kotlin) — [`android-native-sample/`](android-native-sample/)
-- Native iOS (Swift)
+- Native iOS (Swift) — [`ios-native-sample/`](ios-native-sample/)
 - Web (React + Express)
 
 Full TMM API documentation is available at https://developer.trimble.com/docs/mobile-manager

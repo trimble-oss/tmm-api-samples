@@ -1,6 +1,6 @@
 //
 //  WebSocketManager.swift
-//  swift_sample
+//  ios-native-sample
 //
 //  Created by kea-build on 22/01/2025.
 //

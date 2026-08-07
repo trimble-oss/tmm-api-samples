@@ -1,6 +1,6 @@
 //
 //  ReceiverClass.swift
-//  swift_sample
+//  ios-native-sample
 //
 //  Created by kea_build on 22/01/2025.
 //
