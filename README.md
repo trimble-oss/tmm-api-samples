@@ -19,3 +19,11 @@ pnpm dev
 ```
 
 See [`web-sample/README.md`](web-sample/README.md) for details.
+
+## iOS Native Sample
+
+The iOS native sample demonstrates the same Connect / Disconnect workflow as the MAUI and Android samples. It lives in [`ios-native-sample/`](ios-native-sample/).
+
+Open `ios-native-sample/ios-native-sample.xcodeproj` in Xcode and run the `ios-native-sample` scheme.
+
+See [`ios-native-sample/README.md`](ios-native-sample/README.md) for details.
