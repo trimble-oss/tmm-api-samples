@@ -3,50 +3,61 @@
   <!-- Generator: Adobe Illustrator 30.7.0, SVG Export Plug-In . SVG Version: 2.1.4 Build 114)  -->
   <defs>
     <style>
-      .st0, .st1, .st2 {
+      .st0 {
+        fill: #0060a3;
+      }
+
+      .st1, .st2, .st3 {
         fill: #fff;
       }
 
-      .st3 {
+      .st4 {
         fill: none;
       }
 
-      .st4 {
-        fill: #454546;
+      .st5, .st2, .st3 {
+        isolation: isolate;
       }
 
-      .st1 {
-        font-size: 101.11px;
+      .st2 {
+        font-size: 77.37px;
       }
 
-      .st1, .st2 {
+      .st2, .st3 {
         font-family: Tahoma-Bold, Tahoma;
         font-weight: 700;
       }
 
-      .st5 {
-        fill: #0060a3;
-      }
-
-      .st2 {
-        font-size: 80.42px;
-      }
-
       .st6 {
+        fill: #454546;
+      }
+
+      .st3 {
+        font-size: 61.54px;
+      }
+
+      .st7 {
         clip-path: url(#clippath);
       }
     </style>
     <clipPath id="clippath">
-      <circle class="st3" cx="256" cy="256" r="230"/>
+      <circle class="st4" cx="256" cy="256" r="176"/>
     </clipPath>
   </defs>
-  <rect class="st0" width="512" height="512"/>
+  <rect class="st1" width="512" height="512"/>
   <g>
-    <g class="st6">
-      <rect class="st5" x="26" y="26" width="460" height="460"/>
-      <rect class="st4" x="26" y="309.91" width="460" height="176.09"/>
+    <g class="st7">
+      <g>
+        <rect class="st0" x="80" y="80" width="352" height="352"/>
+        <rect class="st6" x="80" y="297.25" width="352" height="134.75"/>
+      </g>
     </g>
-    <text class="st1" transform="translate(133.33 176.91) scale(1.01 1)"><tspan x="0" y="0">TMM</tspan><tspan x="28.98" y="98.23">API</tspan></text>
-    <text class="st2" transform="translate(143.41 416.76)"><tspan x="0" y="0">MAUI</tspan></text>
+    <g class="st5">
+      <text class="st2" transform="translate(162.13 195.48)"><tspan x="0" y="0">TMM</tspan></text>
+      <text class="st2" transform="translate(184.53 270.65)"><tspan x="0" y="0">API</tspan></text>
+    </g>
+    <g class="st5">
+      <text class="st3" transform="translate(169.84 379.02)"><tspan x="0" y="0">MAUI</tspan></text>
+    </g>
   </g>
 </svg>
