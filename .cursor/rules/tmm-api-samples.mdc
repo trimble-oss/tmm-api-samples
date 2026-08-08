@@ -20,7 +20,7 @@ When answering questions about API behavior, endpoints, or specifications, prefe
 
 - `maui-sample/` — Cross-platform .NET MAUI (Android, iOS, Windows)
 - `android-native-sample/` — Native Android (Kotlin)
-- `swift_sample/` — Native iOS (Swift)
+- `ios-native-sample/` — Native iOS (Swift)
 - `web-sample/` — Web (React + Express)
 
 Public API documentation is also published at https://developer.trimble.com/docs/mobile-manager
