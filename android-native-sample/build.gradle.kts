@@ -8,8 +8,9 @@ plugins {
 subprojects {
     configurations.configureEach {
         resolutionStrategy {
-            force("org.bouncycastle:bcprov-jdk18on:1.84")
-            force("org.bouncycastle:bcpkix-jdk18on:1.84")
+            force("org.bouncycastle:bcprov-jdk18on:1.85")
+            force("org.bouncycastle:bcpkix-jdk18on:1.85")
+            force("org.bouncycastle:bcutil-jdk18on:1.85")
         }
     }
 }
