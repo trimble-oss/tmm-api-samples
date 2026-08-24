@@ -11,7 +11,7 @@ Full TMM API documentation is available at https://developer.trimble.com/docs/mo
 
 ## Web Sample
 
-The web sample demonstrates version 2 access code generation. It lives in [`web-sample/`](web-sample/). From the repository root:
+The web sample demonstrates how to use TMM API in a web application. It lives in [`web-sample/`](web-sample/). From the repository root:
 
 ```bash
 pnpm install
