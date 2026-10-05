@@ -1,4 +1,18 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    configurations.classpath {
+        resolutionStrategy {
+            // lint-gradle on the plugin classpath is outside subproject resolution.
+            // CVE-2026-97873 (bcprov before 1.86), plus the other lint-gradle forces.
+            force("org.bouncycastle:bcprov-jdk18on:1.86")
+            force("org.bouncycastle:bcpkix-jdk18on:1.86")
+            force("org.bouncycastle:bcutil-jdk18on:1.86")
+            force("org.apache.commons:commons-lang3:3.18.0")
+            force("org.apache.httpcomponents:httpclient:4.5.14")
+        }
+    }
+}
+
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.android) apply false
