@@ -8,9 +8,12 @@ plugins {
 subprojects {
     configurations.configureEach {
         resolutionStrategy {
-            force("org.bouncycastle:bcprov-jdk18on:1.85")
-            force("org.bouncycastle:bcpkix-jdk18on:1.85")
-            force("org.bouncycastle:bcutil-jdk18on:1.85")
+            // CVE-2026-71888, CVE-2026-71889, CVE-2026-71891, CVE-2026-71892,
+            // CVE-2026-18036, CVE-2026-18040, CVE-2026-97873, CVE-2026-17508
+            // (lint-gradle -> bouncycastle; fixed in 1.86)
+            force("org.bouncycastle:bcprov-jdk18on:1.86")
+            force("org.bouncycastle:bcpkix-jdk18on:1.86")
+            force("org.bouncycastle:bcutil-jdk18on:1.86")
             // CVE-2025-48924 (lint-gradle -> commons-lang3 3.16.0)
             force("org.apache.commons:commons-lang3:3.18.0")
             // CVE-2020-13956 (lint-gradle -> httpclient 4.5.6)
